@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: student-service
+  mvc:
+    pathmatch:
+      matching-strategy: ant-path-matcher
+
+server:
+  port: 8081
+
+jackson:
+  default-property-inclusion: non_null
+  serialization:
+    indent-output: true

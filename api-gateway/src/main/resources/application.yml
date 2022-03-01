@@ -1,0 +1,41 @@
+BASE_URL: http://localhost:8080
+STUDENT_SERVICE_BASE_URL: http://localhost:8081
+SWAGGER2_APPLICATION_BASE_URL: http://localhost:8082
+
+zuul:
+  prefix: /gateway
+  routes:
+    student-service:
+      path: /students/**
+      url: ${STUDENT_SERVICE_BASE_URL}
+      sensitive-headers:
+      strip-prefix: false
+      serviceId: student-service
+    swagger2-application:
+      path: /api/**
+      url: ${SWAGGER2_APPLICATION_BASE_URL}
+      sensitive-headers:
+      strip-prefix: false
+      serviceId: swagger2-application
+
+ribbon:
+  eureka:
+    enabled: false
+
+server:
+  port: 8080
+
+swagger:
+  documentation:
+    services:
+      - name: student-service
+        url: ${BASE_URL}/gateway/student/v2/api-docs # http://localhost:8080/gateway/student/v2/api-docs, http://localhost:8081/swagger-ui/index.html
+        version: 2.0
+      - name: swagger2-application
+        url: ${BASE_URL}/gateway/api/v2/api-docs # http://localhost:8080/gateway/api/v2/api-docs, http://localhost:8082/swagger-ui/index.html
+        version: 2.0
+
+jackson:
+  default-property-inclusion: non_null
+  serialization:
+    indent-output: true
