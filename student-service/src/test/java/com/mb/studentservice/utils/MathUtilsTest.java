@@ -1,4 +1,4 @@
-package com.mb.studentservice.util;
+package com.mb.studentservice.utils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -1,4 +1,4 @@
-package com.mb.studentservice.util;
+package com.mb.studentservice.utils;
 
 public class MathUtils {
     public int add(int x, int y) {

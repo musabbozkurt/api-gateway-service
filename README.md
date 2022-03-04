@@ -1,7 +1,14 @@
-### Zuul API Gateway with Swagger2 Features
+### Zuul API Gateway with Swagger2 Features and Event Driven Architecture with RabbitMQ
+
   ```
     * Zuul Api Gateway
     * Springfox Swagger2
+    * Event Driven Architecture with RabbitMQ
+    * Sleuth and Zipkin dependencies were added
+    
+    * Docker 
+        * Please use the following link to install docker on your machine https://docs.docker.com/get-docker/
+        * Run docker-compose up -d command in the docker-compose.yml directory to install RabbitMQ
   ```
 
 ## Versions
@@ -46,14 +53,18 @@
       * http://localhost:8082/api/user/role/ADMIN
       * http://localhost:8082/api/user/1
       
+      * http://localhost:8082/api/events TO PUBLISH AN EVENT
+      
       * http://localhost:8081/students/
       * http://localhost:8081/students/role/ADMIN2
       * http://localhost:8081/students/1
+      
+      * http://localhost:8081/students/events TO PUBLISH AN EVENT
   ```
+
 ### TODO
-  
+
   ```
-    * Event structure will be added.
     * webhook-service will be added. 
       * References
         * https://www.twilio.com/blog/codieren-von-twilio-webhooks-in-java-mit-spring-boot

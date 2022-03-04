@@ -1,10 +1,13 @@
 package com.mb.studentservice.api;
 
 import com.mb.studentservice.api.response.Student;
+import com.mb.studentservice.enums.EventType;
+import com.mb.studentservice.queue.producer.StudentEventProducer;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,11 +17,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Api(value = "Student Rest Controller")
-@RequestMapping("/students")
 @RestController
+@RequiredArgsConstructor
+@RequestMapping("/students")
 public class StudentController {
 
-    List<Student> students = new ArrayList<>();
+    private final StudentEventProducer studentEventProducer;
+
+    private final List<Student> students = new ArrayList<>();
 
     {
         students.add(new Student(1, "Student-Student1", "ADMIN2", "student.student1@test.com"));
@@ -54,6 +60,12 @@ public class StudentController {
         return students.stream()
                 .filter(x -> x.getRole().equalsIgnoreCase(role))
                 .collect(Collectors.toList());
+    }
+
+    @ApiOperation(value = "Publish Student Event", response = Student.class, tags = "publishStudentEvent")
+    @RequestMapping(value = "/events")
+    public void publishStudentEvent() {
+        studentEventProducer.publishEvent("Publish Student Event with EventType STUDENT_EVENT", EventType.STUDENT_EVENT);
     }
 
 }

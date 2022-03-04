@@ -1,10 +1,13 @@
 package com.mb.swagger2.api.controller;
 
 import com.mb.swagger2.api.response.User;
+import com.mb.swagger2.enums.EventType;
+import com.mb.swagger2.queue.producer.Swagger2EventProducer;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,11 +17,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Api(value = "Swagger2 Rest Controller")
-@RequestMapping("/api")
 @RestController
+@RequiredArgsConstructor
+@RequestMapping("/api")
 public class Swagger2Controller {
 
-    List<User> users = new ArrayList<>();
+    private final Swagger2EventProducer swagger2EventProducer;
+
+    private final List<User> users = new ArrayList<>();
 
     {
         users.add(new User(1, "Swagger2-User1", "ADMIN", "swagger2.user1@test.com"));
@@ -54,6 +60,12 @@ public class Swagger2Controller {
         return users.stream()
                 .filter(x -> x.getRole().equalsIgnoreCase(role))
                 .collect(Collectors.toList());
+    }
+
+    @ApiOperation(value = "Publish Swagger2 Event", tags = "publishSwagger2Event")
+    @RequestMapping(value = "/events")
+    public void publishSwagger2Event() {
+        swagger2EventProducer.publishEvent("Publish Swagger2 Event with EventType SWAGGER2_EVENT", EventType.SWAGGER2_EVENT);
     }
 
 }

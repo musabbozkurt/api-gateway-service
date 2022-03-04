@@ -7,5 +7,65 @@ spring:
     serialization:
       indent-output: true
 
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: sa
+    driverClassName: org.h2.Driver
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+    connection-timeout: 0
+    template:
+      retry:
+        enabled: true
+        initial-interval: 1000
+        max-attempts: 2
+        max-interval: 3000
+        multiplier: 1
+
+  cloud:
+    function:
+      definition: studentConsumer
+    #This makes the queue durable so that if the application is down, the messages would still be published.
+    #These are then processed once the application is up again.
+    #Instruction defines exchange and queue names
+    #Dead Letter queue is created automatically and bound to main instruction queue.
+    stream:
+      bindings:
+        swagger2Producer-out-0:
+          destination: swagger2_events_destination
+          group: swagger2_events_group
+        studentConsumer-in-0:
+          destination: student_events_destination
+          group: student_events_group
+          consumer:
+            maxAttempts: 1
+            concurrency: 1
+      rabbit:
+        bindings:
+          studentConsumer-in-0:
+            consumer:
+              exchangeType: fanout
+              autoBindDlq: true
+              requeueRejected: false
+              republishToDlq: true
+              dlqDeadLetterExchange:
+              dlqTtl: 300000
+      default:
+        contentType: application/json
+
+  zipkin:
+    base-url: http://localhost:9411
+    enabled: false
+
 server:
   port: 8082
