@@ -53,7 +53,9 @@
 ### TODO
   
   ```
-    * webhook-service references
-      * https://www.twilio.com/blog/codieren-von-twilio-webhooks-in-java-mit-spring-boot
-      * https://dreamix.eu/blog/java/webhook-with-spring-boot-and-h2-database
+    * Event structure will be added.
+    * webhook-service will be added. 
+      * References
+        * https://www.twilio.com/blog/codieren-von-twilio-webhooks-in-java-mit-spring-boot
+        * https://dreamix.eu/blog/java/webhook-with-spring-boot-and-h2-database
   ```
