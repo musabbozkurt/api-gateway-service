@@ -1,0 +1,420 @@
+{
+	"info": {
+		"_postman_id": "af86c207-e5b8-4366-aa67-9e864fa54544",
+		"name": "api-gateway-service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Payment Service",
+			"item": [
+				{
+					"name": "Openid Connect Token",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "tokenType",
+									"value": "Bearer",
+									"type": "string"
+								},
+								{
+									"key": "accessToken",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIyTXRmRGQxbGpSVmxEZ0NPZ2RCemlIc2pzVVNSdzYzZHEyMmxvUFNhRzRzIn0.eyJleHAiOjE2NDY1MDcwODgsImlhdCI6MTY0NjUwNzAyOCwianRpIjoiNjU0MjA4YWItNTllZC00ODc4LWI2M2YtZDkwZjg1ZTI1ZDkxIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDoyODA4MC9hdXRoL3JlYWxtcy9tYXN0ZXIiLCJhdWQiOlsibWFzdGVyLXJlYWxtIiwiYWNjb3VudCJdLCJzdWIiOiI4ODcxZTgxOS1kNDU0LTQ5NDctYmM2YS00Zjg5OGNhOTIwYTEiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJwYXltZW50LXNlcnZpY2UiLCJzZXNzaW9uX3N0YXRlIjoiNGQxNGNhZTUtMDQ4Mi00YjM2LTllOGItOGMxMGQxZDgxMWM2IiwiYWNyIjoiMSIsImFsbG93ZWQtb3JpZ2lucyI6WyJodHRwOi8vbG9jYWxob3N0OjgwODAiXSwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImNyZWF0ZS1yZWFsbSIsImRlZmF1bHQtcm9sZXMtbWFzdGVyIiwib2ZmbGluZV9hY2Nlc3MiLCJhZG1pbiIsInVtYV9hdXRob3JpemF0aW9uIiwidXNlciJdfSwicmVzb3VyY2VfYWNjZXNzIjp7Im1hc3Rlci1yZWFsbSI6eyJyb2xlcyI6WyJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsInZpZXctcmVhbG0iLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwiaW1wZXJzb25hdGlvbiIsImNyZWF0ZS1jbGllbnQiLCJtYW5hZ2UtdXNlcnMiLCJxdWVyeS1yZWFsbXMiLCJ2aWV3LWF1dGhvcml6YXRpb24iLCJxdWVyeS1jbGllbnRzIiwicXVlcnktdXNlcnMiLCJtYW5hZ2UtZXZlbnRzIiwibWFuYWdlLXJlYWxtIiwidmlldy1ldmVudHMiLCJ2aWV3LXVzZXJzIiwidmlldy1jbGllbnRzIiwibWFuYWdlLWF1dGhvcml6YXRpb24iLCJtYW5hZ2UtY2xpZW50cyIsInF1ZXJ5LWdyb3VwcyJdfSwiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJvcGVuaWQgcHJvZmlsZSBlbWFpbCIsInNpZCI6IjRkMTRjYWU1LTA0ODItNGIzNi05ZThiLThjMTBkMWQ4MTFjNiIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwicHJlZmVycmVkX3VzZXJuYW1lIjoicGF5bWVudC1zZXJ2aWNlLXVzZXIifQ.QN3y_ZpI3xMxLO7euVl7qjhjXVRQG8kpUXAWUOJrv6Mw0WsyhSACLUo849Nts8sXTBC0DWWysxbZuPPlDogTy4FcNKwBcliMAv3cZfsAIThqGY_61ZL_GSoOt_yfORCxJcOemm2ilz4hl9ILNsScPEohyEJkMBZoH4Ov9t_bp7ioh7jyg4yumLvJ09XtJgCRrPPwVI910mgrFh8S3XTBMiQcOo-xxEHf76d-uC3LICg2619OR1WINZo_vN26WVlqeDbIrdFDBbt0p0eugN4FqVl7s6bH1DUuYF_bGX7cCiyt6nhl-e02jBUAe9T3TM33EEwam77LF97ZqenHsRpxOg",
+									"type": "string"
+								},
+								{
+									"key": "client_authentication",
+									"value": "header",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "test",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "payment-service-user",
+									"type": "string"
+								},
+								{
+									"key": "clientSecret",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "grant_type",
+									"value": "password_credentials",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "queryParams",
+									"type": "string"
+								},
+								{
+									"key": "scope",
+									"value": "openid",
+									"type": "string"
+								},
+								{
+									"key": "useBrowser",
+									"value": false,
+									"type": "boolean"
+								},
+								{
+									"key": "clientId",
+									"value": "payment-service",
+									"type": "string"
+								},
+								{
+									"key": "accessTokenUrl",
+									"value": "http://localhost:28080/auth/realms/master/protocol/openid-connect/token",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:28080/auth/realms/master/protocol/openid-connect/token",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "28080",
+							"path": [
+								"auth",
+								"realms",
+								"master",
+								"protocol",
+								"openid-connect",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Payment List",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "tokenType",
+									"value": "Bearer",
+									"type": "string"
+								},
+								{
+									"key": "accessToken",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ5a3Z1WnptZm9YSDA0ZERVWWR1b0Rrb1h3YUpwYm1vR2Z4TXc0RjhGR1pFIn0.eyJleHAiOjE2NDY1MTIzNTcsImlhdCI6MTY0NjUxMjI5NywianRpIjoiZWQwZTU2OTctZjI1Zi00YjI5LWExNmYtODFiNjA3YTFjZjVjIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDoyODA4MC9hdXRoL3JlYWxtcy9tYXN0ZXIiLCJhdWQiOlsibWFzdGVyLXJlYWxtIiwiYWNjb3VudCJdLCJzdWIiOiI2YTlhZWIxNC01MjI3LTQ3ZDUtYTdhMi02ZTI4YWVlMzFlM2YiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJwYXltZW50LXNlcnZpY2UiLCJzZXNzaW9uX3N0YXRlIjoiMzU2OWExZWEtZjYwOC00ODg2LWIxYWUtNDQ2M2JmOGQyZGUwIiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJjcmVhdGUtcmVhbG0iLCJkZWZhdWx0LXJvbGVzLW1hc3RlciIsIm9mZmxpbmVfYWNjZXNzIiwiYWRtaW4iLCJ1bWFfYXV0aG9yaXphdGlvbiIsInVzZXIiXX0sInJlc291cmNlX2FjY2VzcyI6eyJtYXN0ZXItcmVhbG0iOnsicm9sZXMiOlsidmlldy1pZGVudGl0eS1wcm92aWRlcnMiLCJ2aWV3LXJlYWxtIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwicXVlcnktcmVhbG1zIiwidmlldy1hdXRob3JpemF0aW9uIiwicXVlcnktY2xpZW50cyIsInF1ZXJ5LXVzZXJzIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiLCJxdWVyeS1ncm91cHMiXX0sImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJzaWQiOiIzNTY5YTFlYS1mNjA4LTQ4ODYtYjFhZS00NDYzYmY4ZDJkZTAiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInByZWZlcnJlZF91c2VybmFtZSI6InBheW1lbnQtc2VydmljZS11c2VyIn0.tkXgr6eDLfQcdLy9OyjSmnbVrRem8gplp9H8dHHs53A7fveQdvxYkdogUCSTh22yV0d7pOgyUrfuNJBDHjDDSqYsv5kaIcC3a3BM0ZupNHd-Z8TaepJN4v0xAvKJh_rGh47SBBXsJ1Z_NJfLQu7d6-ll3_RjsVXua9WDgfHg1Ayon9J8VlQkLtZEi_EaoMaHgPg0Di1oZ5hZXmHIbfD5XnIoyVf9qT8J8wlSOvMbF_dR4TPAvI8GD4c7vdApD3nzWMyUXRnM5s5RmCnhptsnFro1QY0KhlvP3l0JxVl_RhiAY2uzJZHY-N8lK59YhZfzMMGn7pcNy3PBtSBk_EFMHg",
+									"type": "string"
+								},
+								{
+									"key": "client_authentication",
+									"value": "header",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "test",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "payment-service-user",
+									"type": "string"
+								},
+								{
+									"key": "clientSecret",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "grant_type",
+									"value": "password_credentials",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "queryParams",
+									"type": "string"
+								},
+								{
+									"key": "scope",
+									"value": "openid",
+									"type": "string"
+								},
+								{
+									"key": "useBrowser",
+									"value": false,
+									"type": "boolean"
+								},
+								{
+									"key": "clientId",
+									"value": "payment-service",
+									"type": "string"
+								},
+								{
+									"key": "accessTokenUrl",
+									"value": "http://localhost:28080/auth/realms/master/protocol/openid-connect/token",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/gateway/payments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"gateway",
+								"payments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Payment By Id",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "tokenType",
+									"value": "Bearer",
+									"type": "string"
+								},
+								{
+									"key": "accessToken",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ5a3Z1WnptZm9YSDA0ZERVWWR1b0Rrb1h3YUpwYm1vR2Z4TXc0RjhGR1pFIn0.eyJleHAiOjE2NDY1MTI4MjAsImlhdCI6MTY0NjUxMjc2MCwianRpIjoiMTI5NTUwZjQtZTE5NC00M2ZkLWJjZDEtZWY2ODAzNTEyMWY5IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDoyODA4MC9hdXRoL3JlYWxtcy9tYXN0ZXIiLCJhdWQiOlsibWFzdGVyLXJlYWxtIiwiYWNjb3VudCJdLCJzdWIiOiI2YTlhZWIxNC01MjI3LTQ3ZDUtYTdhMi02ZTI4YWVlMzFlM2YiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJwYXltZW50LXNlcnZpY2UiLCJzZXNzaW9uX3N0YXRlIjoiZTBhMGUxZTctOWY0OC00NzA5LTk5YzgtN2FmM2YxM2RjM2EwIiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJjcmVhdGUtcmVhbG0iLCJkZWZhdWx0LXJvbGVzLW1hc3RlciIsIm9mZmxpbmVfYWNjZXNzIiwiYWRtaW4iLCJ1bWFfYXV0aG9yaXphdGlvbiIsInVzZXIiXX0sInJlc291cmNlX2FjY2VzcyI6eyJtYXN0ZXItcmVhbG0iOnsicm9sZXMiOlsidmlldy1pZGVudGl0eS1wcm92aWRlcnMiLCJ2aWV3LXJlYWxtIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwicXVlcnktcmVhbG1zIiwidmlldy1hdXRob3JpemF0aW9uIiwicXVlcnktY2xpZW50cyIsInF1ZXJ5LXVzZXJzIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiLCJxdWVyeS1ncm91cHMiXX0sImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJzaWQiOiJlMGEwZTFlNy05ZjQ4LTQ3MDktOTljOC03YWYzZjEzZGMzYTAiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInByZWZlcnJlZF91c2VybmFtZSI6InBheW1lbnQtc2VydmljZS11c2VyIn0.XpaDEB9E5r6EpkeZPxWzV0B_YHMxF-spIFGBefI3gSmFlTcqRtP0HBqgiNpXHe7Y9a2PQQOIlMWBwIxc7S1hoDNw8cDUTJa1-ugKRR6G1if3Lu0wETO5tXs9iHltRGsGxk4RpfEG8_-xXTpvzcGbYyl8TJExayDAiY7W8Q2XvKhuY4cCQv5--QRPGhml1Bqre9EKcI6V4sv9muEKi7l_V-g77nmVrEcY6I4MAk1TmwMfHmu3enX9cwBs3W9stbma8DpvTEmhe-NSI3jeJhBZ12KUE7CqmE0qy0ognGM-s2kgO6OfUH9c9chak8VjVe-0LQb9YBNnnLulmiu2jidwsw",
+									"type": "string"
+								},
+								{
+									"key": "client_authentication",
+									"value": "header",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "test",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "payment-service-user",
+									"type": "string"
+								},
+								{
+									"key": "clientSecret",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "grant_type",
+									"value": "password_credentials",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "queryParams",
+									"type": "string"
+								},
+								{
+									"key": "scope",
+									"value": "openid",
+									"type": "string"
+								},
+								{
+									"key": "useBrowser",
+									"value": false,
+									"type": "boolean"
+								},
+								{
+									"key": "clientId",
+									"value": "payment-service",
+									"type": "string"
+								},
+								{
+									"key": "accessTokenUrl",
+									"value": "http://localhost:28080/auth/realms/master/protocol/openid-connect/token",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/gateway/payments/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"gateway",
+								"payments",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Payment",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "tokenType",
+									"value": "Bearer",
+									"type": "string"
+								},
+								{
+									"key": "accessToken",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ5a3Z1WnptZm9YSDA0ZERVWWR1b0Rrb1h3YUpwYm1vR2Z4TXc0RjhGR1pFIn0.eyJleHAiOjE2NDY1MTI2OTIsImlhdCI6MTY0NjUxMjYzMiwianRpIjoiNjU2Yjc3OTQtNjg1Yy00MWIzLWI5N2ItZjViNzFlNGQ3ZjVhIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDoyODA4MC9hdXRoL3JlYWxtcy9tYXN0ZXIiLCJhdWQiOlsibWFzdGVyLXJlYWxtIiwiYWNjb3VudCJdLCJzdWIiOiI2YTlhZWIxNC01MjI3LTQ3ZDUtYTdhMi02ZTI4YWVlMzFlM2YiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJwYXltZW50LXNlcnZpY2UiLCJzZXNzaW9uX3N0YXRlIjoiMDczOGZjMGMtZjliYi00YTFkLWIyODYtOGYxYzFkYzNlM2U4IiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJjcmVhdGUtcmVhbG0iLCJkZWZhdWx0LXJvbGVzLW1hc3RlciIsIm9mZmxpbmVfYWNjZXNzIiwiYWRtaW4iLCJ1bWFfYXV0aG9yaXphdGlvbiIsInVzZXIiXX0sInJlc291cmNlX2FjY2VzcyI6eyJtYXN0ZXItcmVhbG0iOnsicm9sZXMiOlsidmlldy1pZGVudGl0eS1wcm92aWRlcnMiLCJ2aWV3LXJlYWxtIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwicXVlcnktcmVhbG1zIiwidmlldy1hdXRob3JpemF0aW9uIiwicXVlcnktY2xpZW50cyIsInF1ZXJ5LXVzZXJzIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiLCJxdWVyeS1ncm91cHMiXX0sImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJzaWQiOiIwNzM4ZmMwYy1mOWJiLTRhMWQtYjI4Ni04ZjFjMWRjM2UzZTgiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInByZWZlcnJlZF91c2VybmFtZSI6InBheW1lbnQtc2VydmljZS11c2VyIn0.XCwU4y7CUKg1cAM3TOL8s1NlwYNf-QYySMraGTZotPH8YfgvKOukyWs71vg8joRXy-5kTWgvQH9PHSzSXM_fmdiout0OOxseWu0ZCxIXH9VEjQApij1G6EdmmRFehVj7rC3bHJcYWC7p56IXR-3lv4zQLPWKPCGumL08_kVy3v1I5pjdbUwZ-qONSsQzgQUgbwlsfynoTqwX6BkyLGmgxPtLeIPYdY3NZaItOc53DnoNUkybLiKsdtaZ7HibFh2CgbP0pNdNmfPH2kYRukhz4ZuZpJ0adgA37NJ_zE9tHwp4ZYKGD2RWcZ6PG8BcopY-5PbsRGl_yfz_eOxD0nKSdw",
+									"type": "string"
+								},
+								{
+									"key": "client_authentication",
+									"value": "header",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "test",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "payment-service-user",
+									"type": "string"
+								},
+								{
+									"key": "clientSecret",
+									"value": "",
+									"type": "string"
+								},
+								{
+									"key": "grant_type",
+									"value": "password_credentials",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "queryParams",
+									"type": "string"
+								},
+								{
+									"key": "scope",
+									"value": "openid",
+									"type": "string"
+								},
+								{
+									"key": "useBrowser",
+									"value": false,
+									"type": "boolean"
+								},
+								{
+									"key": "clientId",
+									"value": "payment-service",
+									"type": "string"
+								},
+								{
+									"key": "accessTokenUrl",
+									"value": "http://localhost:28080/auth/realms/master/protocol/openid-connect/token",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\" : \"HASHASHAS\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/gateway/payments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"gateway",
+								"payments"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Student Service",
+			"item": [
+				{
+					"name": "Get Students",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/gateway/students/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"gateway",
+								"students",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Swagger2 Application",
+			"item": [
+				{
+					"name": "Get Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/gateway/api/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"gateway",
+								"api",
+								"users"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

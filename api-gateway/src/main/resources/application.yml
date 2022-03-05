@@ -1,6 +1,7 @@
 BASE_URL: http://localhost:8080
 STUDENT_SERVICE_BASE_URL: http://localhost:8081
 SWAGGER2_APPLICATION_BASE_URL: http://localhost:8082
+PAYMENT_SERVICE_BASE_URL: http://localhost:8083
 
 zuul:
   prefix: /gateway
@@ -17,6 +18,12 @@ zuul:
       sensitive-headers:
       strip-prefix: false
       serviceId: swagger2-application
+    payment-service:
+      path: /payments/**
+      url: ${PAYMENT_SERVICE_BASE_URL}
+      sensitive-headers:
+      strip-prefix: false
+      serviceId: payment-service
 
 ribbon:
   eureka:
@@ -35,7 +42,8 @@ swagger:
         url: ${BASE_URL}/gateway/api/v2/api-docs # http://localhost:8080/gateway/api/v2/api-docs, http://localhost:8082/swagger-ui/index.html
         version: 2.0
 
-jackson:
-  default-property-inclusion: non_null
-  serialization:
-    indent-output: true
+spring:
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      indent-output: true

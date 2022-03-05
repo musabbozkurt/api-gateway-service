@@ -19,9 +19,7 @@ spring:
 
   rabbitmq:
     host: localhost
-    port: 5672
-    username: guest
-    password: guest
+    port: 5673
     virtual-host: /
     connection-timeout: 0
     template:

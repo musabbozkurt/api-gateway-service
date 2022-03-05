@@ -1,4 +1,4 @@
-package com.mb.studentservice.api;
+package com.mb.studentservice.api.controller;
 
 import com.mb.studentservice.api.response.Student;
 import com.mb.studentservice.enums.EventType;

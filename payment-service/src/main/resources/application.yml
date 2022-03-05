@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: payment-service
+
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5433/keycloak?currentSchema=payment_schema
+    username: keycloak
+    password: keycloak
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        default_schema: payment_schema
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: true
+    baseline-version: 0
+    baseline-on-migrate: true
+    schemas: payment_schema
+    table: schema_version
+    validate-on-migrate: false
+
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      indent-output: true
+
+server:
+  port: 8083
+
+keycloak:
+  auth-server-url: http://localhost:28080/auth
+  realm: master
+  resource: payment-service
+  public-client: true
+  bearer-only: true
+
