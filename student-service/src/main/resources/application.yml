@@ -97,3 +97,15 @@ feign:
       client-secret: GutAjB6xNSc0huCBEzhNzPEKu57mBdih
       authorization-grant-type: client_credentials
       client-registration-id: payment-service
+
+keycloak:
+  client-id: payment-service
+  client-secret: GutAjB6xNSc0huCBEzhNzPEKu57mBdih
+  scope: profile
+  authorization-grant-type: password
+  authorization-uri: http://localhost:28080/auth/realms/master/protocol/openid-connect/auth
+  user-info-uri: http://localhost:28080/auth/realms/master/protocol/openid-connect/userinfo
+  token-uri: http://localhost:28080/auth/realms/master/protocol/openid-connect/token
+  logout-uri: http://localhost:28080/auth/realms/master/protocol/openid-connect/logout
+  jwk-set-uri: http://localhost:28080/auth/realms/master/protocol/openid-connect/certs
+  certs-id: vdaec4Br3ZnRFtZN-pimK9v1eGd3gL2MHu8rQ6M5SiE

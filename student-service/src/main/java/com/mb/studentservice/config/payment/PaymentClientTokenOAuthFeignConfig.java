@@ -15,7 +15,7 @@ import static org.springframework.security.oauth2.core.AuthorizationGrantType.CL
 
 @Component
 @RequiredArgsConstructor
-public class PaymentOAuthFeignConfig {
+public class PaymentClientTokenOAuthFeignConfig {
 
     private final OAuthProperties properties;
 

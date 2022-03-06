@@ -98,69 +98,150 @@
 					"response": []
 				},
 				{
-					"name": "Get Payment List",
+					"name": "Openid Connect With User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"access_token\", response.access_token);",
+									"postman.setEnvironmentVariable(\"refresh_token\", response.refresh_token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
-						"auth": {
-							"type": "oauth2",
-							"oauth2": [
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
 								{
-									"key": "tokenType",
-									"value": "Bearer",
-									"type": "string"
+									"key": "client_id",
+									"value": "payment-service",
+									"type": "text"
 								},
 								{
-									"key": "accessToken",
-									"value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ5a3Z1WnptZm9YSDA0ZERVWWR1b0Rrb1h3YUpwYm1vR2Z4TXc0RjhGR1pFIn0.eyJleHAiOjE2NDY1MTIzNTcsImlhdCI6MTY0NjUxMjI5NywianRpIjoiZWQwZTU2OTctZjI1Zi00YjI5LWExNmYtODFiNjA3YTFjZjVjIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDoyODA4MC9hdXRoL3JlYWxtcy9tYXN0ZXIiLCJhdWQiOlsibWFzdGVyLXJlYWxtIiwiYWNjb3VudCJdLCJzdWIiOiI2YTlhZWIxNC01MjI3LTQ3ZDUtYTdhMi02ZTI4YWVlMzFlM2YiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJwYXltZW50LXNlcnZpY2UiLCJzZXNzaW9uX3N0YXRlIjoiMzU2OWExZWEtZjYwOC00ODg2LWIxYWUtNDQ2M2JmOGQyZGUwIiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJjcmVhdGUtcmVhbG0iLCJkZWZhdWx0LXJvbGVzLW1hc3RlciIsIm9mZmxpbmVfYWNjZXNzIiwiYWRtaW4iLCJ1bWFfYXV0aG9yaXphdGlvbiIsInVzZXIiXX0sInJlc291cmNlX2FjY2VzcyI6eyJtYXN0ZXItcmVhbG0iOnsicm9sZXMiOlsidmlldy1pZGVudGl0eS1wcm92aWRlcnMiLCJ2aWV3LXJlYWxtIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwicXVlcnktcmVhbG1zIiwidmlldy1hdXRob3JpemF0aW9uIiwicXVlcnktY2xpZW50cyIsInF1ZXJ5LXVzZXJzIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiLCJxdWVyeS1ncm91cHMiXX0sImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJzaWQiOiIzNTY5YTFlYS1mNjA4LTQ4ODYtYjFhZS00NDYzYmY4ZDJkZTAiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInByZWZlcnJlZF91c2VybmFtZSI6InBheW1lbnQtc2VydmljZS11c2VyIn0.tkXgr6eDLfQcdLy9OyjSmnbVrRem8gplp9H8dHHs53A7fveQdvxYkdogUCSTh22yV0d7pOgyUrfuNJBDHjDDSqYsv5kaIcC3a3BM0ZupNHd-Z8TaepJN4v0xAvKJh_rGh47SBBXsJ1Z_NJfLQu7d6-ll3_RjsVXua9WDgfHg1Ayon9J8VlQkLtZEi_EaoMaHgPg0Di1oZ5hZXmHIbfD5XnIoyVf9qT8J8wlSOvMbF_dR4TPAvI8GD4c7vdApD3nzWMyUXRnM5s5RmCnhptsnFro1QY0KhlvP3l0JxVl_RhiAY2uzJZHY-N8lK59YhZfzMMGn7pcNy3PBtSBk_EFMHg",
-									"type": "string"
-								},
-								{
-									"key": "client_authentication",
-									"value": "header",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "test",
-									"type": "string"
+									"key": "client_secret",
+									"value": "GutAjB6xNSc0huCBEzhNzPEKu57mBdih",
+									"type": "text"
 								},
 								{
 									"key": "username",
 									"value": "payment-service-user",
-									"type": "string"
+									"type": "text"
 								},
 								{
-									"key": "clientSecret",
-									"value": "",
-									"type": "string"
+									"key": "password",
+									"value": "test",
+									"type": "text"
 								},
 								{
 									"key": "grant_type",
-									"value": "password_credentials",
-									"type": "string"
-								},
+									"value": "password",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:28080/auth/realms/master/protocol/openid-connect/token",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "28080",
+							"path": [
+								"auth",
+								"realms",
+								"master",
+								"protocol",
+								"openid-connect",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Openid Connect With Client",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"access_token\", response.access_token);",
+									"postman.setEnvironmentVariable(\"refresh_token\", response.refresh_token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
 								{
-									"key": "addTokenTo",
-									"value": "queryParams",
-									"type": "string"
-								},
-								{
-									"key": "scope",
-									"value": "openid",
-									"type": "string"
-								},
-								{
-									"key": "useBrowser",
-									"value": false,
-									"type": "boolean"
-								},
-								{
-									"key": "clientId",
+									"key": "client_id",
 									"value": "payment-service",
-									"type": "string"
+									"type": "text"
 								},
 								{
-									"key": "accessTokenUrl",
-									"value": "http://localhost:28080/auth/realms/master/protocol/openid-connect/token",
+									"key": "client_secret",
+									"value": "GutAjB6xNSc0huCBEzhNzPEKu57mBdih",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "payment-service-user",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "password",
+									"value": "test",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "grant_type",
+									"value": "client_credentials",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:28080/auth/realms/master/protocol/openid-connect/token",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "28080",
+							"path": [
+								"auth",
+								"realms",
+								"master",
+								"protocol",
+								"openid-connect",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Payment List",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
 									"type": "string"
 								}
 							]
@@ -186,66 +267,11 @@
 					"name": "Get Payment By Id",
 					"request": {
 						"auth": {
-							"type": "oauth2",
-							"oauth2": [
+							"type": "bearer",
+							"bearer": [
 								{
-									"key": "tokenType",
-									"value": "Bearer",
-									"type": "string"
-								},
-								{
-									"key": "accessToken",
-									"value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ5a3Z1WnptZm9YSDA0ZERVWWR1b0Rrb1h3YUpwYm1vR2Z4TXc0RjhGR1pFIn0.eyJleHAiOjE2NDY1MTI4MjAsImlhdCI6MTY0NjUxMjc2MCwianRpIjoiMTI5NTUwZjQtZTE5NC00M2ZkLWJjZDEtZWY2ODAzNTEyMWY5IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDoyODA4MC9hdXRoL3JlYWxtcy9tYXN0ZXIiLCJhdWQiOlsibWFzdGVyLXJlYWxtIiwiYWNjb3VudCJdLCJzdWIiOiI2YTlhZWIxNC01MjI3LTQ3ZDUtYTdhMi02ZTI4YWVlMzFlM2YiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJwYXltZW50LXNlcnZpY2UiLCJzZXNzaW9uX3N0YXRlIjoiZTBhMGUxZTctOWY0OC00NzA5LTk5YzgtN2FmM2YxM2RjM2EwIiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJjcmVhdGUtcmVhbG0iLCJkZWZhdWx0LXJvbGVzLW1hc3RlciIsIm9mZmxpbmVfYWNjZXNzIiwiYWRtaW4iLCJ1bWFfYXV0aG9yaXphdGlvbiIsInVzZXIiXX0sInJlc291cmNlX2FjY2VzcyI6eyJtYXN0ZXItcmVhbG0iOnsicm9sZXMiOlsidmlldy1pZGVudGl0eS1wcm92aWRlcnMiLCJ2aWV3LXJlYWxtIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwicXVlcnktcmVhbG1zIiwidmlldy1hdXRob3JpemF0aW9uIiwicXVlcnktY2xpZW50cyIsInF1ZXJ5LXVzZXJzIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiLCJxdWVyeS1ncm91cHMiXX0sImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJzaWQiOiJlMGEwZTFlNy05ZjQ4LTQ3MDktOTljOC03YWYzZjEzZGMzYTAiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInByZWZlcnJlZF91c2VybmFtZSI6InBheW1lbnQtc2VydmljZS11c2VyIn0.XpaDEB9E5r6EpkeZPxWzV0B_YHMxF-spIFGBefI3gSmFlTcqRtP0HBqgiNpXHe7Y9a2PQQOIlMWBwIxc7S1hoDNw8cDUTJa1-ugKRR6G1if3Lu0wETO5tXs9iHltRGsGxk4RpfEG8_-xXTpvzcGbYyl8TJExayDAiY7W8Q2XvKhuY4cCQv5--QRPGhml1Bqre9EKcI6V4sv9muEKi7l_V-g77nmVrEcY6I4MAk1TmwMfHmu3enX9cwBs3W9stbma8DpvTEmhe-NSI3jeJhBZ12KUE7CqmE0qy0ognGM-s2kgO6OfUH9c9chak8VjVe-0LQb9YBNnnLulmiu2jidwsw",
-									"type": "string"
-								},
-								{
-									"key": "client_authentication",
-									"value": "header",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "test",
-									"type": "string"
-								},
-								{
-									"key": "username",
-									"value": "payment-service-user",
-									"type": "string"
-								},
-								{
-									"key": "clientSecret",
-									"value": "",
-									"type": "string"
-								},
-								{
-									"key": "grant_type",
-									"value": "password_credentials",
-									"type": "string"
-								},
-								{
-									"key": "addTokenTo",
-									"value": "queryParams",
-									"type": "string"
-								},
-								{
-									"key": "scope",
-									"value": "openid",
-									"type": "string"
-								},
-								{
-									"key": "useBrowser",
-									"value": false,
-									"type": "boolean"
-								},
-								{
-									"key": "clientId",
-									"value": "payment-service",
-									"type": "string"
-								},
-								{
-									"key": "accessTokenUrl",
-									"value": "http://localhost:28080/auth/realms/master/protocol/openid-connect/token",
+									"key": "token",
+									"value": "{{access_token}}",
 									"type": "string"
 								}
 							]
@@ -253,7 +279,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/gateway/payments/1",
+							"raw": "http://localhost:8080/gateway/payments/{{payment_id}}",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -262,7 +288,7 @@
 							"path": [
 								"gateway",
 								"payments",
-								"1"
+								"{{payment_id}}"
 							]
 						}
 					},
@@ -270,68 +296,31 @@
 				},
 				{
 					"name": "Create Payment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = JSON.parse(responseBody);",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    postman.setEnvironmentVariable(\"payment_id\", response.id);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"auth": {
-							"type": "oauth2",
-							"oauth2": [
+							"type": "bearer",
+							"bearer": [
 								{
-									"key": "tokenType",
-									"value": "Bearer",
-									"type": "string"
-								},
-								{
-									"key": "accessToken",
-									"value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ5a3Z1WnptZm9YSDA0ZERVWWR1b0Rrb1h3YUpwYm1vR2Z4TXc0RjhGR1pFIn0.eyJleHAiOjE2NDY1MTI2OTIsImlhdCI6MTY0NjUxMjYzMiwianRpIjoiNjU2Yjc3OTQtNjg1Yy00MWIzLWI5N2ItZjViNzFlNGQ3ZjVhIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDoyODA4MC9hdXRoL3JlYWxtcy9tYXN0ZXIiLCJhdWQiOlsibWFzdGVyLXJlYWxtIiwiYWNjb3VudCJdLCJzdWIiOiI2YTlhZWIxNC01MjI3LTQ3ZDUtYTdhMi02ZTI4YWVlMzFlM2YiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJwYXltZW50LXNlcnZpY2UiLCJzZXNzaW9uX3N0YXRlIjoiMDczOGZjMGMtZjliYi00YTFkLWIyODYtOGYxYzFkYzNlM2U4IiwiYWNyIjoiMSIsInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJjcmVhdGUtcmVhbG0iLCJkZWZhdWx0LXJvbGVzLW1hc3RlciIsIm9mZmxpbmVfYWNjZXNzIiwiYWRtaW4iLCJ1bWFfYXV0aG9yaXphdGlvbiIsInVzZXIiXX0sInJlc291cmNlX2FjY2VzcyI6eyJtYXN0ZXItcmVhbG0iOnsicm9sZXMiOlsidmlldy1pZGVudGl0eS1wcm92aWRlcnMiLCJ2aWV3LXJlYWxtIiwibWFuYWdlLWlkZW50aXR5LXByb3ZpZGVycyIsImltcGVyc29uYXRpb24iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwicXVlcnktcmVhbG1zIiwidmlldy1hdXRob3JpemF0aW9uIiwicXVlcnktY2xpZW50cyIsInF1ZXJ5LXVzZXJzIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiLCJxdWVyeS1ncm91cHMiXX0sImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJzaWQiOiIwNzM4ZmMwYy1mOWJiLTRhMWQtYjI4Ni04ZjFjMWRjM2UzZTgiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsInByZWZlcnJlZF91c2VybmFtZSI6InBheW1lbnQtc2VydmljZS11c2VyIn0.XCwU4y7CUKg1cAM3TOL8s1NlwYNf-QYySMraGTZotPH8YfgvKOukyWs71vg8joRXy-5kTWgvQH9PHSzSXM_fmdiout0OOxseWu0ZCxIXH9VEjQApij1G6EdmmRFehVj7rC3bHJcYWC7p56IXR-3lv4zQLPWKPCGumL08_kVy3v1I5pjdbUwZ-qONSsQzgQUgbwlsfynoTqwX6BkyLGmgxPtLeIPYdY3NZaItOc53DnoNUkybLiKsdtaZ7HibFh2CgbP0pNdNmfPH2kYRukhz4ZuZpJ0adgA37NJ_zE9tHwp4ZYKGD2RWcZ6PG8BcopY-5PbsRGl_yfz_eOxD0nKSdw",
-									"type": "string"
-								},
-								{
-									"key": "client_authentication",
-									"value": "header",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "test",
-									"type": "string"
-								},
-								{
-									"key": "username",
-									"value": "payment-service-user",
-									"type": "string"
-								},
-								{
-									"key": "clientSecret",
-									"value": "",
-									"type": "string"
-								},
-								{
-									"key": "grant_type",
-									"value": "password_credentials",
-									"type": "string"
-								},
-								{
-									"key": "addTokenTo",
-									"value": "queryParams",
-									"type": "string"
-								},
-								{
-									"key": "scope",
-									"value": "openid",
-									"type": "string"
-								},
-								{
-									"key": "useBrowser",
-									"value": false,
-									"type": "boolean"
-								},
-								{
-									"key": "clientId",
-									"value": "payment-service",
-									"type": "string"
-								},
-								{
-									"key": "accessTokenUrl",
-									"value": "http://localhost:28080/auth/realms/master/protocol/openid-connect/token",
+									"key": "token",
+									"value": "{{access_token}}",
 									"type": "string"
 								}
 							]

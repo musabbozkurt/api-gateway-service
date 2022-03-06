@@ -1,6 +1,6 @@
 package com.mb.studentservice.config.payment;
 
-import com.mb.studentservice.client.payment.PaymentTokenStore;
+import com.mb.studentservice.service.TokenStoreService;
 import com.mb.studentservice.config.ResponseToErrorDecoder;
 import feign.RequestInterceptor;
 import feign.Retryer;
@@ -11,11 +11,11 @@ import org.springframework.context.annotation.Bean;
 @RequiredArgsConstructor
 public class PaymentFeignConfig {
 
-    private final PaymentTokenStore paymentTokenStore;
+    private final TokenStoreService tokenStoreService;
 
     @Bean
     public RequestInterceptor oauth2FeignRequestInterceptor() {
-        return new PaymentFeignClientRequestInterceptor(paymentTokenStore);
+        return new PaymentFeignClientRequestInterceptor(tokenStoreService);
     }
 
     @Bean

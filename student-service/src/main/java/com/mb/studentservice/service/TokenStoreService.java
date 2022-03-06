@@ -1,6 +1,6 @@
-package com.mb.studentservice.client.payment;
+package com.mb.studentservice.service;
 
-public interface PaymentTokenStore {
+public interface TokenStoreService {
 
     String getPaymentToken();
 

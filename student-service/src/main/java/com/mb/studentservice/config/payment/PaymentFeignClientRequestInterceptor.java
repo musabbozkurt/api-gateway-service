@@ -1,6 +1,6 @@
 package com.mb.studentservice.config.payment;
 
-import com.mb.studentservice.client.payment.PaymentTokenStore;
+import com.mb.studentservice.service.TokenStoreService;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +11,7 @@ public class PaymentFeignClientRequestInterceptor implements RequestInterceptor 
     private static final String BEARER = "Bearer";
     private static final String AUTHORIZATION = "Authorization";
 
-    private final PaymentTokenStore paymentTokenStore;
+    private final TokenStoreService tokenStoreService;
 
     /**
      * Create a template with the header of provided name and extracted extract
@@ -25,6 +25,6 @@ public class PaymentFeignClientRequestInterceptor implements RequestInterceptor 
     }
 
     private String getTokenValue() {
-        return this.paymentTokenStore.getPaymentToken();
+        return this.tokenStoreService.getPaymentToken();
     }
 }

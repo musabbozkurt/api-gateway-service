@@ -20,7 +20,7 @@
         * Log in to http://localhost:28080/auth/ with username: admin and password: admin
     
     * Postman can be installed (Optional) -> https://www.postman.com/downloads/
-        * If Postman is installed, import api-gateway-service.postman_collection.json which is under postman_collection folder
+        * If Postman is installed, import files that are under the postman_collection folder
         * How to import postman collection -> https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#importing-postman-data
   
     * Run the following command before running payment-service -> clean install
@@ -36,6 +36,7 @@
     * Sleuth and Zipkin dependencies were added
     * Postman collection was added
     * Keycloak integration is completed under the payment-service
+    * Feign Client secure call with Keycloak integration is completed under the student-service
   ```
 
 ## Versions
@@ -101,12 +102,13 @@
       * GET http://localhost:8083/payments/
       * GET http://localhost:8083/payments/1
       * POST http://localhost:8083/payments
+      
+      * http://localhost:8080/gateway/students/payments
   ```
 
 ### TODO
 
   ```
-    * fix PaymentClient issue 
     * webhook-service will be added. 
       * References
         * https://www.twilio.com/blog/codieren-von-twilio-webhooks-in-java-mit-spring-boot
@@ -121,4 +123,8 @@
         -> https://www.keycloak.org/docs/latest/securing_apps/#_spring_boot_adapter
         -> https://www.youtube.com/watch?v=rcvAmBoDlLk
     * https://www.keycloak.org/docs/latest/server_admin/#_service_accounts
+    * https://www.baeldung.com/spring-cloud-feign-oauth-token
+    * https://huongdanjava.com/get-access-token-using-the-grant-type-resource-owner-password-credentials-of-oauth-2-0-from-keycloak.html
+    * https://developers.redhat.com/blog/2020/11/24/authentication-and-authorization-using-the-keycloak-rest-api#
+    * https://www.baeldung.com/postman-keycloak-endpoints
   ```
