@@ -1,8 +1,10 @@
 package com.mb.studentservice.api.controller;
 
 import com.mb.studentservice.api.response.Student;
+import com.mb.studentservice.client.payment.response.PaymentResponse;
 import com.mb.studentservice.enums.EventType;
 import com.mb.studentservice.queue.producer.StudentEventProducer;
+import com.mb.studentservice.service.StudentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 public class StudentController {
 
     private final StudentEventProducer studentEventProducer;
+    private final StudentService studentService;
 
     private final List<Student> students = new ArrayList<>();
 
@@ -66,6 +69,12 @@ public class StudentController {
     @RequestMapping(value = "/events")
     public void publishStudentEvent() {
         studentEventProducer.publishEvent("Publish Student Event with EventType STUDENT_EVENT", EventType.STUDENT_EVENT);
+    }
+
+    @ApiOperation(value = "Get Payments", response = PaymentResponse.class, tags = "getPayments")
+    @RequestMapping(value = "/payments")
+    public List<PaymentResponse> getPayments() {
+        return studentService.getPayments();
     }
 
 }

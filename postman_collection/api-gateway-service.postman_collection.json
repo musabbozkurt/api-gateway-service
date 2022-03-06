@@ -387,6 +387,27 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Get Students Payments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/gateway/students/payments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"gateway",
+								"students",
+								"payments"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

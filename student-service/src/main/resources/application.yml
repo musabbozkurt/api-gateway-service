@@ -28,6 +28,11 @@ spring:
         max-interval: 3000
         multiplier: 1
 
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      indent-output: true
+
   cloud:
     function:
       definition: swagger2Consumer
@@ -63,10 +68,32 @@ spring:
     base-url: http://localhost:9411
     enabled: false
 
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            token-uri: http://localhost:28080/auth/realms/master/protocol/openid-connect/token
+            client-id: payment-service
+            client-secret: GutAjB6xNSc0huCBEzhNzPEKu57mBdih
+            authorization-grant-type: client_credentials
+            client-registration-id: payment-service
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:28080/auth/realms/master
+
 server:
   port: 8081
 
-jackson:
-  default-property-inclusion: non_null
-  serialization:
-    indent-output: true
+feign:
+  services:
+    keycloak:
+      log:
+        level: FULL
+    payment-client:
+      url: http://localhost:8080/gateway
+      token-uri: http://localhost:28080/auth/realms/master/protocol/openid-connect/token
+      client-id: payment-service
+      client-secret: GutAjB6xNSc0huCBEzhNzPEKu57mBdih
+      authorization-grant-type: client_credentials
+      client-registration-id: payment-service

@@ -106,6 +106,7 @@
 ### TODO
 
   ```
+    * fix PaymentClient issue 
     * webhook-service will be added. 
       * References
         * https://www.twilio.com/blog/codieren-von-twilio-webhooks-in-java-mit-spring-boot
@@ -119,4 +120,5 @@
     * Keycloak integration with Spring Boot Project 
         -> https://www.keycloak.org/docs/latest/securing_apps/#_spring_boot_adapter
         -> https://www.youtube.com/watch?v=rcvAmBoDlLk
+    * https://www.keycloak.org/docs/latest/server_admin/#_service_accounts
   ```
