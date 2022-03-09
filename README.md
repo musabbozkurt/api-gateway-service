@@ -19,6 +19,17 @@
              
         * Log in to http://localhost:28080/auth/ with username: admin and password: admin
     
+    **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** 
+    **** If you want to ignore Google reCAPTCHA, remove @RequiresCaptcha from api-gateway/src/main/java/com/mb/apigateway/filter/PreFilter.java ****
+    ****                               Don't need to do the steps under -> Google reCAPTCHA installation                                        ****
+    **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** 
+      
+    * Google reCAPTCHA installation
+        * Log in to the following url -> https://www.google.com/recaptcha/admin/create
+        * Fill the necassary fields. 
+            * This url can guide you -> https://examples.javacodegeeks.com/wp-content/uploads/2020/12/springboot-google-captcha-google-config-img1.jpg 
+        * Copy SITE KEY and SECRET KEY and add them into related fields that are in the api-gateway/src/main/resources/application.yml file
+    
     * Postman can be installed (Optional) -> https://www.postman.com/downloads/
         * If Postman is installed, import files that are under the postman_collection folder
         * How to import postman collection -> https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#importing-postman-data
@@ -37,6 +48,8 @@
     * Postman collection was added
     * Keycloak integration is completed under the payment-service
     * Feign Client secure call with Keycloak integration is completed under the student-service
+    * MDC was added to improve logging between microservices
+    * Google reCAPTCHA was added to secure endpoint calls
   ```
 
 ## Versions
@@ -127,4 +140,7 @@
     * https://huongdanjava.com/get-access-token-using-the-grant-type-resource-owner-password-credentials-of-oauth-2-0-from-keycloak.html
     * https://developers.redhat.com/blog/2020/11/24/authentication-and-authorization-using-the-keycloak-rest-api#
     * https://www.baeldung.com/postman-keycloak-endpoints
+    * https://www.codementor.io/@cristianrosu948/protecting-your-spring-boot-rest-endpoints-with-google-recaptcha-and-aop-pn7a88s7w
+    * https://www.baeldung.com/spring-security-registration-captcha
+    * https://examples.javacodegeeks.com/using-google-captcha-with-spring-boot-application/
   ```

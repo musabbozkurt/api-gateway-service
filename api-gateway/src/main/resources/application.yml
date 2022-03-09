@@ -47,3 +47,11 @@ spring:
     default-property-inclusion: non_null
     serialization:
       indent-output: true
+
+google:
+  recaptcha:
+    url: https://www.google.com/recaptcha/api/siteverify
+    key:
+      site:  # SITE KEY
+      secret:  # SECRET KEY
+      threshold: 0.5
