@@ -146,4 +146,5 @@
     * https://www.codementor.io/@cristianrosu948/protecting-your-spring-boot-rest-endpoints-with-google-recaptcha-and-aop-pn7a88s7w
     * https://www.baeldung.com/spring-security-registration-captcha
     * https://examples.javacodegeeks.com/using-google-captcha-with-spring-boot-application/
+    * https://stackoverflow.com/a/44924353
   ```
