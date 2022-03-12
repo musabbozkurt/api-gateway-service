@@ -1,8 +1,77 @@
-### Instructions
+<!-- TABLE OF CONTENTS -->
+<details open="open">
+  <summary><h2 style="display: inline-block">Table of Contents</h2></summary>
+  <ol>
+    <li>
+      <a href="#summary">Summary</a>
+      <ul>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#features">Features</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#versions">Versions</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#References">References</a></li>
+    <li><a href="#todo">TODO</a></li>
+  </ol>
+</details>
 
-  ```
+
+<!-- SUMMARY -->
+
+## Summary
+
+api-gateway-service project established by combination of the following services and features.
+
+### Services
+
+   ```
+    * api-gateway
+    * payment-service
+    * student-service
+    * swagger2-application
+   ```
+
+### Features
+
+   ```
+    * Zuul Api Gateway
+    * Springfox Swagger2
+    * Event Driven Architecture with RabbitMQ
+    * Sleuth and Zipkin dependencies to track the logs
+    * Postman collection to test by using Postman
+    * Keycloak integration is completed under the payment-service
+    * Feign Client secure call with Keycloak integration is completed under the student-service
+    * MDC was added to improve logging between microservices
+    * Google reCAPTCHA was added to secure endpoint calls
+   ```
+
+<!-- GETTING STARTED -->
+
+## Getting Started
+
+To get a local copy up and running please follow these simple steps.
+
+### Prerequisites
+
+Followings should be installed and links for how to install them.
+
+* Java 11 or higher [How to install Java](https://java.com/en/download/help/download_options.html)
+* Maven [How to install Maven](https://maven.apache.org/install.html)
+* Lombok [How to install Lombok](https://www.baeldung.com/lombok-ide)
+* Docker [How to install Docker](https://docs.docker.com/get-docker)
+
+    ```
     * Java 11 or higher version should be installed on your machine
-    * Install Apache Maven -> https://maven.apache.org/install.html 
+    * Install Apache Maven 
     
     * Docker installation 
         * Please use the following link to install docker on your machine -> https://docs.docker.com/get-docker/
@@ -38,37 +107,19 @@
     * Run the following command in each service directory to run Spring Boot Applications -> mvn spring-boot:run
   ```
 
-### Zuul API Gateway with Swagger2 Features and Event Driven Architecture with RabbitMQ
+### Installation
 
-  ```
-    * Zuul Api Gateway
-    * Springfox Swagger2
-    * Event Driven Architecture with RabbitMQ
-    * Sleuth and Zipkin dependencies were added
-    * Postman collection was added
-    * Keycloak integration is completed under the payment-service
-    * Feign Client secure call with Keycloak integration is completed under the student-service
-    * MDC was added to improve logging between microservices
-    * Google reCAPTCHA was added to secure endpoint calls
-  ```
+1. Clone the repo
+   ```sh
+    git clone https://github.com/musabbozkurt/api-gateway-service.git
+   ```
+2. Run Spring Boot applications
+   ```sh
+    mvn spring-boot:run
+   ```
+3. Additional information to access endpoints, swagger and actuator
 
-## Versions
-
-  ```
-    * Spring Boot Version -> 2.6.4
-    * Springfox Swagger2 Version -> 3.0.0
-    * projectlombok Version -> 1.18.22
-    * spring-cloud-starter-stream-rabbit -> parent project version -> 2.6.4
-    * spring-cloud-starter-sleuth -> parent project version -> 2.6.4
-    * spring-cloud-sleuth-zipkin -> parent project version -> 2.6.4
-    * spring-cloud Version -> 2021.0.1
-    * org.mapstruct Version -> 1.4.2.Final 
-    * keycloak-spring-boot-starter Version -> 16.1.1 
-  ```
-
-### Additional information to access endpoints, swagger and actuator
-
-  ```
+   ```sh
     * Swagger Url
       * swagger2-application endpoints
       
@@ -117,19 +168,55 @@
       * POST http://localhost:8083/payments
       
       * http://localhost:8080/gateway/students/payments
+   ```
+4. How to run in Docker
+   ```sh
+    1 - Open Docker Quickstart Terminal
+    2 - Go to the project directory from Docker Quickstart Terminal
+    3 - Create Docker image by typing the following command -> docker build -t api-gateway-service-project.jar
+    4 - Type the following command to make sure docker image has been created -> docker image ls
+    5 - Type the following command to run docker image -> docker run -p 9090:8080 api-gateway-service-project.jar
+   ```
+
+<!-- VERSIONS -->
+
+## Versions
+
+  ```
+    * Spring Boot Version -> 2.6.4
+    * Springfox Swagger2 Version -> 3.0.0
+    * projectlombok Version -> 1.18.22
+    * spring-cloud-starter-stream-rabbit -> parent project version -> 2.6.4
+    * spring-cloud-starter-sleuth -> parent project version -> 2.6.4
+    * spring-cloud-sleuth-zipkin -> parent project version -> 2.6.4
+    * spring-cloud Version -> 2021.0.1
+    * org.mapstruct Version -> 1.4.2.Final 
+    * keycloak-spring-boot-starter Version -> 16.1.1 
   ```
 
-### TODO
+<!-- CONTRIBUTING -->
 
-  ```
-    * Standardized API Exception Handling will be added. 
-      * References
-        * https://medium.com/@georgeberar/springboot-standardized-api-exception-handling-f31510861350
-    * webhook-service will be added. 
-      * References
-        * https://www.twilio.com/blog/codieren-von-twilio-webhooks-in-java-mit-spring-boot
-        * https://dreamix.eu/blog/java/webhook-with-spring-boot-and-h2-database
-  ```
+## Contributing
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any
+contributions you make are **greatly appreciated**.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/amazing-feature`)
+3. Commit your Changes (`git commit -m 'Add some amazing features'`)
+4. Push to the Branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+<!-- CONTACT -->
+
+## Contact
+
+* Musab Bozkurt - [Linkedin](https://tr.linkedin.com/in/musab-bozkurt-24924986)
+
+* Project
+  Link: [https://github.com/musabbozkurt/api-gateway-service.git](https://github.com/musabbozkurt/api-gateway-service.git)
+
+<!-- REFERENCES -->
 
 ### References
 
@@ -148,3 +235,17 @@
     * https://examples.javacodegeeks.com/using-google-captcha-with-spring-boot-application/
     * https://stackoverflow.com/a/44924353
   ```
+
+<!-- TODO -->
+
+### TODO
+
+```
+* Standardized API Exception Handling will be added. 
+  * References
+    * https://medium.com/@georgeberar/springboot-standardized-api-exception-handling-f31510861350
+* webhook-service will be added. 
+  * References
+    * https://www.twilio.com/blog/codieren-von-twilio-webhooks-in-java-mit-spring-boot
+    * https://dreamix.eu/blog/java/webhook-with-spring-boot-and-h2-database
+```
