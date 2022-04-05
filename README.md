@@ -248,4 +248,12 @@ contributions you make are **greatly appreciated**.
   * References
     * https://www.twilio.com/blog/codieren-von-twilio-webhooks-in-java-mit-spring-boot
     * https://dreamix.eu/blog/java/webhook-with-spring-boot-and-h2-database
+* Distributed transactions in Spring, with and without XA and ChainedTransactionManager for rabbitMQ will be added. 
+  * References
+    * https://lifeinide.com/post/2017-12-29-spring-boot-rabbitmq-transactions/
+    * https://stackoverflow.com/questions/46721195/transaction-handling-rabbit-mq-and-spring-amqp
+    * https://www.infoworld.com/article/2077963/distributed-transactions-in-spring--with-and-without-xa.html
+    * https://docs.spring.io/spring-data/commons/docs/current/api/org/springframework/data/transaction/ChainedTransactionManager.html
+    * https://www.rabbitmq.com/api-guide.html
+    * https://www.javainuse.com/camel/camel_bootsqltransact
 ```
