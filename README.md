@@ -259,7 +259,7 @@ contributions you make are **greatly appreciated**.
     * https://mike-costello.github.io/2020/04/01/Using_Debezium_With_AMQP_Events/
     * https://debezium.io/blog/2019/02/19/reliable-microservices-data-exchange-with-the-outbox-pattern/
     * https://dzone.com/articles/implementing-the-outbox-pattern
-    * Outbox pattern with Debezium, PostgreSQL and Rabbitmq
+    * Outbox pattern with Debezium, PostgreSQL and RabbitMQ
 * Elasticsearch, Kibana or Grafana with docker-compose will be added. 
   * References
     * 
