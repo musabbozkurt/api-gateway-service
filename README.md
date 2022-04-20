@@ -260,7 +260,7 @@ contributions you make are **greatly appreciated**.
     * https://debezium.io/blog/2019/02/19/reliable-microservices-data-exchange-with-the-outbox-pattern/
     * https://dzone.com/articles/implementing-the-outbox-pattern
     * Outbox pattern with Debezium PostgreSQL and Rabbitmq
-* Elasticsearch with docker-compose will be added. 
+* Elasticsearch, Kibana or Grafana with docker-compose will be added. 
   * References
     * 
 ```
