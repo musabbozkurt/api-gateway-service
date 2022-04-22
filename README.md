@@ -260,6 +260,9 @@ contributions you make are **greatly appreciated**.
     * https://debezium.io/blog/2019/02/19/reliable-microservices-data-exchange-with-the-outbox-pattern/
     * https://dzone.com/articles/implementing-the-outbox-pattern
     * Outbox pattern with Debezium, PostgreSQL and RabbitMQ
+    * Idempotency will be added to all events and Post REST APIs
+      * References
+        * https://github.com/727474430/idempotent-spring-boot-starter
 * Elasticsearch, Kibana or Grafana with docker-compose will be added. 
   * References
     * 
