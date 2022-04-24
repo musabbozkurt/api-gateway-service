@@ -246,7 +246,7 @@ contributions you make are **greatly appreciated**.
     * https://medium.com/@georgeberar/springboot-standardized-api-exception-handling-f31510861350
 * webhook-service will be added. 
   * References
-    * https://www.twilio.com/blog/codieren-von-twilio-webhooks-in-java-mit-spring-boot
+    * https://www.twilio.com/blog/coding-twilio-webhooks-in-java-with-spring-boot
     * https://dreamix.eu/blog/java/webhook-with-spring-boot-and-h2-database
 * Distributed transactions in Spring, with and without XA and ChainedTransactionManager for rabbitMQ will be added. 
   * References
