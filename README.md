@@ -241,7 +241,7 @@ contributions you make are **greatly appreciated**.
 ### TODO
 
 ```
-* Standardized API Exception Handling will be added. 
+* Standardized API Exception Handling will be added. (DONE but it needs improvements)
   * References
     * https://medium.com/@georgeberar/springboot-standardized-api-exception-handling-f31510861350
 * webhook-service will be added. 

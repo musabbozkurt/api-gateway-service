@@ -2,6 +2,8 @@ package com.mb.paymentservice.api.controller;
 
 import com.mb.paymentservice.api.request.PaymentRequest;
 import com.mb.paymentservice.api.response.PaymentResponse;
+import com.mb.paymentservice.exception.ErrorCode;
+import com.mb.paymentservice.exception.PaymentServiceException;
 import com.mb.paymentservice.mapper.PaymentMapper;
 import com.mb.paymentservice.service.PaymentService;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,11 @@ public class PaymentController {
     @RolesAllowed("user")
     public List<PaymentResponse> getPaymentList() {
         return paymentMapper.map(paymentService.getPaymentList());
+    }
+
+    @GetMapping("/error")
+    public List<PaymentResponse> getErrorResponse() {
+        throw new PaymentServiceException(ErrorCode.UNKNOWN_ERROR);
     }
 
 }
