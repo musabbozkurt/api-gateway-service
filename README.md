@@ -221,15 +221,16 @@ contributions you make are **greatly appreciated**.
 ### References
 
   ```
-    * Keycloak installation -> https://gruchalski.com/posts/2020-09-03-keycloak-with-docker-compose/
     * Keycloak integration with Spring Boot Project 
         -> https://www.keycloak.org/docs/latest/securing_apps/#_spring_boot_adapter
         -> https://www.youtube.com/watch?v=rcvAmBoDlLk
-    * https://www.keycloak.org/docs/latest/server_admin/#_service_accounts
+        -> Keycloak installation -> https://gruchalski.com/posts/2020-09-03-keycloak-with-docker-compose/
+        -> https://www.keycloak.org/docs/latest/server_admin/#_service_accounts
+        -> https://huongdanjava.com/get-access-token-using-the-grant-type-resource-owner-password-credentials-of-oauth-2-0-from-keycloak.html
+        -> https://developers.redhat.com/blog/2020/11/24/authentication-and-authorization-using-the-keycloak-rest-api#
+        -> https://www.baeldung.com/postman-keycloak-endpoints
+
     * https://www.baeldung.com/spring-cloud-feign-oauth-token
-    * https://huongdanjava.com/get-access-token-using-the-grant-type-resource-owner-password-credentials-of-oauth-2-0-from-keycloak.html
-    * https://developers.redhat.com/blog/2020/11/24/authentication-and-authorization-using-the-keycloak-rest-api#
-    * https://www.baeldung.com/postman-keycloak-endpoints
     * https://www.codementor.io/@cristianrosu948/protecting-your-spring-boot-rest-endpoints-with-google-recaptcha-and-aop-pn7a88s7w
     * https://www.baeldung.com/spring-security-registration-captcha
     * https://examples.javacodegeeks.com/using-google-captcha-with-spring-boot-application/
