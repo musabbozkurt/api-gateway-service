@@ -276,5 +276,4 @@ contributions you make are **greatly appreciated**.
   * https://hibernate.atlassian.net/browse/HHH-12441
 * PostgreSQL sql vacuum
   * https://www.postgresql.org/docs/current/sql-vacuum.html
-
 ```
