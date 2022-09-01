@@ -267,4 +267,14 @@ contributions you make are **greatly appreciated**.
 * Elasticsearch, Kibana or Grafana with docker-compose will be added. 
   * References
     * 
+* Hibernate and Hazelcast second level cache
+  * https://docs.hazelcast.com/tutorials/springboot-hibernate
+  * https://docs.hazelcast.com/imdg/4.2/plugins/framework-integration#hazelcast-hibernate-2lc
+  * https://medium.com/@skywalkerhunter/org-hibernate-orm-deprecation-caa816ba2755
+  * https://www.baeldung.com/hibernate-second-level-cache
+  * https://www.devtalkers.com/2020/04/hibernate-second-level-cache-spring.html
+  * https://hibernate.atlassian.net/browse/HHH-12441
+* PostgreSQL sql vacuum
+  * https://www.postgresql.org/docs/current/sql-vacuum.html
+
 ```
