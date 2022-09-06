@@ -25,6 +25,7 @@ spring:
     schemas: payment_schema
     table: schema_version
     validate-on-migrate: false
+    locations: ${DB_MIGRATION_LOCATIONS:classpath:db/migration/common,classpath:db/migration/non-prod}
 
   jackson:
     default-property-inclusion: non_null
