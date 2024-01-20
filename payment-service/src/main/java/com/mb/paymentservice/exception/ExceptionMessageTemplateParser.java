@@ -13,9 +13,9 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@RequiredArgsConstructor
-@Component
 @Slf4j
+@Component
+@RequiredArgsConstructor
 public final class ExceptionMessageTemplateParser {
     private final Pattern pattern = Pattern.compile("(?<!\\\\)(\\{[^}^{]*})");
     private final MessageSource messageSource;

@@ -5,10 +5,12 @@ import feign.codec.ErrorDecoder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
+import java.nio.charset.StandardCharsets;
+
 /*
     Feign cares about the dto objects, not the whole Response object.
     This decoder is required to extract dto object from Response object.
-    Hence this implementation is required so that we can extract the data object from the response object.
+    Hence, this implementation is required so that we can extract the data object from the response object.
 
     //java.io.IOException: stream is closed can occur on debug mode
     log.info("Received response {} with status {}", response.toString(), response.status());
@@ -23,7 +25,7 @@ public class ResponseToErrorDecoder implements ErrorDecoder {
         // extract body as string from feign response.
         try {
             log.info("Received feign error response. decode - body: {} status: {}.", responseToString, response.status());
-            body = Util.toString(response.body().asReader());
+            body = Util.toString(response.body().asReader(StandardCharsets.UTF_8));
             log.warn("Feign Response Error received: decode - body: {}.", body);
             throw new RuntimeException("Feign Response Error received: decode - body:");
         } catch (Exception e) {

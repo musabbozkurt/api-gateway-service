@@ -10,9 +10,9 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class GoogleCaptchaResponse {
 
     private Boolean success;

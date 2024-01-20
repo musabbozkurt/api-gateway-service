@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import java.io.Serializable;
 import java.util.Arrays;
 
+@Getter
 public enum ErrorCode implements Serializable, IErrorCode {
 
     UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR),
@@ -26,10 +27,8 @@ public enum ErrorCode implements Serializable, IErrorCode {
     VERIFICATION_TRY_EXCEED(HttpStatus.BAD_REQUEST),
     TYPE_MISMATCH(HttpStatus.BAD_REQUEST);
 
-    @Getter
     private final HttpStatus httpStatus;
 
-    @Getter
     private String message;
 
     ErrorCode(HttpStatus httpStatus) {

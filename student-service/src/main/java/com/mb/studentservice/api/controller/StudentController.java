@@ -18,10 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Api(value = "Student Rest Controller")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/students")
+@Api(value = "Student Rest Controller")
 public class StudentController {
 
     private final StudentEventProducer studentEventProducer;

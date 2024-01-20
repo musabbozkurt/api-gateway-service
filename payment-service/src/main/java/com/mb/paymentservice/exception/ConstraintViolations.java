@@ -1,6 +1,7 @@
 package com.mb.paymentservice.exception;
 
 import javax.validation.ConstraintViolation;
+import javax.validation.constraints.Digits;
 import javax.validation.constraints.*;
 import java.lang.annotation.Annotation;
 import java.util.*;
@@ -45,7 +46,7 @@ public final class ConstraintViolations {
     }
 
     private static Map<Class<? extends Annotation>, String> initErrorCodeMapping() {
-        Map<Class<? extends Annotation>, String> codes = new HashMap();
+        Map<Class<? extends Annotation>, String> codes = new HashMap<>();
         codes.put(AssertFalse.class, "shouldBeFalse");
         codes.put(AssertTrue.class, "shouldBeTrue");
         codes.put(DecimalMax.class, "exceedsMax");

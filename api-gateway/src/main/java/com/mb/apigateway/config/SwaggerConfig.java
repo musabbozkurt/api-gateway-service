@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
+@Setter
+@Getter
 @Configuration
 @EnableConfigurationProperties
 @ConfigurationProperties(prefix = "swagger.documentation")
@@ -16,19 +18,11 @@ public class SwaggerConfig {
 
     List<SwaggerServices> services;
 
-    public List<SwaggerServices> getServices() {
-        return services;
-    }
-
-    public void setServices(List<SwaggerServices> swaggerResources) {
-        this.services = swaggerResources;
-    }
-
-    @EnableConfigurationProperties
-    @ConfigurationProperties(prefix = "swagger.documentation.services")
-    @ToString
     @Getter
     @Setter
+    @ToString
+    @EnableConfigurationProperties
+    @ConfigurationProperties(prefix = "swagger.documentation.services")
     public static class SwaggerServices {
         private String name;
         private String url;

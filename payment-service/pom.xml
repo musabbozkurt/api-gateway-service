@@ -19,7 +19,7 @@
         <java.version>11</java.version>
         <keycloak.version>16.1.1</keycloak.version>
         <org.mapstruct.version>1.4.2.Final</org.mapstruct.version>
-        <org.projectlombok.version>1.18.22</org.projectlombok.version>
+        <org.projectlombok.version>1.18.30</org.projectlombok.version>
     </properties>
     <dependencies>
         <dependency>

@@ -7,10 +7,10 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 
+@Data
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 @EntityListeners(AuditingEntityListener.class)
 public class Payment {
 

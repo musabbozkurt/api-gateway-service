@@ -6,9 +6,9 @@ services:
     restart: always
     container_name: test-rabbitmq
     ports:
-      - 5673:5672 # default ports 5672:5672
-      - 15673:15672 # default ports 15672:15672
-     # environment:
+      - "5673:5672" # default ports 5672:5672
+      - "15673:15672" # default ports 15672:15672
+      # environment:
       # RABBITMQ_DEFAULT_USER: guest error: RABBITMQ_DEFAULT_USER is set but deprecated
       # RABBITMQ_DEFAULT_PASS: guest error: RABBITMQ_DEFAULT_PASS is set but deprecated
   postgres:
@@ -16,7 +16,7 @@ services:
     restart: always
     container_name: keycloak-db
     ports:
-      - 5433:5432 # default ports 5432:5432
+      - "5433:5432" # default ports 5432:5432
     environment:
       POSTGRES_DB: ${POSTGRESQL_DB}
       POSTGRES_USER: ${POSTGRESQL_USER}

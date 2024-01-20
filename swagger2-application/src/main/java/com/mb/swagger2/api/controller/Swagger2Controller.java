@@ -16,10 +16,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Api(value = "Swagger2 Rest Controller")
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api")
+@RequiredArgsConstructor
+@Api(value = "Swagger2 Rest Controller")
 public class Swagger2Controller {
 
     private final Swagger2EventProducer swagger2EventProducer;

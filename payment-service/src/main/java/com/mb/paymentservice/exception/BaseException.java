@@ -1,7 +1,10 @@
 package com.mb.paymentservice.exception;
 
+import lombok.Getter;
+
 import java.io.Serializable;
 
+@Getter
 public abstract class BaseException extends RuntimeException implements Serializable {
     private final ErrorCode errorCode;
 
@@ -24,7 +27,4 @@ public abstract class BaseException extends RuntimeException implements Serializ
         this.errorCode = errorCode;
     }
 
-    public ErrorCode getErrorCode() {
-        return this.errorCode;
-    }
 }

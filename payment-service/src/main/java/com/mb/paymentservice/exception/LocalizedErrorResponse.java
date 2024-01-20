@@ -13,7 +13,7 @@ import java.util.Objects;
 
 @Slf4j
 @Getter
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 public class LocalizedErrorResponse extends ErrorResponse {
 
     private static final String PREFIX = "error.%s";

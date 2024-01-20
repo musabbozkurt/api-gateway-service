@@ -95,7 +95,7 @@ Followings should be installed and links for how to install them.
       
     * Google reCAPTCHA installation
         * Log in to the following url -> https://www.google.com/recaptcha/admin/create
-        * Fill the necassary fields. 
+        * Fill the necessary fields. 
             * This url can guide you -> https://examples.javacodegeeks.com/wp-content/uploads/2020/12/springboot-google-captcha-google-config-img1.jpg 
         * Copy SITE KEY and SECRET KEY and add them into related fields that are in the api-gateway/src/main/resources/application.yml file
     
