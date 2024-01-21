@@ -50,6 +50,7 @@ api-gateway-service project established by combination of the following services
     * Feign Client secure call with Keycloak integration is completed under the student-service
     * MDC was added to improve logging between microservices
     * Google reCAPTCHA was added to secure endpoint calls
+    * HCaptcha repo migration is completed under the student-service
    ```
 
 <!-- GETTING STARTED -->
