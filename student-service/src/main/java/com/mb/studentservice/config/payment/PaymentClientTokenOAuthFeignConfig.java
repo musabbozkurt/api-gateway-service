@@ -1,7 +1,7 @@
 package com.mb.studentservice.config.payment;
 
-import com.mb.studentservice.config.keycloak.OAuthClientCredentialsFeignManager;
 import com.mb.studentservice.config.OAuthProperties;
+import com.mb.studentservice.config.keycloak.OAuthClientCredentialsFeignManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.*;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;

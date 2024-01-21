@@ -1,21 +1,21 @@
 package com.mb.studentservice.service.impl.client.payment;
 
-import com.mb.studentservice.service.TokenStoreService;
 import com.mb.studentservice.config.payment.PaymentClientTokenOAuthFeignConfig;
+import com.mb.studentservice.service.TokenStoreService;
 import com.mb.studentservice.service.client.payment.KeycloakService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class InMemoryPaymentTokenStoreService implements TokenStoreService {
 
-    private String accessToken;
     private final PaymentClientTokenOAuthFeignConfig paymentClientTokenOAuthFeignConfig;
     private final KeycloakService keycloakService;
+    private String accessToken;
 
     @Override
     public String getPaymentToken() {

@@ -1,7 +1,7 @@
 package com.mb.studentservice.config.payment;
 
-import com.mb.studentservice.service.TokenStoreService;
 import com.mb.studentservice.config.ResponseToErrorDecoder;
+import com.mb.studentservice.service.TokenStoreService;
 import feign.RequestInterceptor;
 import feign.Retryer;
 import feign.codec.ErrorDecoder;
