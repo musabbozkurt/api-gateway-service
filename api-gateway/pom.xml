@@ -14,9 +14,10 @@
     <name>api-gateway</name>
     <description>api-gateway</description>
     <properties>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <spring-cloud.version>2021.0.1</spring-cloud.version>
         <org.projectlombok.version>1.18.30</org.projectlombok.version>
+        <springfox-swagger2.version>3.0.0</springfox-swagger2.version>
     </properties>
     <dependencies>
         <dependency>
@@ -58,11 +59,10 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger2 -->
         <dependency>
             <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>3.0.0</version>
+            <artifactId>springfox-boot-starter</artifactId>
+            <version>${springfox-swagger2.version}</version>
         </dependency>
 
     </dependencies>

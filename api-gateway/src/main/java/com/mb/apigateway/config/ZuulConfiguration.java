@@ -21,14 +21,14 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Zuul configuration.
- * https://stackoverflow.com/a/68923884
- * https://gist.github.com/aldobongio/6a22f49863c7a777612f7887bbb8fd1d
+ * <a href="https://stackoverflow.com/a/68923884">...</a>
+ * <a href="https://gist.github.com/aldobongio/6a22f49863c7a777612f7887bbb8fd1d">...</a>
  */
 @Configuration
 public class ZuulConfiguration {
 
     /**
-     * The path returned by ErrorContoller.getErrorPath() with Spring Boot < 2.5 (and no longer available on Spring Boot >= 2.5).
+     * The path returned by ErrorController.getErrorPath() with Spring Boot < 2.5 (and no longer available on Spring Boot >= 2.5).
      */
     private static final String ERROR_PATH = "/error";
 

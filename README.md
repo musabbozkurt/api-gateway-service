@@ -123,6 +123,7 @@ Followings should be installed and links for how to install them.
     * Swagger Url
       * swagger2-application endpoints
       
+          * http://localhost:8082/v3/api-docs
           * http://localhost:8080/gateway/api/v2/api-docs
           * http://localhost:8082/swagger-ui/index.html
       
@@ -185,7 +186,7 @@ Followings should be installed and links for how to install them.
   ```
     * Spring Boot Version -> 2.6.4
     * Springfox Swagger2 Version -> 3.0.0
-    * projectlombok Version -> 1.18.22
+    * projectlombok Version -> 1.18.30
     * spring-cloud-starter-stream-rabbit -> parent project version -> 2.6.4
     * spring-cloud-starter-sleuth -> parent project version -> 2.6.4
     * spring-cloud-sleuth-zipkin -> parent project version -> 2.6.4
@@ -229,6 +230,9 @@ contributions you make are **greatly appreciated**.
         -> https://huongdanjava.com/get-access-token-using-the-grant-type-resource-owner-password-credentials-of-oauth-2-0-from-keycloak.html
         -> https://developers.redhat.com/blog/2020/11/24/authentication-and-authorization-using-the-keycloak-rest-api#
         -> https://www.baeldung.com/postman-keycloak-endpoints
+        -> https://stackoverflow.com/a/49127022
+        -> https://www.programcreek.com/java-api-examples/?api=org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
+        -> https://github.com/edwin/java-keycloak-integration
 
     * https://www.baeldung.com/spring-cloud-feign-oauth-token
     * https://www.codementor.io/@cristianrosu948/protecting-your-spring-boot-rest-endpoints-with-google-recaptcha-and-aop-pn7a88s7w

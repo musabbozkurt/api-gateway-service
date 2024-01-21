@@ -6,9 +6,9 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 
 @Data
-@ToString
 @Entity
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class Student {

@@ -36,10 +36,10 @@ swagger:
   documentation:
     services:
       - name: student-service
-        url: ${BASE_URL}/gateway/student/v2/api-docs # http://localhost:8080/gateway/student/v2/api-docs, http://localhost:8081/swagger-ui/index.html
+        url: /gateway/students/v2/api-docs
         version: 2.0
       - name: swagger2-application
-        url: ${BASE_URL}/gateway/api/v2/api-docs # http://localhost:8080/gateway/api/v2/api-docs, http://localhost:8082/swagger-ui/index.html
+        url: /gateway/api/v2/api-docs
         version: 2.0
 
 spring:
@@ -47,6 +47,9 @@ spring:
     default-property-inclusion: non_null
     serialization:
       indent-output: true
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
 
 google:
   recaptcha:

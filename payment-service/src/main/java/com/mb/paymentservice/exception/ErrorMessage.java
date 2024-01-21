@@ -5,8 +5,8 @@ import lombok.Data;
 
 import java.util.List;
 
-@AllArgsConstructor
 @Data
+@AllArgsConstructor
 public class ErrorMessage {
     private final String errorCode;
     private final List<Argument> arguments;

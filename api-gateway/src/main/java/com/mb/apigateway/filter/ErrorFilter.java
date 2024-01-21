@@ -30,7 +30,7 @@ public class ErrorFilter extends ZuulFilter {
     public Object run() {
         HttpServletResponse response = RequestContext.getCurrentContext().getResponse();
 
-        log.info("ErrorFilter: " + String.format("response status is %d", response.getStatus()));
+        log.info("ErrorFilter: response status is {}", response.getStatus());
 
         return null;
     }
