@@ -1,0 +1,10 @@
+POST https://api.openai.com/v1/completions
+Content-Type: application/json
+Authorization: Bearer YOUR_API_KEY_HERE
+
+{
+  "model": "text-davinci-003",
+  "prompt": "What is the command to list all files in a directory on macOS?",
+  "temperature": 1,
+  "max_tokens": 100
+}

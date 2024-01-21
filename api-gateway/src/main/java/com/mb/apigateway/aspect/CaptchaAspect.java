@@ -20,7 +20,7 @@ import java.util.List;
 public class CaptchaAspect {
 
     private static final String CAPTCHA_HEADER_NAME = "captcha-response";
-    private static final List<String> EXCLUDED_URIS = List.of("/v2/api-docs");
+    private static final List<String> EXCLUDED_URIS = List.of("/api-docs");
 
     private final CaptchaValidatorService captchaValidatorService;
 

@@ -36,6 +36,7 @@ api-gateway-service project established by combination of the following services
     * payment-service
     * student-service
     * swagger2-application
+    * openai-service
    ```
 
 ### Features
@@ -51,6 +52,7 @@ api-gateway-service project established by combination of the following services
     * MDC was added to improve logging between microservices
     * Google reCAPTCHA was added to secure endpoint calls
     * HCaptcha repo migration is completed under the student-service
+    * openai-service repo migration is completed
    ```
 
 <!-- GETTING STARTED -->
@@ -63,13 +65,13 @@ To get a local copy up and running please follow these simple steps.
 
 Followings should be installed and links for how to install them.
 
-* Java 11 or higher [How to install Java](https://java.com/en/download/help/download_options.html)
+* Java 17 or higher [How to install Java](https://java.com/en/download/help/download_options.html)
 * Maven [How to install Maven](https://maven.apache.org/install.html)
 * Lombok [How to install Lombok](https://www.baeldung.com/lombok-ide)
 * Docker [How to install Docker](https://docs.docker.com/get-docker)
 
     ```
-    * Java 11 or higher version should be installed on your machine
+    * Java 17 or higher version should be installed on your machine -> export JAVA_HOME=$(/usr/libexec/java_home -v 17)
     * Install Apache Maven 
     
     * Docker installation 
@@ -105,6 +107,8 @@ Followings should be installed and links for how to install them.
   
     * Run the following command before running payment-service -> mvn clean install or mvn clean package
     * Run the following command in each service directory to run Spring Boot Applications -> mvn spring-boot:run
+  
+    * Create new secret key and replace all YOUR_API_KEY_HERE in code with this new key -> https://platform.openai.com/account/api-keys
   ```
 
 ### Installation
@@ -120,7 +124,7 @@ Followings should be installed and links for how to install them.
 
 3. Additional information to access endpoints, swagger and actuator
 
-    * Swagger Url: http://localhost:8080/swagger-ui/
+    * Swagger Url: http://localhost:8080/swagger-ui/ or http://localhost:8080/swagger-ui/index.html
 
 4. How to run in Docker
    ```sh
@@ -181,3 +185,6 @@ contributions you make are **greatly appreciated**.
     - [HCaptcha Test Keys](https://docs.hcaptcha.com/#integration-testing-test-keys)
     - [HCaptcha Java Example]( https://golb.hplar.ch/2020/05/hcaptcha.html)
 
+* OpenAI integration with Spring Boot Project
+    - [Create new secret key and replace all YOUR_API_KEY_HERE in code with this new key](https://platform.openai.com/account/api-keys)
+    - [openai-test-requests.http](openai-service%2Fopenai-test-requests.http)

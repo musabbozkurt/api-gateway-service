@@ -1,0 +1,21 @@
+spring:
+  jpa:
+    generate-ddl: true
+  main:
+    allow-bean-definition-overriding: true
+
+feign:
+  services:
+    openai-client:
+      url: https://api.openai.com/v1
+      token: YOUR_API_KEY_HERE
+
+springdoc:
+  api-docs:
+    path: /openai/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
+server:
+  port: 8084

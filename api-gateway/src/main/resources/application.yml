@@ -2,6 +2,7 @@ BASE_URL: http://localhost:8080
 STUDENT_SERVICE_BASE_URL: http://localhost:8081
 SWAGGER2_APPLICATION_BASE_URL: http://localhost:8082
 PAYMENT_SERVICE_BASE_URL: http://localhost:8083
+OPENAI_SERVICE_BASE_URL: http://localhost:8084
 
 zuul:
   prefix: /gateway
@@ -30,6 +31,12 @@ zuul:
       sensitive-headers:
       strip-prefix: false
       serviceId: validate
+    openai-service:
+      path: /openai/**
+      url: ${OPENAI_SERVICE_BASE_URL}
+      sensitive-headers:
+      strip-prefix: false
+      serviceId: openai-service
 
 ribbon:
   eureka:
@@ -46,6 +53,9 @@ swagger:
         version: 2.0
       - name: swagger2-application
         url: /gateway/api/v2/api-docs
+        version: 2.0
+      - name: openai-service
+        url: /gateway/openai/api-docs
         version: 2.0
 
 spring:
