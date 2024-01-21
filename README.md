@@ -96,8 +96,9 @@ Followings should be installed and links for how to install them.
         * Fill the necessary fields. 
             * This url can guide you -> https://examples.javacodegeeks.com/wp-content/uploads/2020/12/springboot-google-captcha-google-config-img1.jpg 
         * Copy SITE KEY and SECRET KEY and add them into related fields that are in the api-gateway/src/main/resources/application.yml file
+        * HCaptcha integration was implemented in 4 different ways in com/mb/studentservice/api/controller/HCaptchaController.java (OPTIONAL)
     
-    * Postman can be installed (Optional) -> https://www.postman.com/downloads/
+    * Postman can be installed (OPTIONAL) -> https://www.postman.com/downloads/
         * If Postman is installed, import files that are under the postman_collection folder
         * How to import postman collection -> https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#importing-postman-data
   
@@ -173,4 +174,8 @@ contributions you make are **greatly appreciated**.
 * https://examples.javacodegeeks.com/using-google-captcha-with-spring-boot-application/
 * https://stackoverflow.com/a/44924353
 
+* HCaptcha integration with Spring Boot Project
+    - [HCaptcha Developer Guide documentation](https://docs.hcaptcha.com/)
+    - [HCaptcha Test Keys](https://docs.hcaptcha.com/#integration-testing-test-keys)
+    - [HCaptcha Java Example]( https://golb.hplar.ch/2020/05/hcaptcha.html)
 

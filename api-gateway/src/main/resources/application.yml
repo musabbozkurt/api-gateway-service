@@ -24,6 +24,12 @@ zuul:
       sensitive-headers:
       strip-prefix: false
       serviceId: payment-service
+    validate:
+      path: /validate/**
+      url: ${STUDENT_SERVICE_BASE_URL}
+      sensitive-headers:
+      strip-prefix: false
+      serviceId: validate
 
 ribbon:
   eureka:

@@ -36,20 +36,19 @@ public class StudentController {
         students.add(new Student(4, "Student-Student4", "USER3", "student.student4@test.com"));
     }
 
+    @RequestMapping(value = "/")
     @ApiOperation(value = "Get Students", response = Iterable.class, tags = "getStudents")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Success|OK"),
             @ApiResponse(code = 401, message = "Not Authorized!"),
             @ApiResponse(code = 403, message = "Forbidden!"),
             @ApiResponse(code = 404, message = "Not Found!")})
-
-    @RequestMapping(value = "/")
     public List<Student> getStudents() {
         return students;
     }
 
-    @ApiOperation(value = "Get Student by Student Id ", response = Student.class, tags = "getStudentById")
     @RequestMapping(value = "/{id}")
+    @ApiOperation(value = "Get Student by Student Id ", response = Student.class, tags = "getStudentById")
     public Student getStudentById(@PathVariable(value = "id") int id) {
         return students.stream()
                 .filter(x -> x.getId() == (id))
@@ -57,22 +56,22 @@ public class StudentController {
                 .get(0);
     }
 
-    @ApiOperation(value = "Get Student by role ", response = Student.class, tags = "getStudentByRole")
     @RequestMapping(value = "/role/{role}")
+    @ApiOperation(value = "Get Student by role ", response = Student.class, tags = "getStudentByRole")
     public List<Student> getStudentByRole(@PathVariable(value = "role") String role) {
         return students.stream()
                 .filter(x -> x.getRole().equalsIgnoreCase(role))
                 .collect(Collectors.toList());
     }
 
-    @ApiOperation(value = "Publish Student Event", response = Student.class, tags = "publishStudentEvent")
     @RequestMapping(value = "/events")
+    @ApiOperation(value = "Publish Student Event", response = Student.class, tags = "publishStudentEvent")
     public void publishStudentEvent() {
         studentEventProducer.publishEvent("Publish Student Event with EventType STUDENT_EVENT", EventType.STUDENT_EVENT);
     }
 
-    @ApiOperation(value = "Get Payments", response = PaymentResponse.class, tags = "getPayments")
     @RequestMapping(value = "/payments")
+    @ApiOperation(value = "Get Payments", response = PaymentResponse.class, tags = "getPayments")
     public List<PaymentResponse> getPayments() {
         return studentService.getPayments();
     }

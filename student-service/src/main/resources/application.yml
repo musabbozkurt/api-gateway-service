@@ -97,6 +97,13 @@ feign:
       client-secret: GutAjB6xNSc0huCBEzhNzPEKu57mBdih
       authorization-grant-type: client_credentials
       client-registration-id: payment-service
+    hcaptcha: # https://docs.hcaptcha.com/#integration-testing-test-keys
+      url: ${HCAPTCHA_URL:https://hcaptcha.com}
+      secret: ${HCAPTCHA_SECRET:0x0000000000000000000000000000000000000000}
+      response: ${HCAPTCHA_RESPONSE:10000000-aaaa-bbbb-cccc-000000000001}
+      site-key: ${HCAPTCHA_SITE_KEY:10000000-ffff-ffff-ffff-000000000001} # Optional
+      remote-ip: ${HCAPTCHA_REMOTE_IP:127.0.0.1} # Optional
+      risk-score-threshold: ${HCAPTCHA_RISK_SCORE_THRESHOLD:0.8}
 
 keycloak:
   client-id: payment-service
