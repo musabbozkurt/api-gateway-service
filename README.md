@@ -16,11 +16,9 @@
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
-    <li><a href="#versions">Versions</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#contact">Contact</a></li>
     <li><a href="#References">References</a></li>
-    <li><a href="#todo">TODO</a></li>
   </ol>
 </details>
 
@@ -103,7 +101,7 @@ Followings should be installed and links for how to install them.
         * If Postman is installed, import files that are under the postman_collection folder
         * How to import postman collection -> https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#importing-postman-data
   
-    * Run the following command before running payment-service -> clean install
+    * Run the following command before running payment-service -> mvn clean install or mvn clean package
     * Run the following command in each service directory to run Spring Boot Applications -> mvn spring-boot:run
   ```
 
@@ -114,62 +112,14 @@ Followings should be installed and links for how to install them.
     git clone https://github.com/musabbozkurt/api-gateway-service.git
    ```
 2. Run Spring Boot applications
-   ```sh
-    mvn spring-boot:run
-   ```
+
+    1. `mvn clean install` or `mvn clean package`
+    2. `mvn spring-boot:run`
+
 3. Additional information to access endpoints, swagger and actuator
 
-   ```sh
-    * Swagger Url
-      * swagger2-application endpoints
-      
-          * http://localhost:8082/v3/api-docs
-          * http://localhost:8080/gateway/api/v2/api-docs
-          * http://localhost:8082/swagger-ui/index.html
-      
-      * student-service endpoints
-      
-          * http://localhost:8080/gateway/students/v2/api-docs
-          * http://localhost:8081/swagger-ui/index.html
-    
-    * Actuator Url
-    
-      * http://localhost:8082/actuator
-      
-    * API Gateway Endpoints 
-    
-      * http://localhost:8080/gateway/api/users
-      * http://localhost:8080/gateway/api/user/role/ADMIN
-      * http://localhost:8080/gateway/api/user/1
-      
-      * http://localhost:8080/gateway/students/
-      * http://localhost:8080/gateway/students/role/ADMIN2
-      * http://localhost:8080/gateway/students/1
-      
-      * GET http://localhost:8080/gateway/payments/
-      * GET http://localhost:8080/gateway/payments/1
-      * POST http://localhost:8080/gateway/payments
-      
-    * Service Endpoints Without API Gateway
-    
-      * http://localhost:8082/api/users
-      * http://localhost:8082/api/user/role/ADMIN
-      * http://localhost:8082/api/user/1
-      
-      * http://localhost:8082/api/events TO PUBLISH AN EVENT
-      
-      * http://localhost:8081/students/
-      * http://localhost:8081/students/role/ADMIN2
-      * http://localhost:8081/students/1
-      
-      * http://localhost:8081/students/events TO PUBLISH AN EVENT
-      
-      * GET http://localhost:8083/payments/
-      * GET http://localhost:8083/payments/1
-      * POST http://localhost:8083/payments
-      
-      * http://localhost:8080/gateway/students/payments
-   ```
+    * Swagger Url: http://localhost:8080/swagger-ui/
+
 4. How to run in Docker
    ```sh
     1 - Open Docker Quickstart Terminal
@@ -178,22 +128,6 @@ Followings should be installed and links for how to install them.
     4 - Type the following command to make sure docker image has been created -> docker image ls
     5 - Type the following command to run docker image -> docker run -p 9090:8080 api-gateway-service-project.jar
    ```
-
-<!-- VERSIONS -->
-
-## Versions
-
-  ```
-    * Spring Boot Version -> 2.6.4
-    * Springfox Swagger2 Version -> 3.0.0
-    * projectlombok Version -> 1.18.30
-    * spring-cloud-starter-stream-rabbit -> parent project version -> 2.6.4
-    * spring-cloud-starter-sleuth -> parent project version -> 2.6.4
-    * spring-cloud-sleuth-zipkin -> parent project version -> 2.6.4
-    * spring-cloud Version -> 2021.0.1
-    * org.mapstruct Version -> 1.4.2.Final 
-    * keycloak-spring-boot-starter Version -> 16.1.1 
-  ```
 
 <!-- CONTRIBUTING -->
 
@@ -221,63 +155,22 @@ contributions you make are **greatly appreciated**.
 
 ### References
 
-  ```
-    * Keycloak integration with Spring Boot Project 
-        -> https://www.keycloak.org/docs/latest/securing_apps/#_spring_boot_adapter
-        -> https://www.youtube.com/watch?v=rcvAmBoDlLk
-        -> Keycloak installation -> https://gruchalski.com/posts/2020-09-03-keycloak-with-docker-compose/
-        -> https://www.keycloak.org/docs/latest/server_admin/#_service_accounts
-        -> https://huongdanjava.com/get-access-token-using-the-grant-type-resource-owner-password-credentials-of-oauth-2-0-from-keycloak.html
-        -> https://developers.redhat.com/blog/2020/11/24/authentication-and-authorization-using-the-keycloak-rest-api#
-        -> https://www.baeldung.com/postman-keycloak-endpoints
-        -> https://stackoverflow.com/a/49127022
-        -> https://www.programcreek.com/java-api-examples/?api=org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
-        -> https://github.com/edwin/java-keycloak-integration
+* Keycloak integration with Spring Boot Project
+    - https://www.keycloak.org/docs/latest/securing_apps/#_spring_boot_adapter
+    - https://www.youtube.com/watch?v=rcvAmBoDlLk
+    - Keycloak installation -> https://gruchalski.com/posts/2020-09-03-keycloak-with-docker-compose/
+    - https://www.keycloak.org/docs/latest/server_admin/#_service_accounts
+    - https://huongdanjava.com/get-access-token-using-the-grant-type-resource-owner-password-credentials-of-oauth-2-0-from-keycloak.html
+    - https://developers.redhat.com/blog/2020/11/24/authentication-and-authorization-using-the-keycloak-rest-api#
+    - https://www.baeldung.com/postman-keycloak-endpoints
+    - https://stackoverflow.com/a/49127022
+    - https://www.programcreek.com/java-api-examples/?api=org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
+    - https://github.com/edwin/java-keycloak-integration
 
-    * https://www.baeldung.com/spring-cloud-feign-oauth-token
-    * https://www.codementor.io/@cristianrosu948/protecting-your-spring-boot-rest-endpoints-with-google-recaptcha-and-aop-pn7a88s7w
-    * https://www.baeldung.com/spring-security-registration-captcha
-    * https://examples.javacodegeeks.com/using-google-captcha-with-spring-boot-application/
-    * https://stackoverflow.com/a/44924353
-  ```
+* https://www.baeldung.com/spring-cloud-feign-oauth-token
+* https://www.codementor.io/@cristianrosu948/protecting-your-spring-boot-rest-endpoints-with-google-recaptcha-and-aop-pn7a88s7w
+* https://www.baeldung.com/spring-security-registration-captcha
+* https://examples.javacodegeeks.com/using-google-captcha-with-spring-boot-application/
+* https://stackoverflow.com/a/44924353
 
-<!-- TODO -->
 
-### TODO
-
-```
-* Standardized API Exception Handling will be added. (DONE but it needs improvements)
-  * References
-    * https://medium.com/@georgeberar/springboot-standardized-api-exception-handling-f31510861350
-* webhook-service will be added. 
-  * References
-    * https://www.twilio.com/blog/coding-twilio-webhooks-in-java-with-spring-boot
-    * https://dreamix.eu/blog/java/webhook-with-spring-boot-and-h2-database
-* Distributed transactions in Spring, with and without XA and ChainedTransactionManager for rabbitMQ will be added. 
-  * References
-    * https://lifeinide.com/post/2017-12-29-spring-boot-rabbitmq-transactions/
-    * https://stackoverflow.com/questions/46721195/transaction-handling-rabbit-mq-and-spring-amqp
-    * https://www.infoworld.com/article/2077963/distributed-transactions-in-spring--with-and-without-xa.html
-    * https://docs.spring.io/spring-data/commons/docs/current/api/org/springframework/data/transaction/ChainedTransactionManager.html
-    * https://www.rabbitmq.com/api-guide.html
-    * https://www.javainuse.com/camel/camel_bootsqltransact
-    * https://mike-costello.github.io/2020/04/01/Using_Debezium_With_AMQP_Events/
-    * https://debezium.io/blog/2019/02/19/reliable-microservices-data-exchange-with-the-outbox-pattern/
-    * https://dzone.com/articles/implementing-the-outbox-pattern
-    * Outbox pattern with Debezium, PostgreSQL and RabbitMQ
-    * Idempotency will be added to all events and Post REST APIs
-      * References
-        * https://github.com/727474430/idempotent-spring-boot-starter
-* Elasticsearch, Kibana or Grafana with docker-compose will be added. 
-  * References
-    * 
-* Hibernate and Hazelcast second level cache
-  * https://docs.hazelcast.com/tutorials/springboot-hibernate
-  * https://docs.hazelcast.com/imdg/4.2/plugins/framework-integration#hazelcast-hibernate-2lc
-  * https://medium.com/@skywalkerhunter/org-hibernate-orm-deprecation-caa816ba2755
-  * https://www.baeldung.com/hibernate-second-level-cache
-  * https://www.devtalkers.com/2020/04/hibernate-second-level-cache-spring.html
-  * https://hibernate.atlassian.net/browse/HHH-12441
-* PostgreSQL sql vacuum
-  * https://www.postgresql.org/docs/current/sql-vacuum.html
-```
