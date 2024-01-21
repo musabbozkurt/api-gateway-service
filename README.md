@@ -173,6 +173,7 @@ contributions you make are **greatly appreciated**.
 * https://www.baeldung.com/spring-security-registration-captcha
 * https://examples.javacodegeeks.com/using-google-captcha-with-spring-boot-application/
 * https://stackoverflow.com/a/44924353
+* https://www.baeldung.com/swagger-2-documentation-for-spring-rest-api
 
 * HCaptcha integration with Spring Boot Project
     - [HCaptcha Developer Guide documentation](https://docs.hcaptcha.com/)
