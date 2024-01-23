@@ -124,7 +124,8 @@ Followings should be installed and links for how to install them.
 
 3. Additional information to access endpoints, swagger and actuator
 
-    * Swagger Url: http://localhost:8080/swagger-ui/ or http://localhost:8080/swagger-ui/index.html
+    * Swagger: http://localhost:8080/swagger-ui/ or http://localhost:8080/swagger-ui/index.html
+    * Actuator: http://localhost:8080/actuator
 
 4. How to run in Docker
    ```sh
@@ -188,3 +189,8 @@ contributions you make are **greatly appreciated**.
 * OpenAI integration with Spring Boot Project
     - [Create new secret key and replace all YOUR_API_KEY_HERE in code with this new key](https://platform.openai.com/account/api-keys)
     - [openai-test-requests.http](openai-service%2Fopenai-test-requests.http)
+
+* API Gateway with Spring Cloud Gateway in Java
+    * [Building an API Gateway in Java with Spring Cloud Gateway](https://www.youtube.com/watch?v=EKoq98KqvrI)
+    * [Spring Cloud Gateway](https://docs.spring.io/spring-cloud-gateway/reference/index.html)
+
