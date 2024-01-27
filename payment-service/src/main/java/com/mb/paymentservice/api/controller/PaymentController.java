@@ -6,10 +6,11 @@ import com.mb.paymentservice.exception.ErrorCode;
 import com.mb.paymentservice.exception.PaymentServiceException;
 import com.mb.paymentservice.mapper.PaymentMapper;
 import com.mb.paymentservice.service.PaymentService;
+import jakarta.annotation.security.RolesAllowed;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.security.RolesAllowed;
 import java.util.List;
 
 @RestController
@@ -21,13 +22,13 @@ public class PaymentController {
     private final PaymentMapper paymentMapper;
 
     @PostMapping
-    @RolesAllowed("user")
+    @PreAuthorize("hasRole('client_user')")
     public PaymentResponse createPayment(@RequestBody PaymentRequest paymentRequest) {
         return paymentMapper.map(paymentService.createPayment(paymentMapper.map(paymentRequest)));
     }
 
     @GetMapping("/{id}")
-    @RolesAllowed("user")
+    @PreAuthorize("hasRole('client_admin')")
     public PaymentResponse getPaymentById(@PathVariable Long id) {
         return paymentMapper.map(paymentService.getPaymentById(id));
     }

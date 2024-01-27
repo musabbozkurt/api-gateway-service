@@ -5,9 +5,9 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5433/keycloak?currentSchema=payment_schema
-    username: keycloak
-    password: keycloak
+    url: jdbc:postgresql://localhost:5433/postgres?currentSchema=payment_schema
+    username: postgres
+    password: postgres
 
   jpa:
     hibernate:
@@ -32,13 +32,24 @@ spring:
     serialization:
       indent-output: true
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9090/realms/payment-service
+          jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
+
+jwt:
+  auth:
+    converter:
+      resource-id: payment-service
+      principle-attribute: payment-service
+
 server:
   port: 8083
 
-keycloak:
-  auth-server-url: http://localhost:28080/auth
-  realm: master
-  resource: payment-service
-  public-client: true
-  bearer-only: true
-
+springdoc:
+  api-docs:
+    path: /payment/api-docs
+  swagger-ui:
+    path: /swagger-ui.html # http://localhost:8083/swagger-ui/index.html
