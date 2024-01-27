@@ -35,7 +35,7 @@ spring:
 
   cloud:
     function:
-      definition: swagger2Consumer
+      definition: swaggerConsumer
     #This makes the queue durable so that if the application is down, the messages would still be published.
     #These are then processed once the application is up again.
     #Instruction defines exchange and queue names
@@ -45,15 +45,15 @@ spring:
         studentProducer-out-0:
           destination: student_events_destination
           group: student_events_group
-        swagger2Consumer-in-0:
-          destination: swagger2_events_destination
-          group: swagger2_events_group
+        swaggerConsumer-in-0:
+          destination: swagger_events_destination
+          group: swagger_events_group
           consumer:
             maxAttempts: 1
             concurrency: 1
       rabbit:
         bindings:
-          swagger2Consumer-in-0:
+          swaggerConsumer-in-0:
             consumer:
               exchangeType: fanout
               autoBindDlq: true
