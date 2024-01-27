@@ -35,7 +35,7 @@ api-gateway-service project established by combination of the following services
     * api-gateway
     * payment-service
     * student-service
-    * swagger2-application
+    * swagger-application
     * openai-service
    ```
 
@@ -43,7 +43,7 @@ api-gateway-service project established by combination of the following services
 
    ```
     * Spring Cloud Gateway
-    * Springfox Swagger2
+    * SpringDoc Swagger
     * Event Driven Architecture with RabbitMQ
     * Sleuth and Zipkin dependencies to track the logs
     * Postman collection to test by using Postman
