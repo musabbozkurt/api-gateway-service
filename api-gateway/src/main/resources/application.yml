@@ -6,6 +6,8 @@ OPENAI_SERVICE_BASE_URL: http://localhost:8084
 
 server:
   port: 8080
+  servlet:
+    context-path: /
 
 spring:
   jackson:
@@ -74,3 +76,25 @@ management:
       show-details: always
     gateway:
       enabled: true
+
+springdoc:
+  enable-native-support: true
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html # http://localhost:8080/swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    urls:
+      - url: /openai/api-docs
+        name: OpenAI Service
+        uri: ${OPENAI_SERVICE_BASE_URL}
+      - url: /payment/api-docs
+        name: Payment Service
+        uri: ${PAYMENT_SERVICE_BASE_URL}
+      - url: /student/api-docs
+        name: Student Service
+        uri: ${STUDENT_SERVICE_BASE_URL}
+      - url: /swagger/api-docs
+        name: Swagger Service
+        uri: ${SWAGGER_APPLICATION_BASE_URL}
