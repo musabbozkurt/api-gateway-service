@@ -42,7 +42,7 @@ api-gateway-service project established by combination of the following services
 ### Features
 
    ```
-    * Zuul Api Gateway
+    * Spring Cloud Gateway
     * Springfox Swagger2
     * Event Driven Architecture with RabbitMQ
     * Sleuth and Zipkin dependencies to track the logs
