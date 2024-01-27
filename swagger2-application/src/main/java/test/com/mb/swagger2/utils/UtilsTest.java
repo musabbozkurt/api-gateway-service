@@ -8,7 +8,6 @@ import org.javamoney.moneta.format.CurrencyStyle;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.util.Base64Utils;
 
 import javax.money.format.AmountFormatQueryBuilder;
 import javax.money.format.MonetaryAmountFormat;
@@ -16,6 +15,7 @@ import javax.money.format.MonetaryFormats;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.Locale;
 
 @Slf4j
@@ -28,10 +28,10 @@ public class UtilsTest {
         standardPBEStringEncryptor.setPassword("Password");
 
         String helloWorld = "10000";
-        String encodeToUrlSafeString = Base64Utils.encodeToUrlSafeString(standardPBEStringEncryptor.encrypt(helloWorld).getBytes());
+        String encodeToUrlSafeString = Base64.getUrlEncoder().encodeToString(standardPBEStringEncryptor.encrypt(helloWorld).getBytes());
 
         log.info("encodeToUrlSafeString : {}", encodeToUrlSafeString);
-        Long valueOf = Long.valueOf(standardPBEStringEncryptor.decrypt(new String(Base64Utils.decodeFromUrlSafeString(encodeToUrlSafeString))));
+        Long valueOf = Long.valueOf(standardPBEStringEncryptor.decrypt(new String(Base64.getUrlDecoder().decode(encodeToUrlSafeString))));
 
         log.info("valueOf : {}", valueOf);
     }
@@ -40,7 +40,7 @@ public class UtilsTest {
     public void testMonetaryAmountFormat() {
         DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         MonetaryAmountFormat moneyFormat = MonetaryFormats.getAmountFormat(
-                AmountFormatQueryBuilder.of(new Locale("tr", "TR"))
+                AmountFormatQueryBuilder.of(Locale.of("tr", "TR"))
                         .set(CurrencyStyle.SYMBOL)
                         .set(AmountFormatParams.PATTERN, "###,###.##¤")
                         .build());

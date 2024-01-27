@@ -3,11 +3,8 @@ package com.mb.swagger2.api.controller;
 import com.mb.swagger2.api.response.User;
 import com.mb.swagger2.enums.EventType;
 import com.mb.swagger2.queue.producer.Swagger2EventProducer;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,7 +16,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@Api(value = "Swagger2 Rest Controller")
 public class Swagger2Controller {
 
     private final Swagger2EventProducer swagger2EventProducer;
@@ -33,37 +29,27 @@ public class Swagger2Controller {
         users.add(new User(4, "Swagger2-User4", "USER", "swagger2.user4@test.com"));
     }
 
-    @ApiOperation(value = "Get Users", response = Iterable.class, tags = "getUsers")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Success|OK"),
-            @ApiResponse(code = 401, message = "Not Authorized!"),
-            @ApiResponse(code = 403, message = "Forbidden!"),
-            @ApiResponse(code = 404, message = "Not Found!")})
-
-    @RequestMapping(value = "/users")
+    @GetMapping(value = "/users")
     public List<User> getUsers() {
         return users;
     }
 
-    @ApiOperation(value = "Get User by User Id ", response = User.class, tags = "getUserById")
-    @RequestMapping(value = "/user/{id}")
+    @GetMapping(value = "/users/{id}")
     public User getUserById(@PathVariable(value = "id") int id) {
         return users.stream()
                 .filter(x -> x.getId() == (id))
-                .collect(Collectors.toList())
-                .get(0);
+                .toList()
+                .getFirst();
     }
 
-    @ApiOperation(value = "Get User by role ", response = User.class, tags = "getUserByRole")
-    @RequestMapping(value = "/user/role/{role}")
+    @GetMapping(value = "/users/roles/{role}")
     public List<User> getUserByRole(@PathVariable(value = "role") String role) {
         return users.stream()
                 .filter(x -> x.getRole().equalsIgnoreCase(role))
                 .collect(Collectors.toList());
     }
 
-    @ApiOperation(value = "Publish Swagger2 Event", tags = "publishSwagger2Event")
-    @RequestMapping(value = "/events")
+    @GetMapping(value = "/events")
     public void publishSwagger2Event() {
         swagger2EventProducer.publishEvent("Publish Swagger2 Event with EventType SWAGGER2_EVENT", EventType.SWAGGER2_EVENT);
     }
