@@ -6,8 +6,6 @@ OPENAI_SERVICE_BASE_URL: http://localhost:8084
 
 server:
   port: 8080
-  servlet:
-    context-path: /
 
 spring:
   jackson:
