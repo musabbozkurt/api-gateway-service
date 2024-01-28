@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "0bd3fc59-6df5-43e4-bc78-c1d8c35bcad8",
+    "_postman_id": "ddf685fa-660b-42c1-9d8e-eb76c5ea655a",
     "name": "api-gateway-service",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "31512047"
@@ -340,6 +340,34 @@
               ],
               "port": "8080",
               "path": [
+                "payments"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Student Service",
+      "item": [
+        {
+          "name": "Get Payments of Users",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/students/payments",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "students",
                 "payments"
               ]
             }
