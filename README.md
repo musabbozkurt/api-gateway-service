@@ -45,7 +45,7 @@
     * Spring Cloud Gateway
     * SpringDoc Swagger
     * Event Driven Architecture with RabbitMQ
-    * Sleuth and Zipkin dependencies to track the logs
+    * micrometer-tracing dependencies to track the logs
     * Postman collection to test by using Postman
     * Keycloak integration is completed under the payment-service
     * Feign Client secure call with Keycloak integration is completed under the student-service
@@ -71,7 +71,7 @@ Followings should be installed and links for how to install them.
 * Docker [How to install Docker](https://docs.docker.com/get-docker)
 
 * Run `docker-compose up -d` command in the [docker-compose.yml](docker-compose.yml) directory to install RabbitMQ,
-  PostgreSQL and Keycloak -> `docker-compose up -d`
+  PostgreSQL and Keycloak
 
 * Log in to http://localhost:9090/admin with `username: admin` and `password: admin`
     1. `Create realm` -> Import [payment-service-realm-export.json](docs%2Fkeycloak%2Fpayment-service-realm-export.json)
@@ -152,25 +152,24 @@ contributions you make are **greatly appreciated**.
 
 * Keycloak integration with Spring Boot Project
     - https://www.keycloak.org/getting-started/getting-started-docker
-    - [Spring boot 3 Keycloak integration for beginners | The complete Guide](https://www.youtube.com/watch?v=vmEWywGzWbA)
-    - [OAuth 2.0 client credentials and JWT explained along with keycloak demo](https://www.youtube.com/watch?v=V4j-cPJxRJs)
     - https://www.keycloak.org/docs/latest/securing_apps/#_spring_boot_adapter
-    - https://www.youtube.com/watch?v=rcvAmBoDlLk
-    - Keycloak installation -> https://gruchalski.com/posts/2020-09-03-keycloak-with-docker-compose/
     - https://www.keycloak.org/docs/latest/server_admin/#_service_accounts
     - https://huongdanjava.com/get-access-token-using-the-grant-type-resource-owner-password-credentials-of-oauth-2-0-from-keycloak.html
     - https://developers.redhat.com/blog/2020/11/24/authentication-and-authorization-using-the-keycloak-rest-api#
     - https://www.baeldung.com/postman-keycloak-endpoints
-    - https://stackoverflow.com/a/49127022
     - https://www.programcreek.com/java-api-examples/?api=org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
     - https://github.com/edwin/java-keycloak-integration
+    - [Spring boot 3 Keycloak integration for beginners | The complete Guide](https://www.youtube.com/watch?v=vmEWywGzWbA)
+    - [OAuth 2.0 client credentials and JWT explained along with keycloak demo](https://www.youtube.com/watch?v=V4j-cPJxRJs)
+    - [Secure Spring Boot Microservices with Keycloak](https://www.youtube.com/watch?v=rcvAmBoDlLk)
+    - [Keycloak installation with docker-compose](https://gruchalski.com/posts/2020-09-03-keycloak-with-docker-compose/)
 
 * https://www.baeldung.com/spring-cloud-feign-oauth-token
-* https://www.codementor.io/@cristianrosu948/protecting-your-spring-boot-rest-endpoints-with-google-recaptcha-and-aop-pn7a88s7w
 * https://www.baeldung.com/spring-security-registration-captcha
-* https://examples.javacodegeeks.com/using-google-captcha-with-spring-boot-application/
-* https://stackoverflow.com/a/44924353
 * https://www.baeldung.com/swagger-2-documentation-for-spring-rest-api
+* https://www.codementor.io/@cristianrosu948/protecting-your-spring-boot-rest-endpoints-with-google-recaptcha-and-aop-pn7a88s7w
+* https://examples.javacodegeeks.com/using-google-captcha-with-spring-boot-application/
+* [How to POST form-url-encoded data with Spring Cloud Feign](https://stackoverflow.com/a/44924353)
 
 * HCaptcha integration with Spring Boot Project
     - [HCaptcha Developer Guide documentation](https://docs.hcaptcha.com/)
