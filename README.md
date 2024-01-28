@@ -163,6 +163,7 @@ contributions you make are **greatly appreciated**.
     - [OAuth 2.0 client credentials and JWT explained along with keycloak demo](https://www.youtube.com/watch?v=V4j-cPJxRJs)
     - [Secure Spring Boot Microservices with Keycloak](https://www.youtube.com/watch?v=rcvAmBoDlLk)
     - [Keycloak installation with docker-compose](https://gruchalski.com/posts/2020-09-03-keycloak-with-docker-compose/)
+    - [spring-boot-swagger-ui-keycloak](https://github.com/little-pinecone/spring-boot-swagger-ui-keycloak/tree/master)
 
 * https://www.baeldung.com/spring-cloud-feign-oauth-token
 * https://www.baeldung.com/spring-security-registration-captcha
