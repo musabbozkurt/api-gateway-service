@@ -1,11 +1,11 @@
 package com.mb.paymentservice.exception;
 
+import jakarta.validation.ConstraintViolation;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import javax.validation.ConstraintViolation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -51,7 +51,7 @@ public class SpringValidationWebExceptionMessageBuilder {
     }
 
     public List<Argument> getArguments(TypeMismatchException mismatchException) {
-        List<Argument> arguments = new ArrayList();
+        List<Argument> arguments = new ArrayList<>();
         arguments.add(new Argument("property", getPropertyName(mismatchException)));
         arguments.add(new Argument("invalid", mismatchException.getValue()));
         Class<?> requiredType = mismatchException.getRequiredType();

@@ -11,35 +11,25 @@ services:
       # environment:
       # RABBITMQ_DEFAULT_USER: guest error: RABBITMQ_DEFAULT_USER is set but deprecated
       # RABBITMQ_DEFAULT_PASS: guest error: RABBITMQ_DEFAULT_PASS is set but deprecated
+
   postgres:
     image: postgres
     restart: always
-    container_name: keycloak-db
+    container_name: postgres-db
     ports:
       - "5433:5432" # default ports 5432:5432
     environment:
       POSTGRES_DB: ${POSTGRESQL_DB}
       POSTGRES_USER: ${POSTGRESQL_USER}
       POSTGRES_PASSWORD: ${POSTGRESQL_PASS}
-    networks:
-      - local-keycloak
 
   keycloak:
-    depends_on:
-      - postgres
-    container_name: local_keycloak
+    container_name: keycloak
+    image: quay.io/keycloak/keycloak:23.0.4
     environment:
-      DB_VENDOR: postgres
-      DB_ADDR: postgres
-      DB_DATABASE: ${POSTGRESQL_DB}
-      DB_USER: ${POSTGRESQL_USER}
-      DB_PASSWORD: ${POSTGRESQL_PASS}
-    image: jboss/keycloak:${KEYCLOAK_VERSION}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
     ports:
-      - "28080:8080"
-    restart: unless-stopped
-    networks:
-      - local-keycloak
-
-networks:
-  local-keycloak:
+      - "9090:8080"
+    command:
+      - "start-dev"

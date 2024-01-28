@@ -18,9 +18,9 @@ public class StudentConsumerConfig {
     private final EventConsumerExecutor eventConsumerExecutor;
 
     @Bean
-    public Consumer<Message<?>> swagger2Consumer() {
+    public Consumer<Message<?>> swaggerConsumer() {
         return message -> {
-            log.info("Received a swagger2 consumer event. swagger2Consumer - Payload: {} headers: {}.", message.getPayload(), message.getHeaders());
+            log.info("Received a swagger consumer event. swaggerConsumer - Payload: {} headers: {}.", message.getPayload(), message.getHeaders());
             executeStrategy(message);
         };
     }

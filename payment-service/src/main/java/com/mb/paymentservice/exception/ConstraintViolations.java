@@ -1,8 +1,9 @@
 package com.mb.paymentservice.exception;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.constraints.Digits;
-import javax.validation.constraints.*;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.*;
+
 import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.stream.Collectors;

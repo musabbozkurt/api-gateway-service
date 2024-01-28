@@ -1,5 +1,6 @@
 package com.mb.paymentservice.exception;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -7,6 +8,7 @@ import org.springframework.beans.TypeMismatchException;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MimeType;
@@ -25,7 +27,6 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 import org.springframework.web.server.*;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
-import javax.validation.ConstraintViolationException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -87,24 +88,27 @@ public class RestResponseExceptionHandler {
         ErrorCode errorCode = ErrorCode.UNKNOWN_ERROR;
         HttpStatus httpStatus = ErrorCode.UNKNOWN_ERROR.getHttpStatus();
 
-        if (ex instanceof MissingRequestHeaderException) {
-            MissingRequestHeaderException headerException = (MissingRequestHeaderException) ex;
-            errorCode = ErrorCode.MISSING_HEADER;
-            httpStatus = ErrorCode.MISSING_HEADER.getHttpStatus();
-            arguments.add(new Argument("name", headerException.getHeaderName()));
-            arguments.add(new Argument("expected", headerException.getParameter()));
-        } else if (ex instanceof MissingRequestCookieException) {
-            MissingRequestCookieException cookieException = (MissingRequestCookieException) ex;
-            errorCode = ErrorCode.MISSING_COOKIE;
-            httpStatus = ErrorCode.MISSING_COOKIE.getHttpStatus();
-            arguments.add(new Argument("name", cookieException.getCookieName()));
-            arguments.add(new Argument("expected", cookieException.getParameter()));
-        } else if (ex instanceof MissingMatrixVariableException) {
-            MissingMatrixVariableException variableException = (MissingMatrixVariableException) ex;
-            errorCode = ErrorCode.MISSING_MATRIX_VARIABLE;
-            httpStatus = ErrorCode.MISSING_MATRIX_VARIABLE.getHttpStatus();
-            arguments.add(new Argument("name", variableException.getVariableName()));
-            arguments.add(new Argument("expected", variableException.getParameter()));
+        switch (ex) {
+            case MissingRequestHeaderException headerException -> {
+                errorCode = ErrorCode.MISSING_HEADER;
+                httpStatus = ErrorCode.MISSING_HEADER.getHttpStatus();
+                arguments.add(new Argument("name", headerException.getHeaderName()));
+                arguments.add(new Argument("expected", headerException.getParameter()));
+            }
+            case MissingRequestCookieException cookieException -> {
+                errorCode = ErrorCode.MISSING_COOKIE;
+                httpStatus = ErrorCode.MISSING_COOKIE.getHttpStatus();
+                arguments.add(new Argument("name", cookieException.getCookieName()));
+                arguments.add(new Argument("expected", cookieException.getParameter()));
+            }
+            case MissingMatrixVariableException variableException -> {
+                errorCode = ErrorCode.MISSING_MATRIX_VARIABLE;
+                httpStatus = ErrorCode.MISSING_MATRIX_VARIABLE.getHttpStatus();
+                arguments.add(new Argument("name", variableException.getVariableName()));
+                arguments.add(new Argument("expected", variableException.getParameter()));
+            }
+            default -> {
+            }
         }
         String formattedMessage = templateParser.interpolate(new ErrorMessage(errorCode.name(), arguments, ex.getMessage()));
 
@@ -143,8 +147,7 @@ public class RestResponseExceptionHandler {
             if (ex instanceof ServerWebInputException) {
                 MethodParameter parameter = ((ServerWebInputException) ex).getMethodParameter();
 
-                if (ex.getCause() instanceof TypeMismatchException) {
-                    TypeMismatchException cause = (TypeMismatchException) ex.getCause();
+                if (ex.getCause() instanceof TypeMismatchException cause) {
                     if (parameter != null) {
                         cause.initPropertyName(Objects.requireNonNull(parameter.getParameterName()));
                     }
@@ -178,7 +181,7 @@ public class RestResponseExceptionHandler {
             }
 
             if (ex instanceof ResponseStatusException) {
-                HttpStatus status = ((ResponseStatusException) ex).getStatus();
+                HttpStatusCode status = ((ResponseStatusException) ex).getStatusCode();
                 if (status == HttpStatus.NOT_FOUND) {
                     errorCode = ErrorCode.NO_HANDLER;
                 }

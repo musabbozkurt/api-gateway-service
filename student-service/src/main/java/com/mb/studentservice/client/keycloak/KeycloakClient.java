@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
-@FeignClient(name = "keycloak-client", url = "http://localhost:8081/resource-server-jwt", configuration = {OAuthFeignConfig.class, KeycloakClientConfig.class})
+@FeignClient(name = "keycloak-client", url = "${GATEWAY_BASE_URL}", configuration = {OAuthFeignConfig.class, KeycloakClientConfig.class})
 public interface KeycloakClient {
 
     @GetMapping(value = "/payments")
