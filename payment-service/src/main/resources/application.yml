@@ -1,3 +1,6 @@
+KEYCLOAK_BASE_URL: http://localhost:9090
+PAYMENT_SERVICE_REALM: payment-service
+
 spring:
   application:
     name: payment-service
@@ -36,7 +39,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:9090/realms/payment-service
+          issuer-uri: ${KEYCLOAK_BASE_URL}/realms/${PAYMENT_SERVICE_REALM}
           jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
 
 jwt:

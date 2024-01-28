@@ -74,10 +74,15 @@ Followings should be installed and links for how to install them.
   PostgreSQL and Keycloak -> `docker-compose up -d`
 
 * Log in to http://localhost:9090/admin with `username: admin` and `password: admin`
-    1. Create new realm. New realm name should be `payment-service`
-    2. Create new client. New client name should be `payment-service`
-    3. The other details should be like the following
-        * ![client_info.png](client_info.png)
+    1. `Create realm` -> Import [payment-service-realm-export.json](docs%2Fkeycloak%2Fpayment-service-realm-export.json)
+    2. `Clients` -> `payment-service` -> `Credentials` -> `Regenerate` copy the value and use this value in Postman
+       environment variable.
+    3. `Users` -> `Add user` -> `Username` -> `payment-service-user`
+    4. `Users` -> `payment-service-user` -> `Credentials` -> `Set password` to `test` and turn off `Temporary` toggle.
+    5. `Users` -> `payment-service-user` -> `Role Mapping` -> `Assign role` add `admin` role
+    6. [Postman](https://www.postman.com/downloads/) should be installed,
+       follow [How to import postman collection](https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#importing-postman-data)
+       to import files that are under the [postman_collection](docs%2Fpostman_collection) folder
 
 * Google reCAPTCHA installation (OPTIONAL)
     * Log in to the https://www.google.com/recaptcha/admin/create
@@ -89,11 +94,6 @@ Followings should be installed and links for how to install them.
     * HCaptcha integration was implemented in 4 different ways
       in [HCaptchaController.java](student-service%2Fsrc%2Fmain%2Fjava%2Fcom%2Fmb%2Fstudentservice%2Fapi%2Fcontroller%2FHCaptchaController.java) (
       OPTIONAL)
-
-* [Postman](https://www.postman.com/downloads/) can be installed (OPTIONAL)
-    * If Postman is installed, import files that are under the [postman_collection](postman_collection) folder
-    * How to import postman
-      collection -> https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#importing-postman-data
 
 * Create new secret key and replace all YOUR_API_KEY_HERE in code with this new
   key -> https://platform.openai.com/account/api-keys
@@ -153,6 +153,7 @@ contributions you make are **greatly appreciated**.
 * Keycloak integration with Spring Boot Project
     - https://www.keycloak.org/getting-started/getting-started-docker
     - [Spring boot 3 Keycloak integration for beginners | The complete Guide](https://www.youtube.com/watch?v=vmEWywGzWbA)
+    - [OAuth 2.0 client credentials and JWT explained along with keycloak demo](https://www.youtube.com/watch?v=V4j-cPJxRJs)
     - https://www.keycloak.org/docs/latest/securing_apps/#_spring_boot_adapter
     - https://www.youtube.com/watch?v=rcvAmBoDlLk
     - Keycloak installation -> https://gruchalski.com/posts/2020-09-03-keycloak-with-docker-compose/

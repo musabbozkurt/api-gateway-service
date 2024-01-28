@@ -20,38 +20,26 @@ spring:
           predicates:
             - Path=/students/**
           uri: ${STUDENT_SERVICE_BASE_URL}
-          filters:
-            - StripPrefix=2
         - id: swagger-application
           predicates:
             - Path=/api/**
           uri: ${SWAGGER_APPLICATION_BASE_URL}
-          filters:
-            - StripPrefix=2
         - id: payment-service
           predicates:
             - Path=/payments/**
           uri: ${PAYMENT_SERVICE_BASE_URL}
-          filters:
-            - StripPrefix=2
         - id: validate
           predicates:
             - Path=/validate/**
           uri: ${STUDENT_SERVICE_BASE_URL}
-          filters:
-            - StripPrefix=2
         - id: openai-service
           predicates:
             - Path=/openai/**
           uri: ${OPENAI_SERVICE_BASE_URL}
-          filters:
-            - StripPrefix=2
         - id: role # TODO This can be removed it's just a PrefixPath example.
           predicates:
             - Path=/role/**
           uri: ${STUDENT_SERVICE_BASE_URL}
-          filters:
-            - StripPrefix=2
             - PrefixPath=/students
   main:
     web-application-type: reactive

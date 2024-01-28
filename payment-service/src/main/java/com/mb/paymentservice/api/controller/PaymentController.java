@@ -22,7 +22,7 @@ public class PaymentController {
     private final PaymentMapper paymentMapper;
 
     @PostMapping
-    @PreAuthorize("hasRole('client_user')")
+    @PreAuthorize("hasRole('client_user') || hasRole('client_admin')")
     public PaymentResponse createPayment(@RequestBody PaymentRequest paymentRequest) {
         return paymentMapper.map(paymentService.createPayment(paymentMapper.map(paymentRequest)));
     }
@@ -34,7 +34,7 @@ public class PaymentController {
     }
 
     @GetMapping
-    @RolesAllowed("user")
+    @RolesAllowed({"ROLE_client_user", "ROLE_client_admin"})
     public List<PaymentResponse> getPaymentList() {
         return paymentMapper.map(paymentService.getPaymentList());
     }
