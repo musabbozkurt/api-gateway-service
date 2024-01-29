@@ -44,6 +44,10 @@ spring:
   main:
     web-application-type: reactive
 
+  docker:
+    compose:
+      enabled: false
+
 google:
   recaptcha:
     url: https://www.google.com/recaptcha/api/siteverify

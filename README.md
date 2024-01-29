@@ -70,7 +70,9 @@ Followings should be installed and links for how to install them.
 * Maven [How to install Maven](https://maven.apache.org/install.html)
 * Docker [How to install Docker](https://docs.docker.com/get-docker)
 
-* Run `docker-compose up -d` command in the [docker-compose.yml](docker-compose.yml) directory or just
+* Run `docker-compose up -d` command in the [docker-compose.yml](docker-compose.yml) directory or
+  enable [spring.docker.compose](https://github.com/musabbozkurt/api-gateway-service/blob/spring-cloud-gateway-upgrade-with-java-21-changes/api-gateway/src/main/resources/application.yml#L47)
+  property and just
   run [ApiGatewayApplication.java](api-gateway%2Fsrc%2Fmain%2Fjava%2Fcom%2Fmb%2Fapigateway%2FApiGatewayApplication.java)
   to install RabbitMQ, PostgreSQL and Keycloak
 
