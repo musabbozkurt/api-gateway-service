@@ -70,8 +70,9 @@ Followings should be installed and links for how to install them.
 * Maven [How to install Maven](https://maven.apache.org/install.html)
 * Docker [How to install Docker](https://docs.docker.com/get-docker)
 
-* Run `docker-compose up -d` command in the [docker-compose.yml](docker-compose.yml) directory to install RabbitMQ,
-  PostgreSQL and Keycloak
+* Run `docker-compose up -d` command in the [docker-compose.yml](docker-compose.yml) directory or just
+  run [ApiGatewayApplication.java](api-gateway%2Fsrc%2Fmain%2Fjava%2Fcom%2Fmb%2Fapigateway%2FApiGatewayApplication.java)
+  to install RabbitMQ, PostgreSQL and Keycloak
 
 * Log in to http://localhost:9090/admin with `username: admin` and `password: admin`
     1. `Create realm` -> Import [payment-service-realm-export.json](docs%2Fkeycloak%2Fpayment-service-realm-export.json)
