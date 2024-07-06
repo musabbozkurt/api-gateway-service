@@ -27,7 +27,7 @@
 
 ## Summary
 
-api-gateway-service project established by combination of the following services and features.
+`api-gateway-service` project established by combination of the following services and features.
 
 ### Services
 
@@ -35,17 +35,17 @@ api-gateway-service project established by combination of the following services
     * api-gateway
     * payment-service
     * student-service
-    * swagger2-application
+    * swagger-application
     * openai-service
    ```
 
 ### Features
 
    ```
-    * Zuul Api Gateway
-    * Springfox Swagger2
+    * Spring Cloud Gateway
+    * SpringDoc Swagger
     * Event Driven Architecture with RabbitMQ
-    * Sleuth and Zipkin dependencies to track the logs
+    * micrometer-tracing dependencies to track the logs
     * Postman collection to test by using Postman
     * Keycloak integration is completed under the payment-service
     * Feign Client secure call with Keycloak integration is completed under the student-service
@@ -65,51 +65,41 @@ To get a local copy up and running please follow these simple steps.
 
 Followings should be installed and links for how to install them.
 
-* Java 17 or higher [How to install Java](https://java.com/en/download/help/download_options.html)
+* Java 21 or higher [How to install Java](https://java.com/en/download/help/download_options.html)
+    * Set `JAVA_HOME` to 21 -> `export JAVA_HOME=$(/usr/libexec/java_home -v 21)`
 * Maven [How to install Maven](https://maven.apache.org/install.html)
-* Lombok [How to install Lombok](https://www.baeldung.com/lombok-ide)
 * Docker [How to install Docker](https://docs.docker.com/get-docker)
 
-    ```
-    * Java 17 or higher version should be installed on your machine -> export JAVA_HOME=$(/usr/libexec/java_home -v 17)
-    * Install Apache Maven 
-    
-    * Docker installation 
-        * Please use the following link to install docker on your machine -> https://docs.docker.com/get-docker/
-        * Run the following command command in the docker-compose.yml directory 
-            to install RabbitMQ, PostgreSQL and Keycloak -> docker-compose up -d
-        * After docker images are installed, run the following command on terminal or cmd 
-          to create a Keycloak initial admin user.
-          
-           * docker exec local_keycloak \
-                 /opt/jboss/keycloak/bin/add-user-keycloak.sh \
-                 -u admin \
-                 -p admin \
-             && docker restart local_keycloak 
-             
-        * Log in to http://localhost:28080/auth/ with username: admin and password: admin
-    
-    **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** 
-    **** If you want to ignore Google reCAPTCHA, remove @RequiresCaptcha from api-gateway/src/main/java/com/mb/apigateway/filter/PreFilter.java ****
-    ****                               Don't need to do the steps under -> Google reCAPTCHA installation                                        ****
-    **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** **** 
-      
-    * Google reCAPTCHA installation
-        * Log in to the following url -> https://www.google.com/recaptcha/admin/create
-        * Fill the necessary fields. 
-            * This url can guide you -> https://examples.javacodegeeks.com/wp-content/uploads/2020/12/springboot-google-captcha-google-config-img1.jpg 
-        * Copy SITE KEY and SECRET KEY and add them into related fields that are in the api-gateway/src/main/resources/application.yml file
-        * HCaptcha integration was implemented in 4 different ways in com/mb/studentservice/api/controller/HCaptchaController.java (OPTIONAL)
-    
-    * Postman can be installed (OPTIONAL) -> https://www.postman.com/downloads/
-        * If Postman is installed, import files that are under the postman_collection folder
-        * How to import postman collection -> https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#importing-postman-data
-  
-    * Run the following command before running payment-service -> mvn clean install or mvn clean package
-    * Run the following command in each service directory to run Spring Boot Applications -> mvn spring-boot:run
-  
-    * Create new secret key and replace all YOUR_API_KEY_HERE in code with this new key -> https://platform.openai.com/account/api-keys
-  ```
+* Run `docker-compose up -d` command in the [docker-compose.yml](docker-compose.yml) directory or
+  enable [spring.docker.compose](https://github.com/musabbozkurt/api-gateway-service/blob/spring-cloud-gateway-upgrade-with-java-21-changes/api-gateway/src/main/resources/application.yml#L47)
+  property and just
+  run [ApiGatewayApplication.java](api-gateway%2Fsrc%2Fmain%2Fjava%2Fcom%2Fmb%2Fapigateway%2FApiGatewayApplication.java)
+  to install RabbitMQ, PostgreSQL and Keycloak
+
+* Log in to http://localhost:9090/admin with `username: admin` and `password: admin`
+    1. `Create realm` -> Import [payment-service-realm-export.json](docs%2Fkeycloak%2Fpayment-service-realm-export.json)
+    2. `Clients` -> `payment-service` -> `Credentials` -> `Regenerate` copy the value and use this value in Postman
+       environment variable.
+    3. `Users` -> `Add user` -> `Username` -> `payment-service-user`
+    4. `Users` -> `payment-service-user` -> `Credentials` -> `Set password` to `test` and turn off `Temporary` toggle.
+    5. `Users` -> `payment-service-user` -> `Role Mapping` -> `Assign role` add `admin` role
+    6. [Postman](https://www.postman.com/downloads/) should be installed,
+       follow [How to import postman collection](https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#importing-postman-data)
+       to import files that are under the [postman_collection](docs%2Fpostman_collection) folder
+
+* Google reCAPTCHA installation (OPTIONAL)
+    * Log in to the https://www.google.com/recaptcha/admin/create
+    * Fill the necessary fields.
+        * [This url](https://examples.javacodegeeks.com/wp-content/uploads/2020/12/springboot-google-captcha-google-config-img1.jpg)
+          can guide you
+    * Copy SITE KEY and SECRET KEY and add them into related fields that are in
+      the [application.yml](api-gateway%2Fsrc%2Fmain%2Fresources%2Fapplication.yml)
+    * HCaptcha integration was implemented in 4 different ways
+      in [HCaptchaController.java](student-service%2Fsrc%2Fmain%2Fjava%2Fcom%2Fmb%2Fstudentservice%2Fapi%2Fcontroller%2FHCaptchaController.java) (
+      OPTIONAL)
+
+* Create new secret key and replace all YOUR_API_KEY_HERE in code with this new
+  key -> https://platform.openai.com/account/api-keys
 
 ### Installation
 
@@ -124,7 +114,9 @@ Followings should be installed and links for how to install them.
 
 3. Additional information to access endpoints, swagger and actuator
 
-    * Swagger Url: http://localhost:8080/swagger-ui/ or http://localhost:8080/swagger-ui/index.html
+    * Swagger: http://localhost:8080/swagger-ui/ or http://localhost:8080/swagger-ui/index.html
+      or http://localhost:8080/swagger-ui.html
+    * Actuator: http://localhost:8080/actuator
 
 4. How to run in Docker
    ```sh
@@ -162,23 +154,26 @@ contributions you make are **greatly appreciated**.
 ### References
 
 * Keycloak integration with Spring Boot Project
+    - https://www.keycloak.org/getting-started/getting-started-docker
     - https://www.keycloak.org/docs/latest/securing_apps/#_spring_boot_adapter
-    - https://www.youtube.com/watch?v=rcvAmBoDlLk
-    - Keycloak installation -> https://gruchalski.com/posts/2020-09-03-keycloak-with-docker-compose/
     - https://www.keycloak.org/docs/latest/server_admin/#_service_accounts
     - https://huongdanjava.com/get-access-token-using-the-grant-type-resource-owner-password-credentials-of-oauth-2-0-from-keycloak.html
     - https://developers.redhat.com/blog/2020/11/24/authentication-and-authorization-using-the-keycloak-rest-api#
     - https://www.baeldung.com/postman-keycloak-endpoints
-    - https://stackoverflow.com/a/49127022
     - https://www.programcreek.com/java-api-examples/?api=org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
     - https://github.com/edwin/java-keycloak-integration
+    - [Spring boot 3 Keycloak integration for beginners | The complete Guide](https://www.youtube.com/watch?v=vmEWywGzWbA)
+    - [OAuth 2.0 client credentials and JWT explained along with keycloak demo](https://www.youtube.com/watch?v=V4j-cPJxRJs)
+    - [Secure Spring Boot Microservices with Keycloak](https://www.youtube.com/watch?v=rcvAmBoDlLk)
+    - [Keycloak installation with docker-compose](https://gruchalski.com/posts/2020-09-03-keycloak-with-docker-compose/)
+    - [spring-boot-swagger-ui-keycloak](https://github.com/little-pinecone/spring-boot-swagger-ui-keycloak/tree/master)
 
 * https://www.baeldung.com/spring-cloud-feign-oauth-token
-* https://www.codementor.io/@cristianrosu948/protecting-your-spring-boot-rest-endpoints-with-google-recaptcha-and-aop-pn7a88s7w
 * https://www.baeldung.com/spring-security-registration-captcha
-* https://examples.javacodegeeks.com/using-google-captcha-with-spring-boot-application/
-* https://stackoverflow.com/a/44924353
 * https://www.baeldung.com/swagger-2-documentation-for-spring-rest-api
+* https://www.codementor.io/@cristianrosu948/protecting-your-spring-boot-rest-endpoints-with-google-recaptcha-and-aop-pn7a88s7w
+* https://examples.javacodegeeks.com/using-google-captcha-with-spring-boot-application/
+* [How to POST form-url-encoded data with Spring Cloud Feign](https://stackoverflow.com/a/44924353)
 
 * HCaptcha integration with Spring Boot Project
     - [HCaptcha Developer Guide documentation](https://docs.hcaptcha.com/)
@@ -188,3 +183,10 @@ contributions you make are **greatly appreciated**.
 * OpenAI integration with Spring Boot Project
     - [Create new secret key and replace all YOUR_API_KEY_HERE in code with this new key](https://platform.openai.com/account/api-keys)
     - [openai-test-requests.http](openai-service%2Fopenai-test-requests.http)
+
+* API Gateway with Spring Cloud Gateway in Java
+    * [Building an API Gateway in Java with Spring Cloud Gateway](https://www.youtube.com/watch?v=EKoq98KqvrI)
+    * [Spring Cloud Gateway](https://docs.spring.io/spring-cloud-gateway/reference/index.html)
+
+* Swagger(OpenAPI Specification 3) Integration with Spring Cloud Gateway
+    * [Swagger(OpenAPI Specification 3) Integration with Spring Cloud Gateway — Part 2](https://medium.com/@pubuduc.14/swagger-openapi-specification-3-integration-with-spring-cloud-gateway-part-2-1d670d4ab69a)

@@ -1,5 +1,6 @@
 package com.mb.studentservice.service.impl;
 
+import com.mb.studentservice.client.keycloak.KeycloakClient;
 import com.mb.studentservice.client.payment.PaymentClient;
 import com.mb.studentservice.client.payment.response.PaymentResponse;
 import com.mb.studentservice.data.entity.Student;
@@ -15,8 +16,10 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class StudentServiceImpl implements StudentService {
+
     private final StudentRepository studentRepository;
     private final PaymentClient paymentClient;
+    private final KeycloakClient keycloakClient;
 
     @Override
     public Student saveStudent(Student student) {
@@ -25,9 +28,15 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public List<PaymentResponse> getPayments() {
-        List<PaymentResponse> payments = paymentClient.getPayments();
-        log.info(payments.toString());
-        return payments;
+        List<PaymentResponse> paymentClientPayments = paymentClient.getPayments();
+        log.info("paymentClientPayments: {}", paymentClientPayments.toString());
+
+        List<PaymentResponse> keycloakClientPayments = keycloakClient.getPayments();
+        log.info("keycloakClientPayments: {}", keycloakClientPayments.toString());
+
+        paymentClientPayments.addAll(keycloakClientPayments);
+
+        return paymentClientPayments;
     }
 
 }

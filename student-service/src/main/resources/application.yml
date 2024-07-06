@@ -1,3 +1,8 @@
+GATEWAY_BASE_URL: ${GATEWAY_BASE_URL_ENV:http://localhost:8080}
+PAYMENT_SERVICE_KEYCLOAK_BASE_URL: ${KEYCLOAK_BASE_URL:http://localhost:9090}/realms/${PAYMENT_REALM:payment-service}/protocol/openid-connect
+PAYMENT_CLIENT_ID: payment-service
+PAYMENT_CLIENT_SECRET: ${PAYMENT_CLIENT_SECRET_ENV:Sv8ZjhY4ora9zb8tSQzNm0hCwqYjHuFW}
+
 spring:
   application:
     name: student-service
@@ -35,7 +40,7 @@ spring:
 
   cloud:
     function:
-      definition: swagger2Consumer
+      definition: swaggerConsumer
     #This makes the queue durable so that if the application is down, the messages would still be published.
     #These are then processed once the application is up again.
     #Instruction defines exchange and queue names
@@ -45,15 +50,15 @@ spring:
         studentProducer-out-0:
           destination: student_events_destination
           group: student_events_group
-        swagger2Consumer-in-0:
-          destination: swagger2_events_destination
-          group: swagger2_events_group
+        swaggerConsumer-in-0:
+          destination: swagger_events_destination
+          group: swagger_events_group
           consumer:
             maxAttempts: 1
             concurrency: 1
       rabbit:
         bindings:
-          swagger2Consumer-in-0:
+          swaggerConsumer-in-0:
             consumer:
               exchangeType: fanout
               autoBindDlq: true
@@ -61,42 +66,45 @@ spring:
               republishToDlq: true
               dlqDeadLetterExchange:
               dlqTtl: 300000
-      default:
-        contentType: application/json
-
-  zipkin:
-    base-url: http://localhost:9411
-    enabled: false
 
   security:
     oauth2:
       client:
         provider:
           keycloak:
-            token-uri: http://localhost:28080/auth/realms/master/protocol/openid-connect/token
-            client-id: payment-service
-            client-secret: GutAjB6xNSc0huCBEzhNzPEKu57mBdih
+            token-uri: ${PAYMENT_SERVICE_KEYCLOAK_BASE_URL}/token
+            client-id: ${PAYMENT_CLIENT_ID}
+            client-secret: ${PAYMENT_CLIENT_SECRET}
             authorization-grant-type: client_credentials
-            client-registration-id: payment-service
+            client-registration-id: ${PAYMENT_CLIENT_ID}
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:28080/auth/realms/master
+          issuer-uri: ${PAYMENT_SERVICE_KEYCLOAK_BASE_URL}/realms/${PAYMENT_SERVICE_REALM:${PAYMENT_CLIENT_ID}}
+          jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
 
 server:
   port: 8081
+
+springdoc:
+  api-docs:
+    path: /student/api-docs
+  swagger-ui:
+    path: /swagger-ui.html # http://localhost:8081/swagger-ui/index.html
+    enabled: true
 
 feign:
   services:
     keycloak:
       log:
         level: FULL
+
     payment-client:
-      url: http://localhost:8080/gateway
-      token-uri: http://localhost:28080/auth/realms/master/protocol/openid-connect/token
-      client-id: payment-service
-      client-secret: GutAjB6xNSc0huCBEzhNzPEKu57mBdih
+      url: ${GATEWAY_BASE_URL}
+      token-uri: ${PAYMENT_SERVICE_KEYCLOAK_BASE_URL}/token
+      client-id: ${PAYMENT_CLIENT_ID}
+      client-secret: ${PAYMENT_CLIENT_SECRET}
       authorization-grant-type: client_credentials
-      client-registration-id: payment-service
+
     hcaptcha: # https://docs.hcaptcha.com/#integration-testing-test-keys
       url: ${HCAPTCHA_URL:https://hcaptcha.com}
       secret: ${HCAPTCHA_SECRET:0x0000000000000000000000000000000000000000}
@@ -106,13 +114,13 @@ feign:
       risk-score-threshold: ${HCAPTCHA_RISK_SCORE_THRESHOLD:0.8}
 
 keycloak:
-  client-id: payment-service
-  client-secret: GutAjB6xNSc0huCBEzhNzPEKu57mBdih
+  client-id: ${PAYMENT_CLIENT_ID}
+  client-secret: ${PAYMENT_CLIENT_SECRET}
   scope: profile
   authorization-grant-type: password
-  authorization-uri: http://localhost:28080/auth/realms/master/protocol/openid-connect/auth
-  user-info-uri: http://localhost:28080/auth/realms/master/protocol/openid-connect/userinfo
-  token-uri: http://localhost:28080/auth/realms/master/protocol/openid-connect/token
-  logout-uri: http://localhost:28080/auth/realms/master/protocol/openid-connect/logout
-  jwk-set-uri: http://localhost:28080/auth/realms/master/protocol/openid-connect/certs
+  authorization-uri: ${PAYMENT_SERVICE_KEYCLOAK_BASE_URL}/auth
+  user-info-uri: ${PAYMENT_SERVICE_KEYCLOAK_BASE_URL}/userinfo
+  token-uri: ${PAYMENT_SERVICE_KEYCLOAK_BASE_URL}/token
+  logout-uri: ${PAYMENT_SERVICE_KEYCLOAK_BASE_URL}/logout
+  jwk-set-uri: ${PAYMENT_SERVICE_KEYCLOAK_BASE_URL}/certs
   certs-id: vdaec4Br3ZnRFtZN-pimK9v1eGd3gL2MHu8rQ6M5SiE

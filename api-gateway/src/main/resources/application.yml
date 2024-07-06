@@ -1,71 +1,52 @@
 BASE_URL: http://localhost:8080
 STUDENT_SERVICE_BASE_URL: http://localhost:8081
-SWAGGER2_APPLICATION_BASE_URL: http://localhost:8082
+SWAGGER_APPLICATION_BASE_URL: http://localhost:8082
 PAYMENT_SERVICE_BASE_URL: http://localhost:8083
 OPENAI_SERVICE_BASE_URL: http://localhost:8084
 
-zuul:
-  prefix: /gateway
-  routes:
-    student-service:
-      path: /students/**
-      url: ${STUDENT_SERVICE_BASE_URL}
-      sensitive-headers:
-      strip-prefix: false
-      serviceId: student-service
-    swagger2-application:
-      path: /api/**
-      url: ${SWAGGER2_APPLICATION_BASE_URL}
-      sensitive-headers:
-      strip-prefix: false
-      serviceId: swagger2-application
-    payment-service:
-      path: /payments/**
-      url: ${PAYMENT_SERVICE_BASE_URL}
-      sensitive-headers:
-      strip-prefix: false
-      serviceId: payment-service
-    validate:
-      path: /validate/**
-      url: ${STUDENT_SERVICE_BASE_URL}
-      sensitive-headers:
-      strip-prefix: false
-      serviceId: validate
-    openai-service:
-      path: /openai/**
-      url: ${OPENAI_SERVICE_BASE_URL}
-      sensitive-headers:
-      strip-prefix: false
-      serviceId: openai-service
-
-ribbon:
-  eureka:
-    enabled: false
-
 server:
   port: 8080
-
-swagger:
-  documentation:
-    services:
-      - name: student-service
-        url: /gateway/students/v2/api-docs
-        version: 2.0
-      - name: swagger2-application
-        url: /gateway/api/v2/api-docs
-        version: 2.0
-      - name: openai-service
-        url: /gateway/openai/api-docs
-        version: 2.0
 
 spring:
   jackson:
     default-property-inclusion: non_null
     serialization:
       indent-output: true
-  mvc:
-    pathmatch:
-      matching-strategy: ant_path_matcher
+
+  cloud:
+    gateway:
+      routes:
+        - id: student-service
+          predicates:
+            - Path=/students/**
+          uri: ${STUDENT_SERVICE_BASE_URL}
+        - id: swagger-application
+          predicates:
+            - Path=/api/**
+          uri: ${SWAGGER_APPLICATION_BASE_URL}
+        - id: payment-service
+          predicates:
+            - Path=/payments/**
+          uri: ${PAYMENT_SERVICE_BASE_URL}
+        - id: validate
+          predicates:
+            - Path=/validate/**
+          uri: ${STUDENT_SERVICE_BASE_URL}
+        - id: openai-service
+          predicates:
+            - Path=/openai/**
+          uri: ${OPENAI_SERVICE_BASE_URL}
+        - id: role # TODO This can be removed it's just a PrefixPath example.
+          predicates:
+            - Path=/role/**
+          uri: ${STUDENT_SERVICE_BASE_URL}
+            - PrefixPath=/students
+  main:
+    web-application-type: reactive
+
+  docker:
+    compose:
+      enabled: false
 
 google:
   recaptcha:
@@ -74,3 +55,36 @@ google:
       site:  # SITE KEY
       secret:  # SECRET KEY
       threshold: 0.5
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+    gateway:
+      enabled: true
+
+springdoc:
+  enable-native-support: true
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html # http://localhost:8080/swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    urls:
+      - url: /openai/api-docs
+        name: OpenAI Service
+        uri: ${OPENAI_SERVICE_BASE_URL}
+      - url: /payment/api-docs
+        name: Payment Service
+        uri: ${PAYMENT_SERVICE_BASE_URL}
+      - url: /student/api-docs
+        name: Student Service
+        uri: ${STUDENT_SERVICE_BASE_URL}
+      - url: /swagger/api-docs
+        name: Swagger Service
+        uri: ${SWAGGER_APPLICATION_BASE_URL}
