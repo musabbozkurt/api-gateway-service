@@ -2,7 +2,6 @@ package com.mb.apigateway.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -44,7 +43,7 @@ public class GatewayGlobalFilters {
     public GlobalFilter c() {
         return (exchange, chain) -> {
             log.info("third pre filter. Path: {}", exchange.getRequest().getURI().getPath());
-            new XSSRequestWrapper((HttpServletRequest) exchange.getRequest());
+            // new XSSRequestWrapper((HttpServletRequest) exchange.getRequest());
             return chain.filter(exchange).then(Mono.fromRunnable(() -> log.info("first post filter")));
         };
     }
