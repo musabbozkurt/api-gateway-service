@@ -48,12 +48,15 @@ spring:
     compose:
       enabled: false
 
+  config:
+    import: optional:file:.env[.properties]
+
 google:
   recaptcha:
     url: https://www.google.com/recaptcha/api/siteverify
     key:
-      site:  # SITE KEY
-      secret:  # SECRET KEY
+      site: ${SITE_KEY} # SITE KEY
+      secret: ${SECRET_KEY} # SECRET KEY
       threshold: 0.5
 
 management:
