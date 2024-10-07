@@ -36,6 +36,7 @@
     * student-service
     * swagger-application
     * openai-service
+    * service-registry
    ```
 
 ### Features
@@ -52,6 +53,7 @@
     * Google reCAPTCHA was added to secure endpoint calls
     * HCaptcha repo migration is completed under the student-service
     * openai-service repo migration is completed
+    * Spring Cloud Eureka Server and Client integrations are completed with service-registry repo
    ```
 
 ---
@@ -73,8 +75,8 @@
     * Maven [How to install Maven](https://maven.apache.org/install.html)
     * Docker [How to install Docker](https://docs.docker.com/get-docker)
   ####
-    * Create new secret key and replace all `YOUR_API_KEY_HERE` in code with this new
-      key -> https://platform.openai.com/account/api-keys
+    * Create a new secret key via [this url](https://platform.openai.com/account/api-keys), copy the value, and add it
+      as `YOUR_API_KEY_HERE` value in the [.env](.env)
   ####
     * Google reCAPTCHA installation (OPTIONAL)
         * Log in to the https://www.google.com/recaptcha/admin/create
@@ -83,8 +85,8 @@
               can guide you
         * Copy `SITE_KEY` and `SECRET_KEY` and add them into related fields that are in the [.env](.env)
         * HCaptcha integration was implemented in 4 different ways
-          in [HCaptchaController.java](student-service%2Fsrc%2Fmain%2Fjava%2Fcom%2Fmb%2Fstudentservice%2Fapi%2Fcontroller%2FHCaptchaController.java) (
-          OPTIONAL)
+          in [HCaptchaController](student-service%2Fsrc%2Fmain%2Fjava%2Fcom%2Fmb%2Fstudentservice%2Fapi%2Fcontroller%2FHCaptchaController.java)
+          (OPTIONAL)
 
 ---
 
@@ -129,6 +131,7 @@
 
     * Swagger: http://localhost:8080/swagger-ui.html
     * Actuator: http://localhost:8080/actuator
+    * Eureka: http://localhost:8761/
 
 ---
 

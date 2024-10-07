@@ -1,8 +1,8 @@
 BASE_URL: http://localhost:8080
-STUDENT_SERVICE_BASE_URL: http://localhost:8081
-SWAGGER_APPLICATION_BASE_URL: http://localhost:8082
-PAYMENT_SERVICE_BASE_URL: http://localhost:8083
-OPENAI_SERVICE_BASE_URL: http://localhost:8084
+STUDENT_SERVICE_BASE_URL: lb://student-service
+SWAGGER_APPLICATION_BASE_URL: lb://swagger-application
+PAYMENT_SERVICE_BASE_URL: lb://payment-service
+OPENAI_SERVICE_BASE_URL: lb://openai-service
 
 server:
   port: 8080

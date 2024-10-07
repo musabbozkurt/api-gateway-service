@@ -6,6 +6,7 @@ PAYMENT_CLIENT_SECRET: ${PAYMENT_CLIENT_SECRET_ENV:Sv8ZjhY4ora9zb8tSQzNm0hCwqYjH
 spring:
   application:
     name: student-service
+
   mvc:
     pathmatch:
       matching-strategy: ant-path-matcher
@@ -15,6 +16,7 @@ spring:
     username: sa
     password: sa
     driverClassName: org.h2.Driver
+
   h2:
     console:
       enabled: true
