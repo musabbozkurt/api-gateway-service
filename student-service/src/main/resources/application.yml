@@ -1,11 +1,15 @@
 GATEWAY_BASE_URL: ${GATEWAY_BASE_URL_ENV:http://localhost:8080}
 PAYMENT_SERVICE_KEYCLOAK_BASE_URL: ${KEYCLOAK_BASE_URL:http://localhost:9090}/realms/${PAYMENT_REALM:payment-service}/protocol/openid-connect
 PAYMENT_CLIENT_ID: payment-service
-PAYMENT_CLIENT_SECRET: ${PAYMENT_CLIENT_SECRET_ENV:Sv8ZjhY4ora9zb8tSQzNm0hCwqYjHuFW}
+PAYMENT_CLIENT_SECRET: ${PAYMENT_CLIENT_SECRET_ENV}
 
 spring:
   application:
     name: student-service
+
+  config:
+    import: optional:file:.env[.properties]
+
   mvc:
     pathmatch:
       matching-strategy: ant-path-matcher
@@ -15,6 +19,7 @@ spring:
     username: sa
     password: sa
     driverClassName: org.h2.Driver
+
   h2:
     console:
       enabled: true
@@ -77,10 +82,10 @@ spring:
             client-secret: ${PAYMENT_CLIENT_SECRET}
             authorization-grant-type: client_credentials
             client-registration-id: ${PAYMENT_CLIENT_ID}
-      resourceserver:
+      resource-server:
         jwt:
           issuer-uri: ${PAYMENT_SERVICE_KEYCLOAK_BASE_URL}/realms/${PAYMENT_SERVICE_REALM:${PAYMENT_CLIENT_ID}}
-          jwk-set-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}/protocol/openid-connect/certs
+          jwk-set-uri: ${spring.security.oauth2.resource-server.jwt.issuer-uri}/protocol/openid-connect/certs
 
 server:
   port: 8081
