@@ -26,7 +26,7 @@
 
 ## Summary
 
-- `api-gateway-service` project established by combination of the following services and features.
+- `api-gateway-service` project established by combination of the following services and features
 
 ### Services
 
@@ -62,18 +62,21 @@
 
 ## Getting Started
 
-- To get a local copy up and running please follow these steps.
+- To get a local copy up and running please follow these steps
 
 ---
 
 ### Prerequisites
 
-- Followings should be installed and links for how to install them.
+- Followings should be installed and links for how to install them
   ####
     * Java 21 or higher [How to install Java](https://java.com/en/download/help/download_options.html)
         * Set `JAVA_HOME` to 21 -> `export JAVA_HOME=$(/usr/libexec/java_home -v 21)`
     * Maven [How to install Maven](https://maven.apache.org/install.html)
     * Docker [How to install Docker](https://docs.docker.com/get-docker)
+    * [Postman](https://www.postman.com/downloads/) can be installed (OPTIONAL),
+      follow [how to import postman collection](https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#importing-postman-data)
+      to import files that are under the [postman_collection](docs%2Fpostman_collection) folder
   ####
     * Create a new secret key via [this url](https://platform.openai.com/account/api-keys), copy the value, and add it
       as `YOUR_API_KEY_HERE` value in the [.env](.env)
@@ -107,16 +110,14 @@
 
 ####
 
-3. Log in to http://localhost:9090/admin with `username: admin` and `password: admin`
-    1. `Create realm` -> Import [payment-service-realm-export.json](docs%2Fkeycloak%2Fpayment-service-realm-export.json)
-    2. `Clients` -> `payment-service` -> `Credentials` -> `Regenerate` copy the value and use this value in Postman
-       environment variable.
-    3. `Users` -> `Add user` -> `Username` -> `payment-service-user`
-    4. `Users` -> `payment-service-user` -> `Credentials` -> `Set password` to `test` and turn off `Temporary` toggle.
-    5. `Users` -> `payment-service-user` -> `Role Mapping` -> `Assign role` add `admin` role
-    6. [Postman](https://www.postman.com/downloads/) should be installed,
-       follow [How to import postman collection](https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#importing-postman-data)
-       to import files that are under the [postman_collection](docs%2Fpostman_collection) folder
+3. Log in to http://localhost:9090/admin with `username`: `admin` and `password`: `admin`
+    1. `Create realm` -->
+       Import [payment-service-realm-export.json](docs%2Fkeycloak%2Fpayment-service-realm-export.json)
+    2. `Clients` --> `payment-service` --> `Credentials` --> `Regenerate` copy the value and add it as
+       `PAYMENT_CLIENT_SECRET_ENV` value in the [.env](.env)
+    3. `Users` --> `Add user` --> `Username` --> `payment-service-user`
+    4. `Users` --> `payment-service-user` --> `Credentials` --> `Set password` to `test` and turn off `Temporary` toggle
+    5. `Users` --> `payment-service-user` --> `Role Mapping` --> `Assign role` add `admin` role
 
 ####
 
@@ -130,6 +131,15 @@
 5. Additional information to access endpoints, swagger and actuator
 
     * Swagger: http://localhost:8080/swagger-ui.html
+        * Open `Swagger` --> select `Payment Service` definition --> Click `Authorize`
+            1. Enter the following credentials into the pop-up window
+                1. `username`: `payment-service-user`
+                2. `password`: `test`
+                3. `client_id`: `payment-service`
+                4. `client_secret`: `PAYMENT_CLIENT_SECRET_ENV` value in the [.env](.env)
+            2. ![img.png](img.png)
+            3. Click `Authorize` to get token
+            4. Click `Close` and test the services
     * Actuator: http://localhost:8080/actuator
     * Eureka: http://localhost:8761/
 
