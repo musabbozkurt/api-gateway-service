@@ -143,6 +143,10 @@
     * Actuator: http://localhost:8080/actuator
     * Eureka: http://localhost:8761/
 
+####
+
+5. [Kubernetes Deployment Guide](KubernetesDeploymentGuide.md) (OPTIONAL)
+
 ---
 
 <!-- REFERENCES -->
