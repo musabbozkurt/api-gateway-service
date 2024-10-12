@@ -8,6 +8,9 @@ server:
   port: 8080
 
 spring:
+  application:
+    name: api-gateway
+
   jackson:
     default-property-inclusion: non_null
     serialization:
@@ -91,3 +94,8 @@ springdoc:
       - url: /swagger/api-docs
         name: Swagger Service
         uri: ${SWAGGER_APPLICATION_BASE_URL}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL:http://localhost:8761/eureka}

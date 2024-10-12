@@ -26,8 +26,8 @@ spring:
       path: /h2-console
 
   rabbitmq:
-    host: localhost
-    port: 5673
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5673}
     virtual-host: /
     connection-timeout: 0
     template:
@@ -129,3 +129,8 @@ keycloak:
   logout-uri: ${PAYMENT_SERVICE_KEYCLOAK_BASE_URL}/logout
   jwk-set-uri: ${PAYMENT_SERVICE_KEYCLOAK_BASE_URL}/certs
   certs-id: vdaec4Br3ZnRFtZN-pimK9v1eGd3gL2MHu8rQ6M5SiE
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL:http://localhost:8761/eureka}
