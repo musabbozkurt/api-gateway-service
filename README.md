@@ -87,9 +87,10 @@
             * [This url](https://examples.javacodegeeks.com/wp-content/uploads/2020/12/springboot-google-captcha-google-config-img1.jpg)
               can guide you
         * Copy `SITE_KEY` and `SECRET_KEY` and add them into related fields that are in the [.env](.env)
-        * HCaptcha integration was implemented in 4 different ways
-          in [HCaptchaController](student-service%2Fsrc%2Fmain%2Fjava%2Fcom%2Fmb%2Fstudentservice%2Fapi%2Fcontroller%2FHCaptchaController.java)
-          (OPTIONAL)
+  ####
+    * HCaptcha integration was implemented in 4 different ways
+      in [HCaptchaController](student-service%2Fsrc%2Fmain%2Fjava%2Fcom%2Fmb%2Fstudentservice%2Fapi%2Fcontroller%2FHCaptchaController.java)
+      (OPTIONAL)
 
 ---
 
@@ -102,15 +103,7 @@
 
 ####
 
-2. Run `docker-compose up -d` command in the [docker-compose.yml](docker-compose.yml) directory or
-   enable [spring.docker.compose](https://github.com/musabbozkurt/api-gateway-service/blob/main/api-gateway/src/main/resources/application.yml#L49)
-   property and just
-   run [ApiGatewayApplication.java](api-gateway%2Fsrc%2Fmain%2Fjava%2Fcom%2Fmb%2Fapigateway%2FApiGatewayApplication.java)
-   to install RabbitMQ, PostgreSQL and Keycloak
-
-####
-
-3. Log in to http://localhost:9090/admin with `username`: `admin` and `password`: `admin`
+2. Log in to http://localhost:9090/admin with `username`: `admin` and `password`: `admin`
     1. `Create realm` -->
        Import [payment-service-realm-export.json](docs%2Fkeycloak%2Fpayment-service-realm-export.json)
     2. `Clients` --> `payment-service` --> `Credentials` --> `Regenerate` copy the value and add it as
@@ -121,14 +114,21 @@
 
 ####
 
-4. Run Spring Boot applications
+3. Run all Spring Boot applications
 
-    1. `mvn clean install` or `mvn clean package`
-    2. `mvn spring-boot:run`
+    - (OPTION 1)
+        - Run `docker-compose --profile start_application up -d --build` command in
+          the [docker-compose.yml](docker-compose.yml) directory
+    - (OPTION 2)
+        1. Enable [spring.docker.compose](api-gateway/src/main/resources/application.yml) property and just
+           run [ApiGatewayApplication.java](api-gateway/src/main/java/com/mb/apigateway/ApiGatewayApplication.java) to
+           install RabbitMQ, PostgreSQL and Keycloak
+        2. Run `mvn clean install` or `mvn clean package` command under each service's directory
+        3. Run `mvn spring-boot:run` command under each service's directory
 
 ####
 
-5. Additional information to access endpoints, swagger and actuator
+4. Additional information to access endpoints, swagger and actuator
 
     * Swagger: http://localhost:8080/swagger-ui.html
         * Open `Swagger` --> select `Payment Service` definition --> Click `Authorize`

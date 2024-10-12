@@ -25,8 +25,8 @@ spring:
       path: /h2-console
 
   rabbitmq:
-    host: localhost
-    port: 5673
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5673}
     virtual-host: /
     connection-timeout: 0
     template:
@@ -80,3 +80,8 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html # http://localhost:8082/swagger-ui/index.html
     enabled: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL:http://localhost:8761/eureka}
