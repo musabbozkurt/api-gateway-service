@@ -17,7 +17,6 @@ on:
 
 jobs:
   build_api_gateway:
-
     runs-on: ubuntu-latest
     # https://stackoverflow.com/a/70448851
     permissions: write-all
@@ -35,7 +34,6 @@ jobs:
         run: mvn -B package --file api-gateway/pom.xml
 
   build_openai_service:
-
     runs-on: ubuntu-latest
     # https://stackoverflow.com/a/70448851
     permissions: write-all
@@ -52,10 +50,78 @@ jobs:
       - name: Build openai-service with Maven
         run: mvn -B package --file openai-service/pom.xml
 
+  build_payment_service:
+    runs-on: ubuntu-latest
+    # https://stackoverflow.com/a/70448851
+    permissions: write-all
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build payment-service with Maven
+        run: mvn -B package --file payment-service/pom.xml
+
+  build_service_registry:
+    runs-on: ubuntu-latest
+    # https://stackoverflow.com/a/70448851
+    permissions: write-all
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build service-registry with Maven
+        run: mvn -B package --file service-registry/pom.xml
+
+  build_student_service:
+    runs-on: ubuntu-latest
+    # https://stackoverflow.com/a/70448851
+    permissions: write-all
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build student-service with Maven
+        run: mvn -B package --file student-service/pom.xml
+
+  build_swagger_application:
+    runs-on: ubuntu-latest
+    # https://stackoverflow.com/a/70448851
+    permissions: write-all
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build swagger-application with Maven
+        run: mvn -B package --file swagger-application/pom.xml
+
   success-job:
     runs-on: ubuntu-latest
     if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
-    needs: [ build_api_gateway, build_openai_service ]
+    needs: [ build_api_gateway, build_openai_service, build_payment_service, build_service_registry, build_student_service, build_swagger_application ]
     steps:
       - name: Build is Succeeded
         env:
