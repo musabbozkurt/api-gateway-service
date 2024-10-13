@@ -60,10 +60,5 @@ jobs:
       - name: Build is Succeeded
         env:
           NEEDS: ${{ toJSON(needs) }}
-      - run: |
-          echo "Results of dependent jobs:"
-          for job in $NEEDS; do
-            echo "$job"
-          done
-      - run: echo "All jobs are completed."
-
+        run: |
+          echo "$NEEDS"
