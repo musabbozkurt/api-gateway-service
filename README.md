@@ -54,6 +54,7 @@
     * HCaptcha repo migration is completed under the student-service
     * openai-service repo migration is completed
     * Spring Cloud Eureka Server and Client integrations are completed with service-registry repo
+    * KubernetesDeploymentGuide.md is added
    ```
 
 ---
@@ -89,7 +90,7 @@
         * Copy `SITE_KEY` and `SECRET_KEY` and add them into related fields that are in the [.env](.env)
   ####
     * HCaptcha integration was implemented in 4 different ways
-      in [HCaptchaController](student-service%2Fsrc%2Fmain%2Fjava%2Fcom%2Fmb%2Fstudentservice%2Fapi%2Fcontroller%2FHCaptchaController.java)
+      in [HCaptchaController.java](student-service/src/main/java/com/mb/studentservice/api/controller/HCaptchaController.java)
       (OPTIONAL)
 
 ---
@@ -103,18 +104,7 @@
 
 ####
 
-2. Log in to http://localhost:9090/admin with `username`: `admin` and `password`: `admin`
-    1. `Create realm` -->
-       Import [payment-service-realm-export.json](docs%2Fkeycloak%2Fpayment-service-realm-export.json)
-    2. `Clients` --> `payment-service` --> `Credentials` --> `Regenerate` copy the value and add it as
-       `PAYMENT_CLIENT_SECRET_ENV` value in the [.env](.env)
-    3. `Users` --> `Add user` --> `Username` --> `payment-service-user`
-    4. `Users` --> `payment-service-user` --> `Credentials` --> `Set password` to `test` and turn off `Temporary` toggle
-    5. `Users` --> `payment-service-user` --> `Role Mapping` --> `Assign role` add `admin` role
-
-####
-
-3. Run all Spring Boot applications
+2. Run all services
 
     - (OPTION 1)
         - Run `docker-compose --profile start_application up -d --build` command in
@@ -125,6 +115,17 @@
            install RabbitMQ, PostgreSQL and Keycloak
         2. Run `mvn clean install` or `mvn clean package` command under each service's directory
         3. Run `mvn spring-boot:run` command under each service's directory
+
+####
+
+3. Log in to http://localhost:9090/admin with `username`: `admin` and `password`: `admin`
+    1. `Create realm` --> Import [payment-service-realm-export.json](docs/keycloak/payment-service-realm-export.json)
+    2. `Clients` --> `payment-service` --> `Credentials` --> `Regenerate` copy the value and add it as
+       `PAYMENT_CLIENT_SECRET_ENV` value in the [.env](.env)
+    3. `Users` --> `Add user` --> `Username` --> `payment-service-user`
+    4. `Users` --> `payment-service-user` --> `Credentials` --> `Set password` to `test` and turn off `Temporary` toggle
+    5. `Users` --> `payment-service-user` --> `Role Mapping` --> `Assign role` add `admin` role
+    6. Restart `student-service` to fetch `PAYMENT_CLIENT_SECRET`
 
 ####
 
