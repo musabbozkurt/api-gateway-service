@@ -77,7 +77,7 @@
     * Docker [How to install Docker](https://docs.docker.com/get-docker)
     * [Postman](https://www.postman.com/downloads/) can be installed (OPTIONAL),
       follow [how to import postman collection](https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#importing-postman-data)
-      to import files that are under the [postman_collection](docs%2Fpostman_collection) folder
+      to import files that are under the [postman_collection](docs/postman_collection) folder
   ####
     * Create a new secret key via [this url](https://platform.openai.com/account/api-keys), copy the value, and add it
       as `YOUR_API_KEY_HERE` value in the [.env](.env)
