@@ -42,7 +42,7 @@ jobs:
       - name: Build image
         run: |
           eval $(minikube -p minikube docker-env)
-          docker build -f ./api-gateway/Dockerfile -t api-gateway .
+          docker build -f api-gateway/Dockerfile -t api-gateway ./
           echo -n "verifying images:"
           docker images
 
