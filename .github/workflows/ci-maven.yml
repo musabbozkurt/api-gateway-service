@@ -52,7 +52,7 @@ jobs:
           docker images
 
       - name: Deploy to minikube
-        run:
+        run: |
           pwd
           ls -la
           kubectl apply -f .helm/templates/k8s-api-gateway-app.yaml
