@@ -60,7 +60,12 @@ jobs:
       - name: Test service URLs
         run: |
           minikube service list
-          minikube service api-gateway-service --url
+          SERVICE_URL=$(minikube service api-gateway-service --url)
+          HEALTH_URL="$SERVICE_URL/actuator/health"
+          echo "Service URL: $SERVICE_URL"
+          echo "Health URL: $HEALTH_URL"
+          echo "------------------opening the health endpoint------------------"
+          curl $HEALTH_URL
 
   build_openai_service:
     runs-on: ubuntu-latest
