@@ -55,7 +55,7 @@ jobs:
         run: |
           pwd
           ls -la
-          kubectl apply -f .helm/templates/k8s-api-gateway-app.yaml
+          kubectl apply -f api-gateway/.helm/templates/k8s-api-gateway-app.yaml
 
       - name: Test service URLs
         run: |
