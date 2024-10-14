@@ -56,7 +56,7 @@ jobs:
           pwd
           ls -la
           kubectl apply -f api-gateway/.helm/templates/k8s-api-gateway-app.yaml
-          kubectl wait --for=condition=ready pod -l app=deployment.apps/api-gateway
+          kubectl wait --for=condition=ready pod -l app=api-gateway
 
       - name: Test service URLs
         run: |
