@@ -41,7 +41,6 @@ jobs:
 
       - name: Build image
         run: |
-          export SHELL=/bin/bash
           eval $(minikube -p minikube docker-env)
           docker build -f ./api-gateway/Dockerfile -t api-gateway .
           echo -n "verifying images:"
