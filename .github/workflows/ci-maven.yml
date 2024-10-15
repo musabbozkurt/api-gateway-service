@@ -33,6 +33,39 @@ jobs:
       - name: Build api-gateway with Maven
         run: mvn -B package --file api-gateway/pom.xml
 
+      - name: Start minikube
+        uses: medyagh/setup-minikube@master
+
+      - name: Try the cluster !
+        run: kubectl get pods -A
+
+      - name: Build image
+        run: |
+          pwd
+          ls -la
+          eval $(minikube -p minikube docker-env)
+          cd api-gateway/
+          pwd
+          ls -la
+          docker build -t api-gateway .
+          echo -n "verifying images:"
+          docker images
+
+      - name: Deploy to minikube
+        run: |
+          pwd
+          ls -la
+          kubectl apply -f api-gateway/.helm/templates/k8s-api-gateway-app.yaml
+          kubectl wait --for=condition=ready pod -l app=api-gateway
+
+      - name: Test service URLs
+        run: |
+          minikube service list
+          SERVICE_URL=$(minikube service api-gateway-service --url)
+          HEALTH_URL="$SERVICE_URL/actuator/health"
+          echo "Service URL: $SERVICE_URL"
+          echo "Health URL: $HEALTH_URL"
+
   build_openai_service:
     runs-on: ubuntu-latest
     # https://stackoverflow.com/a/70448851
