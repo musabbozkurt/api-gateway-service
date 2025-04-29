@@ -99,3 +99,27 @@ eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_CLIENT_SERVICE_URL:http://localhost:8761/eureka}
+
+logging:
+  level:
+    com.mb.apigateway.config: INFO
+    com.mb.apigateway.filter: INFO
+    org.springframework.cloud.gateway: INFO
+    org.springframework.http.server.reactive: INFO
+    org.springframework.web.reactive: INFO
+    reactor.netty: INFO
+    reactor.netty.http.client: INFO
+  request:
+    enabled: true
+    includeRequestBody: true
+    includeResponseBody: true
+    maxBodySize: 10000
+    excludePaths:
+      - "/actuator/**"
+    excludeContentTypes:
+      - "multipart/form-data"
+
+sso:
+  introspection-endpoint: ${INTROSPECTION_ENDPOINT:http://localhost:8080/realms/mb/protocol/openid-connect/token/introspect}
+  client-id: ${CLIENT_ID:client}
+  client-secret: ${CLIENT_SECRET:secret}

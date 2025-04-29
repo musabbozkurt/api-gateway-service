@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <springProperty scope="context" name="service" source="spring.application.name"/>
+    <springProperty scope="context" name="logfilepath" source="logging.file:logs/console-${service}.log"/>
+    <property scope="context" name="host" value="${HOSTNAME}"/>
+
+    <appender name="LocalConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                %green(%d{dd-MM-yyyy HH:mm:ss.SSS}) %magenta([%thread]) %highlight(%-5level) %logger{36} - %msg%n
+            </Pattern>
+        </layout>
+    </appender>
+
+    <appender name="ConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <fieldNames>
+                <timestamp>timestamp</timestamp>
+                <version>[ignore]</version>
+                <levelValue>[ignore]</levelValue>
+            </fieldNames>
+            <username>username</username>
+            <sessionId>sessionId</sessionId>
+            <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+                <maxDepthPerThrowable>100</maxDepthPerThrowable>
+                <rootCauseFirst>true</rootCauseFirst>
+            </throwableConverter>
+        </encoder>
+    </appender>
+
+    <springProfile name="! (dev | prod | stage)">
+        <root level="INFO">
+            <appender-ref ref="LocalConsoleAppender"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="(dev | prod | stage)">
+        <root level="INFO">
+            <appender-ref ref="ConsoleAppender"/>
+        </root>
+    </springProfile>
+</configuration>
