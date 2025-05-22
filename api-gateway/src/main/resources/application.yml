@@ -6,6 +6,9 @@ OPENAI_SERVICE_BASE_URL: lb://openai-service
 
 server:
   port: 8080
+  netty:
+    idle-timeout: 10s
+    connection-timeout: 10s
 
 spring:
   application:
@@ -18,6 +21,16 @@ spring:
 
   cloud:
     gateway:
+      httpclient:
+        connect-timeout: 10000
+        response-timeout: 10s
+        pool:
+          max-idle-time: 5s
+      default-filters:
+        - StripPrefix=1
+        - name: CacheRequestBody
+          args:
+            bodyClass: java.lang.String
       routes:
         - id: student-service
           predicates:
@@ -53,6 +66,12 @@ spring:
 
   config:
     import: optional:file:.env[.properties]
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  codec:
+    max-in-memory-size: 10MB
 
 google:
   recaptcha:
