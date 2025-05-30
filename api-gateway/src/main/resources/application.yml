@@ -137,8 +137,3 @@ logging:
       - "/actuator/**"
     excludeContentTypes:
       - "multipart/form-data"
-
-sso:
-  introspection-endpoint: ${INTROSPECTION_ENDPOINT:http://localhost:8080/realms/mb/protocol/openid-connect/token/introspect}
-  client-id: ${CLIENT_ID:client}
-  client-secret: ${CLIENT_SECRET:secret}
