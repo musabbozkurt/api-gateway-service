@@ -14,6 +14,11 @@ spring:
   application:
     name: api-gateway
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
   jackson:
     default-property-inclusion: non_null
     serialization:
@@ -31,6 +36,11 @@ spring:
         - name: CacheRequestBody
           args:
             bodyClass: java.lang.String
+        - name: RequestRateLimiter
+          args:
+            redis-rate-limiter.replenishRate: 40
+            redis-rate-limiter.burstCapacity: 80
+            redis-rate-limiter.requestedTokens: 1
       routes:
         - id: student-service
           predicates:

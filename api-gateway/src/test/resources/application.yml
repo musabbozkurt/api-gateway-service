@@ -1,0 +1,33 @@
+spring:
+  main:
+    web-application-type: reactive
+  codec:
+    max-in-memory-size: 10MB
+
+  cloud:
+    gateway:
+      default-filters:
+        - StripPrefix=1
+        - name: RequestRateLimiter
+          args:
+            redis-rate-limiter.replenishRate: 40
+            redis-rate-limiter.burstCapacity: 80
+            redis-rate-limiter.requestedTokens: 1
+      routes:
+        - id: student-service
+          predicates:
+            - Path=/students/**
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+    urls:
+      - url: /openai/api-docs
+        name: OpenAI Service
+        uri: http://localhost:8080
+
+eureka:
+  client:
+    enabled: false
