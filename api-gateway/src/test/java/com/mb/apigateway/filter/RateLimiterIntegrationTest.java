@@ -144,7 +144,7 @@ class RateLimiterIntegrationTest {
         AtomicInteger errorCount = new AtomicInteger(0);
 
         // Add slight delay between requests
-        IntStream.range(0, 100).forEach(i -> {
+        IntStream.range(0, 200).forEach(i -> {
             try {
                 WebTestClient.ResponseSpec response = client.get()
                         .uri("/students/test")
