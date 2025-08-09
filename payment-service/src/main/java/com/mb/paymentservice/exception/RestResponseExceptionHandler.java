@@ -127,6 +127,7 @@ public class RestResponseExceptionHandler {
                 arguments.add(new Argument("name", variableException.getVariableName()));
                 arguments.add(new Argument(EXPECTED, variableException.getParameter()));
             }
+            default -> throw new IllegalStateException("Unexpected value: " + ex);
         }
         String formattedMessage = templateParser.interpolate(new ErrorMessage(errorCode.name(), arguments, ex.getMessage()));
 
