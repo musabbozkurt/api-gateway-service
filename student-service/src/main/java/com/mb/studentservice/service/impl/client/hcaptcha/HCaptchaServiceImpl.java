@@ -11,7 +11,11 @@ import com.mb.studentservice.config.hcaptcha.HCaptchaProperties;
 import com.mb.studentservice.service.client.hcaptcha.HCaptchaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.*;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.stereotype.Service;
@@ -52,15 +56,18 @@ public class HCaptchaServiceImpl implements HCaptchaService {
                     .timeout(Duration.ofSeconds(10))
                     .POST(HttpRequest.BodyPublishers.ofString(hCaptchaRequest)).build();
 
-            Gson gson = new GsonBuilder()
+            Gson customGson = new GsonBuilder()
                     .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                     .setPrettyPrinting()
                     .registerTypeAdapter(OffsetDateTime.class, (JsonDeserializer<OffsetDateTime>) (json, type, context) -> OffsetDateTime.parse(json.getAsString()))
                     .create();
 
-            HCaptchaResponse hCaptchaResponse = gson.fromJson(httpClient.send(request, HttpResponse.BodyHandlers.ofString()).body(), HCaptchaResponse.class);
+            HCaptchaResponse hCaptchaResponse = customGson.fromJson(httpClient.send(request, HttpResponse.BodyHandlers.ofString()).body(), HCaptchaResponse.class);
             log.info("hCaptchaResponse from validateRequestWithHttpClient : {} ", hCaptchaResponse);
             return hCaptchaResponse;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.error("Thread was interrupted while validating request with HttpClient. Exception: {}", ExceptionUtils.getStackTrace(e));
         } catch (Exception e) {
             log.error("Exception occurred while validating request with HttpClient. Exception: {}", ExceptionUtils.getStackTrace(e));
         }

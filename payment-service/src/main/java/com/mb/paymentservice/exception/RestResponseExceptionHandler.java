@@ -19,17 +19,33 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingMatrixVariableException;
 import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.MissingRequestHeaderException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.MatrixVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
-import org.springframework.web.server.*;
+import org.springframework.web.server.MethodNotAllowedException;
+import org.springframework.web.server.NotAcceptableStatusException;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.server.ServerWebInputException;
+import org.springframework.web.server.UnsupportedMediaTypeStatusException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -37,6 +53,10 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 @RequiredArgsConstructor
 public class RestResponseExceptionHandler {
+
+    private static final String EXPECTED = "expected";
+    private static final String TYPES = "types";
+
     private final ExceptionMessageTemplateParser templateParser;
     private final SpringValidationWebExceptionMessageBuilder messageBuilder;
 
@@ -93,21 +113,19 @@ public class RestResponseExceptionHandler {
                 errorCode = ErrorCode.MISSING_HEADER;
                 httpStatus = ErrorCode.MISSING_HEADER.getHttpStatus();
                 arguments.add(new Argument("name", headerException.getHeaderName()));
-                arguments.add(new Argument("expected", headerException.getParameter()));
+                arguments.add(new Argument(EXPECTED, headerException.getParameter()));
             }
             case MissingRequestCookieException cookieException -> {
                 errorCode = ErrorCode.MISSING_COOKIE;
                 httpStatus = ErrorCode.MISSING_COOKIE.getHttpStatus();
                 arguments.add(new Argument("name", cookieException.getCookieName()));
-                arguments.add(new Argument("expected", cookieException.getParameter()));
+                arguments.add(new Argument(EXPECTED, cookieException.getParameter()));
             }
             case MissingMatrixVariableException variableException -> {
                 errorCode = ErrorCode.MISSING_MATRIX_VARIABLE;
                 httpStatus = ErrorCode.MISSING_MATRIX_VARIABLE.getHttpStatus();
                 arguments.add(new Argument("name", variableException.getVariableName()));
-                arguments.add(new Argument("expected", variableException.getParameter()));
-            }
-            default -> {
+                arguments.add(new Argument(EXPECTED, variableException.getParameter()));
             }
         }
         String formattedMessage = templateParser.interpolate(new ErrorMessage(errorCode.name(), arguments, ex.getMessage()));
@@ -124,8 +142,8 @@ public class RestResponseExceptionHandler {
         String errorCode = ErrorCode.MULTIPART_EXPECTED.name();
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
         List<Argument> arguments = new ArrayList<>();
-        if (ex instanceof MaxUploadSizeExceededException) {
-            long maxSize = ((MaxUploadSizeExceededException) ex).getMaxUploadSize();
+        if (ex instanceof MaxUploadSizeExceededException maxUploadSizeExceededException) {
+            long maxSize = maxUploadSizeExceededException.getMaxUploadSize();
             errorCode = ErrorCode.MAX_SIZE.name();
             arguments.add(new Argument("max_size", maxSize));
         }
@@ -141,11 +159,11 @@ public class RestResponseExceptionHandler {
 
         List<Argument> args = null;
         ErrorCode errorCode = ErrorCode.UNKNOWN_ERROR;
-        if (ex instanceof WebExchangeBindException) {
-            return handleWebExchangeBindException((WebExchangeBindException) ex);
+        if (ex instanceof WebExchangeBindException webExchangeBindException) {
+            return handleWebExchangeBindException(webExchangeBindException);
         } else {
-            if (ex instanceof ServerWebInputException) {
-                MethodParameter parameter = ((ServerWebInputException) ex).getMethodParameter();
+            if (ex instanceof ServerWebInputException serverWebInputException) {
+                MethodParameter parameter = serverWebInputException.getMethodParameter();
 
                 if (ex.getCause() instanceof TypeMismatchException cause) {
                     if (parameter != null) {
@@ -162,26 +180,26 @@ public class RestResponseExceptionHandler {
                 errorCode = ErrorCode.INVALID_OR_MISSING_BODY;
             }
 
-            if (ex instanceof UnsupportedMediaTypeStatusException) {
-                Set<String> types = getMediaTypes(((UnsupportedMediaTypeStatusException) ex).getSupportedMediaTypes());
-                args = types.isEmpty() ? Collections.emptyList() : Collections.singletonList(new Argument("types", types));
+            if (ex instanceof UnsupportedMediaTypeStatusException unsupportedMediaTypeStatusException) {
+                Set<String> types = getMediaTypes(unsupportedMediaTypeStatusException.getSupportedMediaTypes());
+                args = types.isEmpty() ? Collections.emptyList() : Collections.singletonList(new Argument(TYPES, types));
                 errorCode = ErrorCode.NOT_SUPPORTED;
             }
 
-            if (ex instanceof NotAcceptableStatusException) {
-                Set<String> types = getMediaTypes(((NotAcceptableStatusException) ex).getSupportedMediaTypes());
-                args = types.isEmpty() ? Collections.emptyList() : Collections.singletonList(new Argument("types", types));
+            if (ex instanceof NotAcceptableStatusException notAcceptableStatusException) {
+                Set<String> types = getMediaTypes(notAcceptableStatusException.getSupportedMediaTypes());
+                args = types.isEmpty() ? Collections.emptyList() : Collections.singletonList(new Argument(TYPES, types));
                 errorCode = ErrorCode.NOT_ACCEPTABLE;
             }
 
-            if (ex instanceof MethodNotAllowedException) {
-                String httpMethod = ((MethodNotAllowedException) ex).getHttpMethod();
+            if (ex instanceof MethodNotAllowedException methodNotAllowedException) {
+                String httpMethod = methodNotAllowedException.getHttpMethod();
                 args = Collections.singletonList(new Argument("method", httpMethod));
                 errorCode = ErrorCode.METHOD_NOT_ALLOWED;
             }
 
-            if (ex instanceof ResponseStatusException) {
-                HttpStatusCode status = ((ResponseStatusException) ex).getStatusCode();
+            if (ex instanceof ResponseStatusException responseStatusException) {
+                HttpStatusCode status = responseStatusException.getStatusCode();
                 if (status == HttpStatus.NOT_FOUND) {
                     errorCode = ErrorCode.NO_HANDLER;
                 }
@@ -200,7 +218,7 @@ public class RestResponseExceptionHandler {
         String errorCode = ErrorCode.VALIDATION_ERROR.name();
         HttpStatus httpStatus = ErrorCode.VALIDATION_ERROR.getHttpStatus();
         BindingResult bindingResult = ex.getBindingResult();
-        List<ValidationErrorDetail.ValidationError> errors = bindingResult.getFieldErrors().stream().map((error) -> {
+        List<ValidationErrorDetail.ValidationError> errors = bindingResult.getFieldErrors().stream().map(error -> {
             ErrorMessage errorMessage = messageBuilder.errorMessage(error, error.getDefaultMessage());
             templateParser.interpolate(errorMessage);
             return new ValidationErrorDetail.ValidationError(error.getField(), error.getRejectedValue(), error.getDefaultMessage(), errorMessage.getErrorCode());
@@ -236,14 +254,14 @@ public class RestResponseExceptionHandler {
         ErrorCode errorCode = ErrorCode.UNKNOWN_ERROR;
         List<Argument> args = null;
 
-        if (ex instanceof HttpMediaTypeNotAcceptableException) {
-            Set<String> types = this.getMediaTypes(((HttpMediaTypeNotAcceptableException) ex).getSupportedMediaTypes());
+        if (ex instanceof HttpMediaTypeNotAcceptableException httpMediaTypeNotAcceptableException) {
+            Set<String> types = this.getMediaTypes(httpMediaTypeNotAcceptableException.getSupportedMediaTypes());
             errorCode = ErrorCode.NOT_ACCEPTABLE;
-            args = types.isEmpty() ? Collections.emptyList() : Collections.singletonList(new Argument("types", types));
+            args = types.isEmpty() ? Collections.emptyList() : Collections.singletonList(new Argument(TYPES, types));
         }
 
-        if (ex instanceof HttpMediaTypeNotSupportedException) {
-            MediaType contentType = ((HttpMediaTypeNotSupportedException) ex).getContentType();
+        if (ex instanceof HttpMediaTypeNotSupportedException httpMediaTypeNotSupportedException) {
+            MediaType contentType = httpMediaTypeNotSupportedException.getContentType();
             if (contentType != null) {
                 args = Collections.singletonList(new Argument("type", contentType.toString()));
             }
@@ -252,20 +270,20 @@ public class RestResponseExceptionHandler {
         }
 
         String url;
-        if (ex instanceof HttpRequestMethodNotSupportedException) {
-            url = ((HttpRequestMethodNotSupportedException) ex).getMethod();
+        if (ex instanceof HttpRequestMethodNotSupportedException httpRequestMethodNotSupportedException) {
+            url = httpRequestMethodNotSupportedException.getMethod();
             errorCode = ErrorCode.METHOD_NOT_ALLOWED;
             args = Collections.singletonList(new Argument("method", url));
         }
 
-        if (ex instanceof MissingServletRequestPartException) {
-            url = ((MissingServletRequestPartException) ex).getRequestPartName();
+        if (ex instanceof MissingServletRequestPartException missingServletRequestPartException) {
+            url = missingServletRequestPartException.getRequestPartName();
             errorCode = ErrorCode.MISSING_PART;
             args = Collections.singletonList(new Argument("name", url));
         }
 
-        if (ex instanceof NoHandlerFoundException) {
-            url = ((NoHandlerFoundException) ex).getRequestURL();
+        if (ex instanceof NoHandlerFoundException noHandlerFoundException) {
+            url = noHandlerFoundException.getRequestURL();
             errorCode = ErrorCode.NO_HANDLER;
             args = Collections.singletonList(new Argument("path", url));
         }
@@ -314,7 +332,7 @@ public class RestResponseExceptionHandler {
 
         String errorCode = code.name();
         HttpStatus httpStatus = code.getHttpStatus();
-        ErrorMessage errorMessage = new ErrorMessage(errorCode, Arrays.asList(new Argument("name", parameterName), new Argument("expected", parameter.getParameterType().getName())), null);
+        ErrorMessage errorMessage = new ErrorMessage(errorCode, Arrays.asList(new Argument("name", parameterName), new Argument(EXPECTED, parameter.getParameterType().getName())), null);
         String formattedMessage = templateParser.interpolate(errorMessage);
 
         return new LocalizedExceptionWithStatus(httpStatus, new LocalizedErrorResponse(errorCode, formattedMessage));
