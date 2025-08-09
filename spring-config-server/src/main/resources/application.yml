@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: spring-config-server
+
+  profiles:
+    active: local,development,production
+
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/musabbozkurt/api-gateway-service
+          search-paths: api-gateway/src/main/resources/config-server
+          default-label: main
+
+server:
+  port: 8888
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh # curl --location --request POST 'http://127.0.0.1:8888/actuator/refresh'
