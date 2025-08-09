@@ -4,7 +4,11 @@ import com.mb.studentservice.data.entity.Student;
 import com.mb.studentservice.data.repository.StudentRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
@@ -13,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class StudentServiceImplTest {
+class StudentServiceImplTest {
 
     @InjectMocks
     private StudentServiceImpl studentService;
@@ -25,11 +29,10 @@ public class StudentServiceImplTest {
     private ArgumentCaptor<Student> captor;
 
     @Test
-    public void shouldCapture() {
+    void shouldCapture() {
         Student student = Student.builder().id(1).name("James").build();
         studentService.saveStudent(student);
 
-        //verify(mock).doSomething(argument.capture());
         verify(studentRepository).save(captor.capture());
 
         assertEquals("James", captor.getValue().getName());
@@ -37,7 +40,7 @@ public class StudentServiceImplTest {
     }
 
     @Test
-    public void shouldCaptureMultipleTimes() {
+    void shouldCaptureMultipleTimes() {
         Student student = Student.builder().id(1).name("James").build();
         Student student2 = Student.builder().id(2).name("Steph").build();
         Student student3 = Student.builder().id(3).name("Michael").build();
@@ -56,7 +59,7 @@ public class StudentServiceImplTest {
     }
 
     @Test
-    public void shouldCaptureManually() {
+    void shouldCaptureManually() {
         ArgumentCaptor<Student> argumentCaptor = ArgumentCaptor.forClass(Student.class);
 
         Student student = Student.builder().id(1).name("James").build();
@@ -67,5 +70,4 @@ public class StudentServiceImplTest {
 
         assertEquals("James", captured.getName());
     }
-
 }

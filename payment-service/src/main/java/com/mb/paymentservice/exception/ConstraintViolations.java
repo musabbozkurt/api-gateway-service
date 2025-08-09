@@ -1,15 +1,21 @@
 package com.mb.paymentservice.exception;
 
 import jakarta.validation.ConstraintViolation;
-import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.*;
+import lombok.NoArgsConstructor;
 
 import java.lang.annotation.Annotation;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public final class ConstraintViolations {
+
     private static final List<String> DEFAULT_ERROR_CODES_PREFIX = Arrays.asList("{javax.validation.", "{org.hibernate.validator");
     private static final Map<Class<? extends Annotation>, String> ERROR_CODE_MAPPING = initErrorCodeMapping();
     private static final Collection<String> IGNORE_ATTRIBUTES = Arrays.asList("groups", "payload", "message");

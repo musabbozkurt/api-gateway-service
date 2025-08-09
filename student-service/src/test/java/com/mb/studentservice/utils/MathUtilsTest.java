@@ -11,16 +11,19 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class MathUtilsTest {
+class MathUtilsTest {
 
     @Captor
     private ArgumentCaptor<Long> longArgumentCaptor;
 
     @Test
-    public void test_squareLong() {
+    void test_squareLong() {
         MathUtils mockMathUtils = mock(MathUtils.class);
 
         when(mockMathUtils.squareLong(10L)).thenReturn(100L);
@@ -33,7 +36,7 @@ public class MathUtilsTest {
     }
 
     @Test
-    public void test_MathUtils() {
+    void test_MathUtils() {
         MathUtils mockMathUtils = mock(MathUtils.class);
         when(mockMathUtils.add(20, 20)).thenReturn(40);
         when(mockMathUtils.isInteger(anyString())).thenReturn(true);
