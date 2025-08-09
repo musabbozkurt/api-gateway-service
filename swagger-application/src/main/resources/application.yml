@@ -65,6 +65,12 @@ spring:
               republishToDlq: true
               dlqDeadLetterExchange:
               dlqTtl: 300000
+    config:
+      uri: http://localhost:8888
+      profile: development
+
+  config:
+    import: "optional:configserver:" # "optional:configserver:http://localhost:8888"
 
 management:
   tracing:
