@@ -16,7 +16,7 @@ spring:
   datasource:
     url: jdbc:h2:mem:testdb
     username: sa
-    password: sa
+    password: ${H2_PASSWORD:sa}
     driverClassName: org.h2.Driver
 
   h2:
@@ -68,6 +68,7 @@ spring:
     config:
       uri: http://localhost:8888
       profile: development
+      label: main
 
   config:
     import: "optional:configserver:" # "optional:configserver:http://localhost:8888"
@@ -76,6 +77,10 @@ management:
   tracing:
     sampling:
       probability: 0.1
+  endpoints:
+    web:
+      exposure:
+        include: health,refresh # curl --location --request POST 'http://localhost:8082/actuator/refresh'
 
 server:
   port: 8082

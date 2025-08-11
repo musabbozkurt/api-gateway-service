@@ -15,8 +15,11 @@ class ConfigServerController {
     @Value("${service.name:null}")
     private String serviceName;
 
+    @Value("${service.first-url:null}")
+    private String firstUrl;
+
     @GetMapping("/service-name")
     public String getServiceName() {
-        return serviceName + " - " + configServerProperties.getName();
+        return serviceName + " - " + configServerProperties.getName() + " - " + firstUrl + " - " + configServerProperties.getFirstUrl();
     }
 }
