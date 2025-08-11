@@ -12,4 +12,6 @@ import org.springframework.stereotype.Component;
 public class ConfigServerProperties {
 
     private String name;
+    private String firstUrl;
+    private String secondUrl;
 }

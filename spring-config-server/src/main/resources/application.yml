@@ -3,15 +3,44 @@ spring:
     name: spring-config-server
 
   profiles:
-    active: local,development,production
+    active: local,development,production,jdbc
+
+  datasource:
+    hikari:
+      connection-timeout: '5000'
+      maximum-pool-size: '10'
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: ${H2_PASSWORD:sa}
+    driverClassName: org.h2.Driver
+
+  h2:
+    console:
+      enabled: true # http://localhost:8888/h2-console/
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    table: schema_version
+    locations: classpath:db/migration/common,classpath:db/migration/non-prod
+    default-schema: config_server_schema
+
+  jpa:
+    show-sql: true
 
   cloud:
     config:
       server:
+        jdbc:
+          enabled: true
+          order: 1
+          sql: SELECT PROP_KEY, PROP_VALUE from config_server_schema.properties where APPLICATION=? and PROFILE=? and LABEL=?
         git:
           uri: https://github.com/musabbozkurt/api-gateway-service
           search-paths: api-gateway/src/main/resources/config-server
           default-label: main
+          order: 2
 
 server:
   port: 8888
