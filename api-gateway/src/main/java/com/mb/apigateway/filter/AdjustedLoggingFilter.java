@@ -15,6 +15,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,25 +38,47 @@ public class AdjustedLoggingFilter implements GlobalFilter, Ordered {
         MDC.put(CLIENT_ID, (String) exchange.getAttributes().getOrDefault(CLIENT_ID, DEFAULT_VALUE));
 
         return chain.filter(exchange)
-                .doOnError(error -> log.error("Request processing failed. Method: {}, URI: {}, RequestBody: {}, Error: {}",
-                                request.getMethod(),
-                                request.getURI(),
-                                SUPPORTED_MEDIA_TYPES.contains(request.getHeaders().getContentType()) ? exchange.getAttribute(ServerWebExchangeUtils.CACHED_REQUEST_BODY_ATTR) : UNSUPPORTED_MEDIA_TYPE_NOT_LOGGED,
-                                error.getMessage()
+                .doOnError(error ->
+                        executeWithMDC(exchange, () -> log.error("Request processing failed. Method: {}, URI: {}, RequestBody: {}, Error: {}",
+                                        request.getMethod(),
+                                        request.getURI(),
+                                        SUPPORTED_MEDIA_TYPES.contains(request.getHeaders().getContentType()) ? exchange.getAttribute(ServerWebExchangeUtils.CACHED_REQUEST_BODY_ATTR) : UNSUPPORTED_MEDIA_TYPE_NOT_LOGGED,
+                                        error.getMessage()
+                                )
                         )
                 )
-                .then(Mono.<Void>fromRunnable(() -> {
+                .then(Mono.fromRunnable(() -> {
                     HttpStatusCode statusCode = exchange.getResponse().getStatusCode();
                     if (statusCode != null && statusCode.isError()) {
-                        log.error("Request processing failed. Method: {}, URI: {}, RequestBody: {}, Status: {}",
-                                request.getMethod(),
-                                request.getURI(),
-                                SUPPORTED_MEDIA_TYPES.contains(request.getHeaders().getContentType()) ? exchange.getAttribute(ServerWebExchangeUtils.CACHED_REQUEST_BODY_ATTR) : UNSUPPORTED_MEDIA_TYPE_NOT_LOGGED,
-                                statusCode
+                        executeWithMDC(exchange, () -> log.error("Request processing failed. Method: {}, URI: {}, RequestBody: {}, Status: {}",
+                                        request.getMethod(),
+                                        request.getURI(),
+                                        SUPPORTED_MEDIA_TYPES.contains(request.getHeaders().getContentType()) ? exchange.getAttribute(ServerWebExchangeUtils.CACHED_REQUEST_BODY_ATTR) : UNSUPPORTED_MEDIA_TYPE_NOT_LOGGED,
+                                        statusCode
+                                )
                         );
                     }
-                }))
-                .doFinally(signalType -> MDC.clear());
+                }));
+    }
+
+    // Ensure MDC is properly managed in reactive context
+    private void executeWithMDC(ServerWebExchange exchange, Runnable operation) {
+        Map<String, String> previousMDC = MDC.getCopyOfContextMap();
+        try {
+            populateMDC(exchange);
+            operation.run();
+        } finally {
+            if (previousMDC != null) {
+                MDC.setContextMap(previousMDC);
+            } else {
+                MDC.clear();
+            }
+        }
+    }
+
+    private void populateMDC(ServerWebExchange exchange) {
+        MDC.put(USERNAME, (String) exchange.getAttributes().getOrDefault(USERNAME, DEFAULT_VALUE));
+        MDC.put(CLIENT_ID, (String) exchange.getAttributes().getOrDefault(CLIENT_ID, DEFAULT_VALUE));
     }
 
     @Override
