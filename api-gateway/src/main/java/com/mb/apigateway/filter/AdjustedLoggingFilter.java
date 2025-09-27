@@ -2,6 +2,7 @@ package com.mb.apigateway.filter;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
@@ -17,6 +18,10 @@ import java.util.HashSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.mb.apigateway.constant.GatewayServiceConstants.CLIENT_ID;
+import static com.mb.apigateway.constant.GatewayServiceConstants.DEFAULT_VALUE;
+import static com.mb.apigateway.constant.GatewayServiceConstants.USERNAME;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -28,6 +33,8 @@ public class AdjustedLoggingFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
+        MDC.put(USERNAME, (String) exchange.getAttributes().getOrDefault(USERNAME, DEFAULT_VALUE));
+        MDC.put(CLIENT_ID, (String) exchange.getAttributes().getOrDefault(CLIENT_ID, DEFAULT_VALUE));
 
         return chain.filter(exchange)
                 .doOnError(error -> log.error("Request processing failed. Method: {}, URI: {}, RequestBody: {}, Error: {}",
@@ -37,7 +44,7 @@ public class AdjustedLoggingFilter implements GlobalFilter, Ordered {
                                 error.getMessage()
                         )
                 )
-                .then(Mono.fromRunnable(() -> {
+                .then(Mono.<Void>fromRunnable(() -> {
                     HttpStatusCode statusCode = exchange.getResponse().getStatusCode();
                     if (statusCode != null && statusCode.isError()) {
                         log.error("Request processing failed. Method: {}, URI: {}, RequestBody: {}, Status: {}",
@@ -47,7 +54,8 @@ public class AdjustedLoggingFilter implements GlobalFilter, Ordered {
                                 statusCode
                         );
                     }
-                }));
+                }))
+                .doFinally(signalType -> MDC.clear());
     }
 
     @Override

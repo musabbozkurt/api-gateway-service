@@ -143,6 +143,11 @@
             4. Click `Close` and test the services
     * Actuator: http://localhost:8080/actuator
     * Eureka: http://localhost:8761/
+    * RabbitMQ Management: http://localhost:15673/ with `username`: `guest` and `password`: `guest`
+    * PostgreSQL: `jdbc:postgresql://localhost:5433/postgres` with `username`: `postgres` and `password`: `postgres`
+    * Redis: http://localhost:6379/
+    * RedisInsight: http://localhost:5540/
+    * Zipkin: http://localhost:9411/
 
 ####
 

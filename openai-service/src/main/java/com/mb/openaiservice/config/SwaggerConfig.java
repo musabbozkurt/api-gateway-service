@@ -1,11 +1,10 @@
-package com.mb.paymentservice.config.swagger;
+package com.mb.openaiservice.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import org.springdoc.core.customizers.OperationCustomizer;
@@ -24,19 +23,6 @@ import org.springframework.web.method.HandlerMethod;
 )
 @Configuration
 public class SwaggerConfig {
-
-    public io.swagger.v3.oas.models.info.Info info() {
-        return new io.swagger.v3.oas.models.info.Info().title("Payment Service API")
-                .description("Payment Service API")
-                .version("1.0")
-                .license(getLicense());
-    }
-
-    private License getLicense() {
-        return new License()
-                .name("Unlicensed")
-                .url("https://unlicense.org/");
-    }
 
     @Bean
     public OperationCustomizer customGlobalHeaders() {

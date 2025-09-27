@@ -44,28 +44,29 @@ spring:
       routes:
         - id: student-service
           predicates:
-            - Path=/students/**
+            - Path=/student/**
           uri: ${STUDENT_SERVICE_BASE_URL}
         - id: swagger-application
           predicates:
-            - Path=/api/**
+            - Path=/swagger/**
           uri: ${SWAGGER_APPLICATION_BASE_URL}
         - id: payment-service
           predicates:
-            - Path=/payments/**
+            - Path=/payment/**
           uri: ${PAYMENT_SERVICE_BASE_URL}
         - id: validate
           predicates:
-            - Path=/validate/**
+            - Path=/student/**
           uri: ${STUDENT_SERVICE_BASE_URL}
         - id: openai-service
           predicates:
             - Path=/openai/**
           uri: ${OPENAI_SERVICE_BASE_URL}
-        - id: role # TODO This can be removed it's just a PrefixPath example.
+        - id: role # This can be removed it's just a PrefixPath example.
           predicates:
-            - Path=/role/**
+            - Path=/student/role/**
           uri: ${STUDENT_SERVICE_BASE_URL}
+          filters:
             - PrefixPath=/students
   main:
     web-application-type: reactive
@@ -114,15 +115,19 @@ springdoc:
       - url: /openai/api-docs
         name: OpenAI Service
         uri: ${OPENAI_SERVICE_BASE_URL}
+        server-url: ${BASE_URL}/openai
       - url: /payment/api-docs
         name: Payment Service
         uri: ${PAYMENT_SERVICE_BASE_URL}
+        server-url: ${BASE_URL}/payment
       - url: /student/api-docs
         name: Student Service
         uri: ${STUDENT_SERVICE_BASE_URL}
+        server-url: ${BASE_URL}/student
       - url: /swagger/api-docs
         name: Swagger Service
         uri: ${SWAGGER_APPLICATION_BASE_URL}
+        server-url: ${BASE_URL}/swagger
 
 eureka:
   client:
