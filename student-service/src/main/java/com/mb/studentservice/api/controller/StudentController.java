@@ -20,17 +20,17 @@ import java.util.stream.Collectors;
 @RequestMapping("/students")
 public class StudentController {
 
-    private final StudentEventProducer studentEventProducer;
-    private final StudentService studentService;
+    private static final List<Student> students = new ArrayList<>();
 
-    private final List<Student> students = new ArrayList<>();
-
-    {
+    static {
         students.add(new Student(1, "Student-Student1", "ADMIN2", "student.student1@test.com"));
         students.add(new Student(2, "Student-Student2", "SUPERVISOR2", "student.student2@test.com"));
         students.add(new Student(3, "Student-Student3", "USER2", "student.student3@test.com"));
         students.add(new Student(4, "Student-Student4", "USER3", "student.student4@test.com"));
     }
+
+    private final StudentEventProducer studentEventProducer;
+    private final StudentService studentService;
 
     @GetMapping(value = "/")
     public List<Student> getStudents() {

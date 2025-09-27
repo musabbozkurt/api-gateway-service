@@ -4,6 +4,7 @@ import com.mb.swaggerapplication.api.response.User;
 import com.mb.swaggerapplication.enums.EventType;
 import com.mb.swaggerapplication.queue.producer.SwaggerEventProducer;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,26 +12,27 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class SwaggerController {
 
-    private final SwaggerEventProducer swaggerEventProducer;
+    private static final List<User> users = new ArrayList<>();
 
-    private final List<User> users = new ArrayList<>();
-
-    {
+    static {
         users.add(new User(1, "Swagger-User1", "ADMIN", "swagger.user1@test.com"));
         users.add(new User(2, "Swagger-User2", "SUPERVISOR", "swagger.user2@test.com"));
         users.add(new User(3, "Swagger-User3", "USER", "swagger.user3@test.com"));
         users.add(new User(4, "Swagger-User4", "USER", "swagger.user4@test.com"));
     }
 
+    private final SwaggerEventProducer swaggerEventProducer;
+
     @GetMapping(value = "/users")
     public List<User> getUsers() {
+        log.info("Received request to get all users. getUsers");
         return users;
     }
 
@@ -46,7 +48,7 @@ public class SwaggerController {
     public List<User> getUserByRole(@PathVariable(value = "role") String role) {
         return users.stream()
                 .filter(x -> x.getRole().equalsIgnoreCase(role))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @GetMapping(value = "/events")

@@ -15,10 +15,16 @@ import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
+import static com.mb.apigateway.constant.GatewayServiceConstants.CLIENT_ID;
+import static com.mb.apigateway.constant.GatewayServiceConstants.USERNAME;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class LoggingFilter implements GlobalFilter, Ordered {
+
+    private static final String TEST_USERNAME = "test_username";
+    private static final String TEST_CLIENT_ID = "test_client_id";
 
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final LoggingConfig loggingConfig;
@@ -32,6 +38,16 @@ public class LoggingFilter implements GlobalFilter, Ordered {
 
         ServerHttpRequest request = exchange.getRequest();
         String requestId = UUID.randomUUID().toString();
+
+        exchange.mutate()
+                .request(requestBuilder -> requestBuilder.headers(headers -> {
+                    headers.set(USERNAME, TEST_USERNAME);
+                    headers.set(CLIENT_ID, TEST_CLIENT_ID);
+                }))
+                .build();
+
+        exchange.getAttributes().put(USERNAME, TEST_USERNAME);
+        exchange.getAttributes().put(CLIENT_ID, TEST_CLIENT_ID);
 
         // Log the request details
         log.info("Request: [{}] {} {} from {}", requestId, request.getMethod(), request.getURI(), request.getRemoteAddress());

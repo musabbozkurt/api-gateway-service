@@ -1,6 +1,5 @@
-version: '3.9'
-
 services:
+
   api-gateway:
     build:
       context: ./api-gateway
@@ -15,6 +14,9 @@ services:
       - payment-service
       - openai-service
       - service-registry
+      - redis-service
+      - redis-insight-service
+      - zipkin
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
     profiles:
@@ -27,7 +29,7 @@ services:
     env_file:
       - .env
     ports:
-      - "8081:8080"  # Map host port 8081 to container port 8080
+      - "8081:8081"  # Map host port 8081 to container port 8080
     depends_on:
       - rabbitmq
       - postgres
@@ -45,7 +47,7 @@ services:
       context: ./swagger-application
       dockerfile: Dockerfile
     ports:
-      - "8082:8080"  # Map host port 8082 to container port 8080
+      - "8082:8082"  # Map host port 8082 to container port 8080
     depends_on:
       - service-registry
     environment:
@@ -60,7 +62,7 @@ services:
       context: ./payment-service
       dockerfile: Dockerfile
     ports:
-      - "8083:8080"  # Map host port 8083 to container port 8080
+      - "8083:8083"  # Map host port 8083 to container port 8080
     depends_on:
       - rabbitmq
       - postgres
@@ -78,7 +80,7 @@ services:
       context: ./openai-service
       dockerfile: Dockerfile
     ports:
-      - "8084:8080"  # Map host port 8084 to container port 8080
+      - "8084:8084"  # Map host port 8084 to container port 8080
     depends_on:
       - service-registry
     environment:
@@ -107,7 +109,7 @@ services:
       # RABBITMQ_DEFAULT_PASS: guest error: RABBITMQ_DEFAULT_PASS is set but deprecated
 
   postgres:
-    image: postgres
+    image: postgres:18.0-alpine3.21
     restart: always
     container_name: postgres-db
     ports:
@@ -124,6 +126,48 @@ services:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
     ports:
-      - "9090:8080"
+      - "9090:9090"
     command:
       - "start-dev"
+
+  redis-service:
+    image: redis:7.4.1
+    container_name: redis-service
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+
+  redis-insight-service:
+    image: redis/redisinsight:latest
+    restart: always
+    container_name: redis-insight-service
+    ports:
+      - "5540:5540"
+    volumes:
+      - redis-insight:/data
+
+  # Note: openzipkin/zipkin-slim is mirrored as ghcr.io/openzipkin/zipkin-slim
+  # The zipkin process services the UI, and also exposes a POST endpoint that
+  # instrumentation can send trace data to.
+  zipkin:
+    image: ghcr.io/openzipkin/zipkin-slim:master
+    container_name: zipkin
+    # Environment settings are defined here https://github.com/openzipkin/zipkin/blob/master/zipkin-server/README.md#environment-variables
+    environment:
+      - STORAGE_TYPE=mem
+      # Uncomment to enable self-tracing
+      # - SELF_TRACING_ENABLED=true
+      # Uncomment to increase heap size
+      # - JAVA_OPTS=-Xms128m -Xmx128m -XX:+ExitOnOutOfMemoryError
+    ports:
+      # Port used for the Zipkin UI and HTTP Api
+      - "9411:9411"
+    # Uncomment to enable debug logging
+    # command: --logging.level.zipkin2=DEBUG
+
+volumes:
+  redis-data:
+  redis-insight:

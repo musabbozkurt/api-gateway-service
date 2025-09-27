@@ -20,5 +20,6 @@ public class SwaggerConfigProperties {
         private String url;
         private String name;
         private String uri;
+        private String serverUrl;
     }
 }
