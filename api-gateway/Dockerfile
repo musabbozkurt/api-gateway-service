@@ -12,7 +12,7 @@ COPY . /app/api-gateway
 RUN --mount=type=cache,target=/root/.m2 mvn -f /app/api-gateway/pom.xml clean package -DskipTests
 
 # Create a custom Java runtime
-RUN $JAVA_HOME/bin/jlink \
+RUN "$JAVA_HOME"/bin/jlink \
          --add-modules jdk.unsupported,java.base,java.sql,java.naming,java.desktop,java.management,java.security.jgss,java.instrument \
          --strip-java-debug-attributes \
          --no-man-pages \

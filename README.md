@@ -32,11 +32,12 @@
 
    ```
     * api-gateway
+    * openai-service
     * payment-service
+    * service-registry
+    * spring-config-server
     * student-service
     * swagger-application
-    * openai-service
-    * service-registry
    ```
 
 ### Features
@@ -55,6 +56,7 @@
     * openai-service repo migration is completed
     * Spring Cloud Eureka Server and Client integrations are completed with service-registry repo
     * KubernetesDeploymentGuide.md is added
+    * Spring Config Server integration is completed with git version control
    ```
 
 ---
@@ -148,6 +150,9 @@
     * Redis: http://localhost:6379/
     * RedisInsight: http://localhost:5540/
     * Zipkin: http://localhost:9411/
+    * spring-config-server
+        * Health: http://localhost:8888/actuator/health
+        * Config for swagger-application: http://localhost:8888/swagger-application/development/main
 
 ####
 

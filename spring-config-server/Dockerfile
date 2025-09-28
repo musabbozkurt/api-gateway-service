@@ -6,10 +6,10 @@ FROM maven:3.9.9-ibm-semeru-21-jammy AS build
 WORKDIR /app
 
 # Copy the pom.xml and download dependencies
-COPY . /app/student-service
+COPY . /app/spring-config-server
 
 # Download dependencies (this layer will be cached if pom.xml doesn't change)
-RUN --mount=type=cache,target=/root/.m2 mvn -f /app/student-service/pom.xml clean package -DskipTests
+RUN --mount=type=cache,target=/root/.m2 mvn -f /app/spring-config-server/pom.xml clean package -DskipTests
 
 # Create a custom Java runtime
 RUN "$JAVA_HOME"/bin/jlink \
@@ -21,7 +21,7 @@ RUN "$JAVA_HOME"/bin/jlink \
          --output /mbjavaruntime
 
 # Stage 2: Create the final image
-FROM openjdk:slim-stretch
+FROM ubuntu:25.10
 
 ENV JAVA_HOME /home/java/jdk21
 ENV PATH $JAVA_HOME/bin:$PATH
@@ -32,7 +32,7 @@ WORKDIR /app
 COPY --from=build /mbjavaruntime $JAVA_HOME
 
 # Copy the packaged jar file from the build stage
-COPY --from=build /app/student-service/target/*.jar app.jar
+COPY --from=build /app/spring-config-server/target/*.jar app.jar
 
 # Command to run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]

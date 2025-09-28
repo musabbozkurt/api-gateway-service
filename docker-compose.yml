@@ -17,10 +17,13 @@ services:
       - redis-service
       - redis-insight-service
       - zipkin
+      - spring-config-server
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
     profiles:
       - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
 
   student-service:
     build:
@@ -35,14 +38,22 @@ services:
       - postgres
       - keycloak
       - service-registry
+      - spring-config-server
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
     profiles:
       - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
 
   swagger-application:
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
     build:
       context: ./swagger-application
       dockerfile: Dockerfile
@@ -50,12 +61,16 @@ services:
       - "8082:8082"  # Map host port 8082 to container port 8080
     depends_on:
       - service-registry
+      - spring-config-server
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
+      CONFIG_SERVER_URI: http://spring-config-server:8888
     profiles:
       - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
 
   payment-service:
     build:
@@ -68,12 +83,15 @@ services:
       - postgres
       - keycloak
       - service-registry
+      - spring-config-server
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
       DB_HOST: postgres
       DB_PORT: 5432
     profiles:
       - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
 
   openai-service:
     build:
@@ -83,10 +101,13 @@ services:
       - "8084:8084"  # Map host port 8084 to container port 8080
     depends_on:
       - service-registry
+      - spring-config-server
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
     profiles:
       - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
 
   service-registry:
     build:
@@ -96,6 +117,25 @@ services:
       - "8761:8761"  # Map host port 8761 to container port 8761
     profiles:
       - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
+
+  spring-config-server:
+    build:
+      context: ./spring-config-server
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "8888:8888"  # Map host port 8888 to container port 8888
+    depends_on:
+      - service-registry
+    environment:
+      EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
+    profiles:
+      - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -107,6 +147,8 @@ services:
       # environment:
       # RABBITMQ_DEFAULT_USER: guest error: RABBITMQ_DEFAULT_USER is set but deprecated
       # RABBITMQ_DEFAULT_PASS: guest error: RABBITMQ_DEFAULT_PASS is set but deprecated
+    networks:
+      - mb-network
 
   postgres:
     image: postgres:18.0-alpine3.21
@@ -118,6 +160,8 @@ services:
       POSTGRES_DB: ${POSTGRESQL_DB}
       POSTGRES_USER: ${POSTGRESQL_USER}
       POSTGRES_PASSWORD: ${POSTGRESQL_PASS}
+    networks:
+      - mb-network
 
   keycloak:
     container_name: keycloak
@@ -129,6 +173,8 @@ services:
       - "9090:9090"
     command:
       - "start-dev"
+    networks:
+      - mb-network
 
   redis-service:
     image: redis:7.4.1
@@ -139,6 +185,8 @@ services:
       - redis-data:/data
     command: redis-server --appendonly yes
     restart: unless-stopped
+    networks:
+      - mb-network
 
   redis-insight-service:
     image: redis/redisinsight:latest
@@ -148,6 +196,8 @@ services:
       - "5540:5540"
     volumes:
       - redis-insight:/data
+    networks:
+      - mb-network
 
   # Note: openzipkin/zipkin-slim is mirrored as ghcr.io/openzipkin/zipkin-slim
   # The zipkin process services the UI, and also exposes a POST endpoint that
@@ -167,7 +217,13 @@ services:
       - "9411:9411"
     # Uncomment to enable debug logging
     # command: --logging.level.zipkin2=DEBUG
+    networks:
+      - mb-network
 
 volumes:
   redis-data:
   redis-insight:
+
+networks:
+  mb-network:
+    driver: bridge

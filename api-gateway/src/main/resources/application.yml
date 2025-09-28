@@ -83,6 +83,8 @@ spring:
       max-request-size: 10MB
   codec:
     max-in-memory-size: 10MB
+  reactor:
+    context-propagation: auto
 
 google:
   recaptcha:
@@ -102,9 +104,11 @@ management:
       show-details: always
     gateway:
       enabled: true
+  tracing:
+    sampling:
+      probability: 1.0 # 1.0 means 100% of requests are traced, adjust as needed for production
 
 springdoc:
-  enable-native-support: true
   api-docs:
     enabled: true
   swagger-ui:
