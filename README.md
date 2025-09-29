@@ -115,7 +115,8 @@
         1. Enable [spring.docker.compose](api-gateway/src/main/resources/application.yml) property and just
            run [ApiGatewayApplication.java](api-gateway/src/main/java/com/mb/apigateway/ApiGatewayApplication.java) to
            install RabbitMQ, PostgreSQL and Keycloak
-        2. Run `mvn clean install` or `mvn clean package` command under each service's directory
+        2. Run `mvn clean install` or `mvn clean package` or `./mvnw clean install` or `./mvnw clean package` command
+           under each service's directory
         3. Run `mvn spring-boot:run` command under each service's directory
 
 ####
