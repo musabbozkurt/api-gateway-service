@@ -66,12 +66,13 @@ spring:
               dlqDeadLetterExchange:
               dlqTtl: 300000
     config:
-      uri: http://localhost:8888
+      uri: ${CONFIG_SERVER_URI:http://localhost:8888}
       profile: development
       label: main
+      fail-fast: true # true: if config server is down, this service will not start
 
   config:
-    import: "optional:configserver:" # "optional:configserver:http://localhost:8888"
+    import: "optional:configserver:" # "optional:configserver:${CONFIG_SERVER_URI:http://localhost:8888}"
 
 management:
   tracing:

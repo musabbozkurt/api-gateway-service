@@ -17,6 +17,8 @@ spring:
   h2:
     console:
       enabled: true # http://localhost:8888/h2-console/
+      settings:
+        web-allow-others: true # Allow remote connections to H2 console
 
   flyway:
     enabled: true
@@ -50,3 +52,8 @@ management:
     web:
       exposure:
         include: refresh # curl --location --request POST 'http://127.0.0.1:8888/actuator/refresh'
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL:http://localhost:8761/eureka}
