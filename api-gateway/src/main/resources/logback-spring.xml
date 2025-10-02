@@ -7,7 +7,7 @@
     <springProperty scope="context" name="logfilepath" source="logging.file:logs/console-${service}.log"/>
     <property scope="context" name="host" value="${HOSTNAME}"/>
     <property name="localConsoleLogPattern"
-              value="%green(%d{dd-MM-yyyy HH:mm:ss.SSS}) %magenta([%thread]) %highlight(%-5level) [%X{traceId:-},%X{spanId:-},%X{username:-},%X{client_id:-}] %logger{36} %msg%n"/>
+              value="%green(%d{dd-MM-yyyy HH:mm:ss.SSS}) %magenta([%thread]) %highlight(%-5level) [%X{traceId:-},%X{spanId:-},%X{username:-},%X{client_id:-},%X{sessionId:-}] %logger{36} %msg%n"/>
 
     <appender name="LocalConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">

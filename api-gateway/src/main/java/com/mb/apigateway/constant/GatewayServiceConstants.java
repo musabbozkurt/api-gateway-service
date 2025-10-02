@@ -8,5 +8,6 @@ public final class GatewayServiceConstants {
 
     public static final String USERNAME = "username";
     public static final String CLIENT_ID = "client_id";
-    public static final String DEFAULT_VALUE = "unknown";
+    public static final String SESSION_ID = "sessionId";
+    public static final String MDC_CONTEXT = "MDC_CONTEXT";
 }
