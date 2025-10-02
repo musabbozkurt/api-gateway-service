@@ -49,6 +49,8 @@ public class LoggingFilter implements GlobalFilter, Ordered {
         exchange.getAttributes().put(USERNAME, TEST_USERNAME);
         exchange.getAttributes().put(CLIENT_ID, TEST_CLIENT_ID);
 
+        // This class can store MDC context because it runs before other filters
+
         // Log the request details
         log.info("Request: [{}] {} {} from {}", requestId, request.getMethod(), request.getURI(), request.getRemoteAddress());
 

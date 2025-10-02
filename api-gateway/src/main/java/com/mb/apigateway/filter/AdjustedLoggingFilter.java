@@ -1,7 +1,9 @@
 package com.mb.apigateway.filter;
 
+import com.mb.apigateway.context.ContextHolder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -16,11 +18,13 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.mb.apigateway.constant.GatewayServiceConstants.CLIENT_ID;
-import static com.mb.apigateway.constant.GatewayServiceConstants.DEFAULT_VALUE;
+import static com.mb.apigateway.constant.GatewayServiceConstants.MDC_CONTEXT;
+import static com.mb.apigateway.constant.GatewayServiceConstants.SESSION_ID;
 import static com.mb.apigateway.constant.GatewayServiceConstants.USERNAME;
 
 @Slf4j
@@ -34,55 +38,89 @@ public class AdjustedLoggingFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
-        MDC.put(USERNAME, (String) exchange.getAttributes().getOrDefault(USERNAME, DEFAULT_VALUE));
-        MDC.put(CLIENT_ID, (String) exchange.getAttributes().getOrDefault(CLIENT_ID, DEFAULT_VALUE));
 
-        return chain.filter(exchange)
-                .doOnError(error ->
-                        executeWithMDC(exchange, () -> log.error("Request processing failed. Method: {}, URI: {}, RequestBody: {}, Error: {}",
-                                        request.getMethod(),
-                                        request.getURI(),
-                                        SUPPORTED_MEDIA_TYPES.contains(request.getHeaders().getContentType()) ? exchange.getAttribute(ServerWebExchangeUtils.CACHED_REQUEST_BODY_ATTR) : UNSUPPORTED_MEDIA_TYPE_NOT_LOGGED,
-                                        error.getMessage()
+        AtomicReference<String> sessionId = new AtomicReference<>();
+
+        return exchange.getSession()
+                .doOnNext(webSession -> {
+                    sessionId.set(webSession.getId());
+                    initializeMDCAndContext(exchange, sessionId.get());
+                    log.info("Incoming request. Method: {}, URI: {}", request.getMethod(), request.getURI());
+                    // Store complete MDC context in exchange attributes
+                    Map<String, String> mdcContext = MDC.getCopyOfContextMap();
+                    exchange.getAttributes().put(MDC_CONTEXT, mdcContext);
+                })
+                .then(
+                        chain.filter(exchange)
+                                .doOnError(error ->
+                                        executeWithMDC(exchange, () -> log.error("Request processing failed. Method: {}, URI: {}, RequestBody: {}, Error: {}",
+                                                        request.getMethod(),
+                                                        request.getURI(),
+                                                        SUPPORTED_MEDIA_TYPES.contains(request.getHeaders().getContentType()) ? exchange.getAttribute(ServerWebExchangeUtils.CACHED_REQUEST_BODY_ATTR) : UNSUPPORTED_MEDIA_TYPE_NOT_LOGGED,
+                                                        error.getMessage()
+                                                ),
+                                                sessionId.get()
+                                        )
                                 )
-                        )
-                )
-                .then(Mono.fromRunnable(() -> {
-                    HttpStatusCode statusCode = exchange.getResponse().getStatusCode();
-                    if (statusCode != null && statusCode.isError()) {
-                        executeWithMDC(exchange, () -> log.error("Request processing failed. Method: {}, URI: {}, RequestBody: {}, Status: {}",
-                                        request.getMethod(),
-                                        request.getURI(),
-                                        SUPPORTED_MEDIA_TYPES.contains(request.getHeaders().getContentType()) ? exchange.getAttribute(ServerWebExchangeUtils.CACHED_REQUEST_BODY_ATTR) : UNSUPPORTED_MEDIA_TYPE_NOT_LOGGED,
-                                        statusCode
+                                .then(Mono.fromRunnable(() -> {
+                                                    HttpStatusCode statusCode = exchange.getResponse().getStatusCode();
+                                                    if (statusCode != null && statusCode.isError()) {
+                                                        executeWithMDC(exchange, () -> log.error("Request processing failed. Method: {}, URI: {}, RequestBody: {}, Status: {}",
+                                                                        request.getMethod(),
+                                                                        request.getURI(),
+                                                                        SUPPORTED_MEDIA_TYPES.contains(request.getHeaders().getContentType()) ? exchange.getAttribute(ServerWebExchangeUtils.CACHED_REQUEST_BODY_ATTR) : UNSUPPORTED_MEDIA_TYPE_NOT_LOGGED,
+                                                                        statusCode
+                                                                ),
+                                                                sessionId.get()
+                                                        );
+                                                    }
+                                                }
+                                        )
                                 )
-                        );
-                    }
-                }));
-    }
-
-    // Ensure MDC is properly managed in reactive context
-    private void executeWithMDC(ServerWebExchange exchange, Runnable operation) {
-        Map<String, String> previousMDC = MDC.getCopyOfContextMap();
-        try {
-            populateMDC(exchange);
-            operation.run();
-        } finally {
-            if (previousMDC != null) {
-                MDC.setContextMap(previousMDC);
-            } else {
-                MDC.clear();
-            }
-        }
-    }
-
-    private void populateMDC(ServerWebExchange exchange) {
-        MDC.put(USERNAME, (String) exchange.getAttributes().getOrDefault(USERNAME, DEFAULT_VALUE));
-        MDC.put(CLIENT_ID, (String) exchange.getAttributes().getOrDefault(CLIENT_ID, DEFAULT_VALUE));
+                );
     }
 
     @Override
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE + 1;
+    }
+
+    private void initializeMDCAndContext(ServerWebExchange exchange, String sessionId) {
+        String username = (String) exchange.getAttributes().get(USERNAME);
+        String clientId = (String) exchange.getAttributes().get(CLIENT_ID);
+
+        ContextHolder.Context.ContextBuilder contextBuilder = ContextHolder.Context.builder();
+
+        if (StringUtils.isNotBlank(username)) {
+            MDC.put(USERNAME, username);
+            contextBuilder.username(username);
+        }
+
+        if (StringUtils.isNotBlank(clientId)) {
+            MDC.put(CLIENT_ID, clientId);
+            contextBuilder.clientId(clientId);
+        }
+
+        exchange.mutate()
+                .request(requestBuilder -> requestBuilder.headers(headers -> headers.set(SESSION_ID, sessionId)))
+                .build();
+        MDC.put(SESSION_ID, sessionId);
+        contextBuilder.sessionId(sessionId);
+
+        ContextHolder.setContext(contextBuilder.build());
+    }
+
+    // Ensure MDC is properly managed in reactive context
+    private void executeWithMDC(ServerWebExchange exchange, Runnable operation, String sessionId) {
+        Map<String, String> previousMDC = MDC.getCopyOfContextMap();
+        try {
+            initializeMDCAndContext(exchange, sessionId);
+            operation.run();
+        } finally {
+            if (previousMDC != null) {
+                MDC.setContextMap(previousMDC);
+            }
+            // Remove cleanup - GatewayGlobalFilters handle clearing
+        }
     }
 }
