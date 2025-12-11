@@ -26,48 +26,50 @@ spring:
 
   cloud:
     gateway:
-      httpclient:
-        connect-timeout: 10000
-        response-timeout: 10s
-        pool:
-          max-idle-time: 5s
-      default-filters:
-        - StripPrefix=1
-        - name: CacheRequestBody
-          args:
-            bodyClass: java.lang.String
-        - name: RequestRateLimiter
-          args:
-            redis-rate-limiter.replenishRate: 40
-            redis-rate-limiter.burstCapacity: 80
-            redis-rate-limiter.requestedTokens: 1
-      routes:
-        - id: student-service
-          predicates:
-            - Path=/student/**
-          uri: ${STUDENT_SERVICE_BASE_URL}
-        - id: swagger-application
-          predicates:
-            - Path=/swagger/**
-          uri: ${SWAGGER_APPLICATION_BASE_URL}
-        - id: payment-service
-          predicates:
-            - Path=/payment/**
-          uri: ${PAYMENT_SERVICE_BASE_URL}
-        - id: validate
-          predicates:
-            - Path=/student/**
-          uri: ${STUDENT_SERVICE_BASE_URL}
-        - id: openai-service
-          predicates:
-            - Path=/openai/**
-          uri: ${OPENAI_SERVICE_BASE_URL}
-        - id: role # This can be removed it's just a PrefixPath example.
-          predicates:
-            - Path=/student/role/**
-          uri: ${STUDENT_SERVICE_BASE_URL}
-          filters:
-            - PrefixPath=/students
+      server:
+        webflux:
+          httpclient:
+            connect-timeout: 10000
+            response-timeout: 10s
+            pool:
+              max-idle-time: 5s
+          default-filters:
+            - StripPrefix=1
+            - name: CacheRequestBody
+              args:
+                bodyClass: java.lang.String
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 40
+                redis-rate-limiter.burstCapacity: 80
+                redis-rate-limiter.requestedTokens: 1
+          routes:
+            - id: student-service
+              predicates:
+                - Path=/student/**
+              uri: ${STUDENT_SERVICE_BASE_URL}
+            - id: swagger-application
+              predicates:
+                - Path=/swagger/**
+              uri: ${SWAGGER_APPLICATION_BASE_URL}
+            - id: payment-service
+              predicates:
+                - Path=/payment/**
+              uri: ${PAYMENT_SERVICE_BASE_URL}
+            - id: validate
+              predicates:
+                - Path=/student/**
+              uri: ${STUDENT_SERVICE_BASE_URL}
+            - id: openai-service
+              predicates:
+                - Path=/openai/**
+              uri: ${OPENAI_SERVICE_BASE_URL}
+            - id: role # This can be removed it's just a PrefixPath example.
+              predicates:
+                - Path=/student/role/**
+              uri: ${STUDENT_SERVICE_BASE_URL}
+              filters:
+                - PrefixPath=/students
   main:
     web-application-type: reactive
 
@@ -81,8 +83,9 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
-  codec:
-    max-in-memory-size: 10MB
+  http:
+    codecs:
+      max-in-memory-size: 10MB
   reactor:
     context-propagation: auto
 

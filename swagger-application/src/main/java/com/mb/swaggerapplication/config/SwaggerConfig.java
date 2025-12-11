@@ -26,7 +26,7 @@ public class SwaggerConfig {
 
     @Bean
     public OperationCustomizer customGlobalHeaders() {
-        return (Operation operation, HandlerMethod handlerMethod) -> {
+        return (Operation operation, HandlerMethod _) -> {
             Parameter usernameParam = new Parameter()
                     .in(ParameterIn.HEADER.toString())
                     .schema(new StringSchema())

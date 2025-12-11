@@ -2,8 +2,8 @@ package com.mb.studentservice.config.hcaptcha;
 
 import feign.codec.Encoder;
 import feign.form.spring.SpringFormEncoder;
-import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.cloud.openfeign.support.FeignHttpMessageConverters;
 import org.springframework.cloud.openfeign.support.SpringEncoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,8 +19,7 @@ public class HCaptchaCoreFeignConfiguration {
      * */
 
     @Bean
-    Encoder feignFormEncoder(ObjectFactory<HttpMessageConverters> converters) {
+    Encoder feignFormEncoder(ObjectProvider<FeignHttpMessageConverters> converters) {
         return new SpringFormEncoder(new SpringEncoder(converters));
     }
-
 }

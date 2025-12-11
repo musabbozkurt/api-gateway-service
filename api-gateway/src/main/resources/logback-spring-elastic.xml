@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+
     <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <springProperty scope="context" name="service" source="spring.application.name"/>
     <springProperty scope="context" name="logfilepath" source="logging.file:logs/console-${service}.log"/>
     <property scope="context" name="host" value="${HOSTNAME}"/>
     <property name="localConsoleLogPattern"
-              value="%green(%d{dd-MM-yyyy HH:mm:ss.SSS}) %magenta([%thread]) %highlight(%-5level) [%X{traceId:-},%X{spanId:-}] %logger{36} %msg%n"/>
+              value="%green(%d{dd-MM-yyyy HH:mm:ss.SSS}) %magenta([%thread]) %highlight(%-5level) [%X{traceId:-},%X{spanId:-},%X{username:-},%X{client_id:-},%X{sessionId:-}] %logger{36} %msg%n"/>
 
     <appender name="LocalConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
-        <layout class="ch.qos.logback.classic.PatternLayout">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>${localConsoleLogPattern}</pattern>
-        </layout>
+        </encoder>
     </appender>
 
     <appender name="ConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
@@ -21,8 +22,7 @@
                 <version>[ignore]</version>
                 <levelValue>[ignore]</levelValue>
             </fieldNames>
-            <username>username</username>
-            <sessionId>sessionId</sessionId>
+            <includeContext>true</includeContext>
             <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
                 <maxDepthPerThrowable>100</maxDepthPerThrowable>
                 <rootCauseFirst>true</rootCauseFirst>
