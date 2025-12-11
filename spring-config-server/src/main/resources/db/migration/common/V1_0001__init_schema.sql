@@ -2,14 +2,14 @@ CREATE SCHEMA IF NOT EXISTS config_server_schema;
 
 CREATE TABLE IF NOT EXISTS config_server_schema.properties
 (
-    ID          INTEGER NOT NULL auto_increment,
-    CREATED_ON  datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    APPLICATION varchar(255),
-    PROFILE     varchar(255),
-    LABEL       varchar(255),
-    PROP_KEY    varchar(255),
-    PROP_VALUE  varchar(255),
-    primary key (ID)
+    ID          INTEGER NOT NULL AUTO_INCREMENT,
+    CREATED_ON  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    APPLICATION VARCHAR(255),
+    PROFILE     VARCHAR(255),
+    LABEL       VARCHAR(255),
+    PROP_KEY    VARCHAR(255),
+    PROP_VALUE  VARCHAR(255),
+    PRIMARY KEY (ID)
 );
 
 INSERT INTO config_server_schema.properties (APPLICATION, PROFILE, LABEL, PROP_KEY, PROP_VALUE)

@@ -13,9 +13,9 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.MockServerContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.mockserver.MockServerContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.time.Duration;
@@ -32,14 +32,14 @@ import static org.mockserver.model.HttpResponse.response;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class RateLimiterIntegrationTest {
 
-    private static final DockerImageName MOCKSERVER_IMAGE = DockerImageName.parse("mockserver/mockserver:mockserver-5.14.0");
+    private static final DockerImageName MOCKSERVER_IMAGE = DockerImageName.parse("mockserver/mockserver:mockserver-5.15.0");
 
     @Container
     private static final MockServerContainer mockServer = new MockServerContainer(MOCKSERVER_IMAGE);
 
     @Container
     @SuppressWarnings("resource")
-    private static final GenericContainer<?> redis = new GenericContainer<>("redis:7-alpine")
+    private static final GenericContainer<?> redis = new GenericContainer<>("redis:8.4")
             .withExposedPorts(6379);
 
     private MockServerClient mockServerClient;
@@ -58,9 +58,9 @@ class RateLimiterIntegrationTest {
         log.info("MockServer URL: {}", mockServerUrl);
 
         // Configure API Gateway routes
-        registry.add("spring.cloud.gateway.routes[0].id", () -> "students-service");
-        registry.add("spring.cloud.gateway.routes[0].uri", () -> mockServerUrl);
-        registry.add("spring.cloud.gateway.routes[0].predicates[0]", () -> "Path=/students/**");
+        registry.add("spring.cloud.gateway.server.webflux.routes[0].id", () -> "students-service");
+        registry.add("spring.cloud.gateway.server.webflux.routes[0].uri", () -> mockServerUrl);
+        registry.add("spring.cloud.gateway.server.webflux.routes[0].predicates[0]", () -> "Path=/students/**");
     }
 
     @BeforeEach
@@ -69,7 +69,7 @@ class RateLimiterIntegrationTest {
         if (mockServerClient != null) {
             try {
                 mockServerClient.close();
-            } catch (Exception e) {
+            } catch (Exception _) {
                 // Ignore
             }
         }

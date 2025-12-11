@@ -44,13 +44,13 @@ public class SecurityConfig {
     @Value("${gateway-service.client-secret}")
     private String clientSecret;
 
-    @Value("${spring.cloud.gateway.httpclient.connect-timeout}")
+    @Value("${spring.cloud.gateway.server.webflux.httpclient.connect-timeout}")
     private Duration connectTimeout;
 
-    @Value("${spring.cloud.gateway.httpclient.response-timeout}")
+    @Value("${spring.cloud.gateway.server.webflux.httpclient.response-timeout}")
     private Duration responseTimeout;
 
-    @Value("${spring.cloud.gateway.httpclient.pool.max-idle-time}")
+    @Value("${spring.cloud.gateway.server.webflux.httpclient.pool.max-idle-time}")
     private Duration maxIdleTime;
 
     @Bean

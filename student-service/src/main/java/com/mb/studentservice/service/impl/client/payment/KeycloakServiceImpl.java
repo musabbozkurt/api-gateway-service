@@ -48,12 +48,12 @@ public class KeycloakServiceImpl implements KeycloakService {
     }
 
     public void logout(String refreshToken) {
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("client_id", properties.getClientId());
-        map.add("client_secret", properties.getClientSecret());
-        map.add("refresh_token", refreshToken);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("client_id", properties.getClientId());
+        httpHeaders.add("client_secret", properties.getClientSecret());
+        httpHeaders.add("refresh_token", refreshToken);
 
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, null);
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(null, httpHeaders);
         restTemplate.postForObject(properties.getLogoutUri(), request, String.class);
     }
 
@@ -69,11 +69,10 @@ public class KeycloakServiceImpl implements KeycloakService {
     }
 
     public String getUserInfo(String token) {
-        MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-        headers.add("Authorization", token);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("Authorization", token);
 
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(null, headers);
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(null, httpHeaders);
         return restTemplate.postForObject(properties.getUserInfoUri(), request, String.class);
     }
-
 }

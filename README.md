@@ -73,8 +73,8 @@
 
 - Followings should be installed and links for how to install them
   ####
-    * Java 21 or higher [How to install Java](https://java.com/en/download/help/download_options.html)
-        * Set `JAVA_HOME` to 21 -> `export JAVA_HOME=$(/usr/libexec/java_home -v 21)`
+    * Java 25 or higher [How to install Java](https://java.com/en/download/help/download_options.html)
+        * Set `JAVA_HOME` to 25 -> `export JAVA_HOME=$(/usr/libexec/java_home -v 25)`
     * Maven [How to install Maven](https://maven.apache.org/install.html)
     * Docker [How to install Docker](https://docs.docker.com/get-docker)
     * [Postman](https://www.postman.com/downloads/) can be installed (OPTIONAL),

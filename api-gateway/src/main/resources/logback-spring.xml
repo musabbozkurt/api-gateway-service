@@ -10,9 +10,9 @@
               value="%green(%d{dd-MM-yyyy HH:mm:ss.SSS}) %magenta([%thread]) %highlight(%-5level) [%X{traceId:-},%X{spanId:-},%X{username:-},%X{client_id:-},%X{sessionId:-}] %logger{36} %msg%n"/>
 
     <appender name="LocalConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
-        <layout class="ch.qos.logback.classic.PatternLayout">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>${localConsoleLogPattern}</pattern>
-        </layout>
+        </encoder>
     </appender>
 
     <appender name="ConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">

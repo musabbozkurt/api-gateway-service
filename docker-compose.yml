@@ -138,7 +138,7 @@ services:
       - mb-network
 
   rabbitmq:
-    image: rabbitmq:3-management
+    image: rabbitmq:4.2.1-management
     restart: always
     container_name: test-rabbitmq
     ports:
@@ -151,7 +151,7 @@ services:
       - mb-network
 
   postgres:
-    image: postgres:18.0-alpine3.21
+    image: postgres:18-alpine
     restart: always
     container_name: postgres-db
     ports:
@@ -194,7 +194,7 @@ services:
       - mb-network
 
   redis-service:
-    image: redis:7.4.1
+    image: redis:8.4
     container_name: redis-service
     ports:
       - "6379:6379"

@@ -33,7 +33,7 @@ spring:
       retry:
         enabled: true
         initial-interval: 1000
-        max-attempts: 2
+        max-retries: 2
         max-interval: 3000
         multiplier: 1
 
@@ -60,11 +60,11 @@ spring:
           studentConsumer-in-0:
             consumer:
               exchangeType: fanout
-              autoBindDlq: true
+              auto-bind-dlq: true
               requeueRejected: false
-              republishToDlq: true
-              dlqDeadLetterExchange:
-              dlqTtl: 300000
+              republish-to-dlq: true
+              dlq-dead-letter-exchange:
+              dlq-ttl: 300000
     config:
       uri: ${CONFIG_SERVER_URI:http://localhost:8888}
       profile: development
@@ -77,11 +77,18 @@ spring:
 management:
   tracing:
     sampling:
-      probability: 0.1
+      probability: 1.0
+  observations:
+    key-values:
+      application: ${spring.application.name}
   endpoints:
     web:
       exposure:
         include: health,refresh # curl --location --request POST 'http://localhost:8082/actuator/refresh'
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 
 server:
   port: 8082

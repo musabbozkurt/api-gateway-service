@@ -1,6 +1,6 @@
 # Use a multi-stage build to optimize the image size
 # Stage 1: Build the application
-FROM maven:3.9.9-ibm-semeru-21-jammy AS build
+FROM maven:4.0.0-rc-5-ibm-semeru-25-noble AS build
 
 # Set the working directory
 WORKDIR /app
@@ -11,9 +11,9 @@ COPY . /app/api-gateway
 # Download dependencies (this layer will be cached if pom.xml doesn't change)
 RUN --mount=type=cache,target=/root/.m2 mvn -f /app/api-gateway/pom.xml clean package -DskipTests
 
-# Create a custom Java runtime
+# Create a custom Java runtime - Added java.compiler module to provide javax.lang.model.SourceVersion
 RUN "$JAVA_HOME"/bin/jlink \
-         --add-modules jdk.unsupported,java.base,java.sql,java.naming,java.desktop,java.management,java.security.jgss,java.instrument \
+         --add-modules jdk.unsupported,java.base,java.sql,java.naming,java.desktop,java.management,java.security.jgss,java.instrument,java.compiler \
          --strip-java-debug-attributes \
          --no-man-pages \
          --no-header-files \
@@ -21,9 +21,9 @@ RUN "$JAVA_HOME"/bin/jlink \
          --output /mbjavaruntime
 
 # Stage 2: Create the final image
-FROM openjdk:slim-stretch
+FROM openjdk:25-rc-slim
 
-ENV JAVA_HOME /home/java/jdk21
+ENV JAVA_HOME /home/java/jdk25
 ENV PATH $JAVA_HOME/bin:$PATH
 
 # Set the working directory for the final image
@@ -35,4 +35,4 @@ COPY --from=build /mbjavaruntime $JAVA_HOME
 COPY --from=build /app/api-gateway/target/*.jar app.jar
 
 # Command to run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "--enable-native-access=ALL-UNNAMED", "-jar", "app.jar"]
