@@ -62,9 +62,13 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                 });
     }
 
+    /**
+     * This filter runs after {@link HttpRequestSmugglingPreventionFilter} which has {@link Ordered#HIGHEST_PRECEDENCE}.
+     *
+     * @return {@link Ordered#HIGHEST_PRECEDENCE} + 1
     @Override
     public int getOrder() {
-        return Ordered.HIGHEST_PRECEDENCE;
+        return Ordered.HIGHEST_PRECEDENCE + 1;
     }
 
     private void setHeaders(ServerWebExchange exchange, SecurityContext securityContext, HttpHeaders headers) {
