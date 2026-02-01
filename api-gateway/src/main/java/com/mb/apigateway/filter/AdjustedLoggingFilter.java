@@ -4,6 +4,7 @@ import com.mb.apigateway.context.ContextHolder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.MDC;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
@@ -35,6 +36,7 @@ public class AdjustedLoggingFilter implements GlobalFilter, Ordered {
     private static final HashSet<MediaType> SUPPORTED_MEDIA_TYPES = Stream.of(MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.APPLICATION_FORM_URLENCODED).collect(Collectors.toCollection(HashSet::new));
     private static final String UNSUPPORTED_MEDIA_TYPE_NOT_LOGGED = "Unsupported Media Type Not Logged";
 
+    @NonNull
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();

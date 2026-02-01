@@ -4,6 +4,7 @@ import com.mb.apigateway.config.LoggingConfig;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -29,8 +30,9 @@ public class LoggingFilter implements GlobalFilter, Ordered {
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final LoggingConfig loggingConfig;
 
+    @NonNull
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+    public Mono<Void> filter(@NonNull ServerWebExchange exchange, @NonNull GatewayFilterChain chain) {
         // Skip logging if disabled or path is excluded
         if (!loggingConfig.isEnabled() || isPathExcluded(exchange.getRequest().getURI().getPath())) {
             return chain.filter(exchange);
