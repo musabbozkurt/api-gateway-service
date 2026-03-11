@@ -138,7 +138,7 @@ services:
       - mb-network
 
   rabbitmq:
-    image: rabbitmq:4.2.1-management
+    image: rabbitmq:4.2.4
     restart: always
     container_name: test-rabbitmq
     ports:
@@ -150,8 +150,34 @@ services:
     networks:
       - mb-network
 
+  kafka:
+    image: confluentinc/confluent-local:8.2.0
+    hostname: kafka
+    container_name: kafka
+    ports:
+      - "8082:8082"
+      - "9092:9092"
+      - "9101:9101"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:29093'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:9092'
+    networks:
+      - mb-network
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:v0.7.2
+    ports:
+      - "9999:8080"
+    environment:
+      DYNAMIC_CONFIG_ENABLED: true
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+    networks:
+      - mb-network
+
   postgres:
-    image: postgres:18-alpine
+    image: postgres:18.3
     restart: always
     container_name: postgres-db
     ports:
@@ -163,11 +189,16 @@ services:
     networks:
       - mb-network
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      # PostgreSQL 18+ stores data under a major-version subdirectory (e.g. /var/lib/postgresql/18/main).
+      # Mounting at /var/lib/postgresql (without /data) lets the image manage the subdirectory itself
+      # and avoids the "data in unused mount/volume" error introduced in postgres:18+.
+      # If upgrading from a postgres:16/17 image, remove the old volume first:
+      # docker compose down -v && docker volume rm <project>_postgres_data
+      - postgres_data:/var/lib/postgresql
 
   keycloak:
     container_name: keycloak
-    image: quay.io/keycloak/keycloak:26.3.5
+    image: quay.io/keycloak/keycloak:26.5.5
     command: start-dev
     environment:
       KC_HOSTNAME: localhost
@@ -194,7 +225,7 @@ services:
       - mb-network
 
   redis-service:
-    image: redis:8.4
+    image: redis:8.6.1
     container_name: redis-service
     ports:
       - "6379:6379"
