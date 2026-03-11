@@ -13,7 +13,9 @@ CREATE TABLE IF NOT EXISTS config_server_schema.properties
 );
 
 INSERT INTO config_server_schema.properties (APPLICATION, PROFILE, LABEL, PROP_KEY, PROP_VALUE)
-VALUES ('swagger-application', 'development', 'main', 'service.first-url', 'https://client-first-url-dev.com'),
+VALUES ('swagger-application', 'development', 'main', 'service.name', 'swagger-application-dev'),
+       ('swagger-application', 'production', 'main', 'service.name', 'swagger-application-prod'),
+       ('swagger-application', 'development', 'main', 'service.first-url', 'https://client-first-url-dev.com'),
        ('swagger-application', 'development', 'main', 'service.second-url', 'https://client-second-url-dev.com'),
        ('swagger-application', 'production', 'main', 'service.first-url', 'https://client-first-url-prod.com'),
        ('swagger-application', 'development', 'main', 'service.first-url', 'https://second-client-dev.com'),

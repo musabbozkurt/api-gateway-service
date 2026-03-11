@@ -43,6 +43,24 @@ spring:
           search-paths: api-gateway/src/main/resources/config-server
           default-label: main
           order: 2
+    stream:
+      kafka:
+        binder:
+          # Kafka broker address — overridden to kafka:29092 inside Docker (see KAFKA_BOOTSTRAP_SERVERS env var)
+          brokers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    bus:
+      # Kafka topic used by Spring Cloud Bus to broadcast RefreshRemoteApplicationEvents
+      # Prevent config server from refreshing itself when it broadcasts "**" events to clients.
+      # Without this the config server deregisters/re-registers with Eureka on every DB change,
+      # creating a 3-second disruption window visible in the logs as "Keys refreshed []".
+      destination: springCloudBus
+      refresh:
+        enabled: false
+
+# ConfigChangeWatcher — polls config_server_schema.properties and auto-broadcasts refresh via Bus
+config:
+  change-watcher:
+    poll-interval-ms: 5000 # How often (ms) to check the DB for changes; default 5 s
 
 server:
   port: 8888
@@ -51,7 +69,9 @@ management:
   endpoints:
     web:
       exposure:
-        include: refresh # curl --location --request POST 'http://127.0.0.1:8888/actuator/refresh'
+        # POST /actuator/refresh      — refreshes @RefreshScope beans on THIS instance only
+        # POST /actuator/busrefresh   — broadcasts refresh to ALL instances via Spring Cloud Bus (Kafka)
+        include: refresh,busrefresh,health,info # curl --location --request POST 'http://127.0.0.1:8888/actuator/refresh', curl --location --request POST 'http://127.0.0.1:8888/actuator/busrefresh'
 
 eureka:
   client:

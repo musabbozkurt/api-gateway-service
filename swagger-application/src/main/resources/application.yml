@@ -40,21 +40,36 @@ spring:
   cloud:
     function:
       definition: studentConsumer
-    #This makes the queue durable so that if the application is down, the messages would still be published.
-    #These are then processed once the application is up again.
-    #Instruction defines exchange and queue names
-    #Dead Letter queue is created automatically and bound to main instruction queue.
+    # BusFunctionInitializer auto-appends ";springCloudBus" at runtime — do NOT add it manually.
+    # When default-binder is kafka, the Bus bindings automatically use Kafka to match the config server.
+    # This makes the queue durable so that if the application is down, the messages would still be published.
+    # These are then processed once the application is up again.
+    # Instruction defines exchange and queue names
+    # Dead Letter queue is created automatically and bound to main instruction queue.
     stream:
+      # Default binder for ALL bindings — Spring Cloud Bus auto-creates springCloudBus-in-0/out-0,
+      # and they inherit this default, so they connect to the same Kafka transport as the config server.
+      # Application-level bindings override this with explicit "binder: rabbit" below.
+      default-binder: kafka
       bindings:
         swaggerProducer-out-0:
           destination: swagger_events_destination
           group: swagger_events_group
+          binder: rabbit # Override default: application events go through RabbitMQ, not Kafka
         studentConsumer-in-0:
           destination: student_events_destination
           group: student_events_group
+          binder: rabbit # Override default: application events go through RabbitMQ, not Kafka
           consumer:
             maxAttempts: 1
             concurrency: 1
+      # springCloudBus-in-0 and springCloudBus-out-0 are auto-created by Bus auto-config.
+      # They inherit default-binder: kafka — no explicit binder override needed.
+      kafka:
+        binder:
+          # Kafka broker address — used by Spring Cloud Bus bindings (the default binder).
+          # Overridden to kafka:29092 inside Docker via the KAFKA_BOOTSTRAP_SERVERS environment variable.
+          brokers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
       rabbit:
         bindings:
           studentConsumer-in-0:
@@ -70,6 +85,8 @@ spring:
       profile: development
       label: main
       fail-fast: true # true: if config server is down, this service will not start
+    bus:
+      destination: springCloudBus # Kafka topic shared with config server for RefreshRemoteApplicationEvents
 
   config:
     import: "optional:configserver:" # "optional:configserver:${CONFIG_SERVER_URI:http://localhost:8888}"
@@ -84,7 +101,9 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,refresh # curl --location --request POST 'http://localhost:8082/actuator/refresh'
+        # POST /actuator/refresh      — refreshes @RefreshScope beans on THIS instance only
+        # POST /actuator/busrefresh   — broadcasts refresh to ALL instances via Spring Cloud Bus (Kafka)
+        include: refresh,busrefresh,health,info # curl --location --request POST 'http://localhost:8082/actuator/refresh', curl --location --request POST 'http://localhost:8082/actuator/busrefresh'
 
 logging:
   pattern:

@@ -11,7 +11,7 @@ public class KafkaIntegrationConfiguration {
 
     @Container
     @ServiceConnection
-    public static final ConfluentKafkaContainer kafkaContainer = new ConfluentKafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:8.0.0"))
+    public static final ConfluentKafkaContainer kafkaContainer = new ConfluentKafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:8.2.0"))
             .withReuse(true);
 
     static {
