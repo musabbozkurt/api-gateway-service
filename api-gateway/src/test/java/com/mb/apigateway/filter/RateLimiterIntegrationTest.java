@@ -1,5 +1,6 @@
 package com.mb.apigateway.filter;
 
+import com.redis.testcontainers.RedisContainer;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +13,6 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.mockserver.MockServerContainer;
@@ -28,7 +28,7 @@ import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
 @Slf4j
-@Testcontainers
+@Testcontainers(disabledWithoutDocker = true)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class RateLimiterIntegrationTest {
 
@@ -38,8 +38,7 @@ class RateLimiterIntegrationTest {
     private static final MockServerContainer mockServer = new MockServerContainer(MOCKSERVER_IMAGE);
 
     @Container
-    @SuppressWarnings("resource")
-    private static final GenericContainer<?> redis = new GenericContainer<>("redis:8.4")
+    private static final RedisContainer redis = new RedisContainer("redis:8.6.1")
             .withExposedPorts(6379);
 
     private MockServerClient mockServerClient;

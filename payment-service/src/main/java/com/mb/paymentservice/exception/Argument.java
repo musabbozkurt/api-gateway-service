@@ -1,11 +1,5 @@
 package com.mb.paymentservice.exception;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+public record Argument(String name, Object value) {
 
-@Data
-@AllArgsConstructor
-public class Argument {
-    private final String name;
-    private final Object value;
 }

@@ -5,11 +5,13 @@ FROM maven:4.0.0-rc-5-ibm-semeru-25-noble AS build
 # Set the working directory
 WORKDIR /app
 
-# Copy the pom.xml and download dependencies
-COPY . /app/swagger-application
+# Copy pom.xml first and resolve dependencies for better layer caching
+COPY pom.xml /app/swagger-application/pom.xml
+RUN --mount=type=cache,target=/root/.m2 mvn -f /app/swagger-application/pom.xml dependency:go-offline -B -q || true
 
-# Download dependencies (this layer will be cached if pom.xml doesn't change)
-RUN --mount=type=cache,target=/root/.m2 mvn -f /app/swagger-application/pom.xml clean package -DskipTests
+# Copy source and build the application
+COPY . /app/swagger-application
+RUN --mount=type=cache,target=/root/.m2 mvn -f /app/swagger-application/pom.xml clean package
 
 # Create a custom Java runtime - Added java.compiler module to provide javax.lang.model.SourceVersion
 RUN "$JAVA_HOME"/bin/jlink \
@@ -17,13 +19,18 @@ RUN "$JAVA_HOME"/bin/jlink \
          --strip-java-debug-attributes \
          --no-man-pages \
          --no-header-files \
+         --compress=2 \
+         --exclude-files="**/legal/**,**.diz" \
          --output /mbjavaruntime
 
-# Stage 2: Create the final image
-FROM openjdk:25-rc-slim
+# Strip debug symbols from native libraries to reduce size
+RUN find /mbjavaruntime -name '*.so' -exec strip --strip-unneeded {} + 2>/dev/null || true
 
-ENV JAVA_HOME /home/java/jdk25
-ENV PATH $JAVA_HOME/bin:$PATH
+# Stage 2: Create the final image
+FROM debian:bookworm-slim
+
+ENV JAVA_HOME=/home/java/jdk25
+ENV PATH=$JAVA_HOME/bin:$PATH
 
 # Set the working directory for the final image
 WORKDIR /app

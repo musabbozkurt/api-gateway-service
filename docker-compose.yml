@@ -9,15 +9,26 @@ services:
     ports:
       - "8080:8080" # Map host port 8080 to container port 8080
     depends_on:
-      - student-service
-      - swagger-application
-      - payment-service
-      - openai-service
-      - service-registry
-      - redis-service
-      - redis-insight-service
-      - zipkin
-      - spring-config-server
+      student-service:
+        condition: service_started
+      swagger-application:
+        condition: service_started
+      payment-service:
+        condition: service_started
+      openai-service:
+        condition: service_started
+      notification-service:
+        condition: service_started
+      service-registry:
+        condition: service_started
+      redis-service:
+        condition: service_started
+      redis-insight-service:
+        condition: service_started
+      zipkin:
+        condition: service_started
+      spring-config-server:
+        condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
     profiles:
@@ -34,11 +45,16 @@ services:
     ports:
       - "8081:8081" # Map host port 8081 to container port 8080
     depends_on:
-      - rabbitmq
-      - postgres
-      - keycloak
-      - service-registry
-      - spring-config-server
+      rabbitmq:
+        condition: service_started
+      postgres:
+        condition: service_started
+      keycloak:
+        condition: service_started
+      service-registry:
+        condition: service_started
+      spring-config-server:
+        condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
       RABBITMQ_HOST: rabbitmq
@@ -60,9 +76,12 @@ services:
     ports:
       - "8082:8082" # Map host port 8082 to container port 8080
     depends_on:
-      - service-registry
-      - spring-config-server
-      - kafka # Bus must be available to receive RefreshRemoteApplicationEvents from the config server
+      service-registry:
+        condition: service_started
+      spring-config-server:
+        condition: service_healthy
+      kafka: # Bus must be available to receive RefreshRemoteApplicationEvents from the config server
+        condition: service_started
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
       RABBITMQ_HOST: rabbitmq
@@ -81,11 +100,16 @@ services:
     ports:
       - "8083:8083" # Map host port 8083 to container port 8080
     depends_on:
-      - rabbitmq
-      - postgres
-      - keycloak
-      - service-registry
-      - spring-config-server
+      rabbitmq:
+        condition: service_started
+      postgres:
+        condition: service_started
+      keycloak:
+        condition: service_started
+      service-registry:
+        condition: service_started
+      spring-config-server:
+        condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
       DB_HOST: postgres
@@ -102,10 +126,45 @@ services:
     ports:
       - "8084:8084" # Map host port 8084 to container port 8080
     depends_on:
-      - service-registry
-      - spring-config-server
+      service-registry:
+        condition: service_started
+      spring-config-server:
+        condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
+    profiles:
+      - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
+
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    ports:
+      - "8085:8085"
+    depends_on:
+      postgres:
+        condition: service_started
+      kafka:
+        condition: service_started
+      keycloak:
+        condition: service_started
+      mailpit:
+        condition: service_started
+      service-registry:
+        condition: service_started
+      spring-config-server:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
+      DB_HOST: postgres
+      DB_PORT: 5432
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      KEYCLOAK_BASE_URL: http://keycloak:9090
+      MAIL_HOST: mailpit
+      MAIL_PORT: 1025
+      CONFIG_SERVER_URI: http://spring-config-server:8888
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:
@@ -136,6 +195,12 @@ services:
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092 # Internal Docker listener — used by Spring Cloud Bus (Kafka) for broadcasting refresh events
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -sf http://localhost:8888/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:
@@ -280,6 +345,23 @@ services:
       - "9411:9411"
     # Uncomment to enable debug logging
     # command: --logging.level.zipkin2=DEBUG
+    networks:
+      - mb-network
+
+  mailpit:
+    image: axllent/mailpit:v1.29.2
+    container_name: mailpit
+    restart: always
+    ports:
+      - "1025:1025"   # SMTP server
+      - "8025:8025"   # Web UI (http://localhost:8025)
+    environment:
+      - MP_SMTP_AUTH_ACCEPT_ANY=false
+      - MP_SMTP_AUTH_ALLOW_INSECURE=true
+      - MP_SMTP_REQUIRE_STARTTLS=false
+      - MP_SMTP_REQUIRE_TLS=false
+      - MP_UI_AUTH=admin:admin
+      - MP_SMTP_AUTH=admin:admin
     networks:
       - mb-network
 

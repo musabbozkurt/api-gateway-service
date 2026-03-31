@@ -8,12 +8,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -49,7 +49,7 @@ class StudentServiceImplTest {
         studentService.saveStudent(student2);
         studentService.saveStudent(student3);
 
-        verify(studentRepository, Mockito.times(3)).save(captor.capture());
+        verify(studentRepository, times(3)).save(captor.capture());
 
         List<Student> studentList = captor.getAllValues();
 
