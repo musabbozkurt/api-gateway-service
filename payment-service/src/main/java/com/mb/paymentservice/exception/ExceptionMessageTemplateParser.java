@@ -22,8 +22,7 @@ public final class ExceptionMessageTemplateParser {
 
     public String interpolate(ErrorMessage errorMessage) {
         try {
-            String template = getMessage(errorMessage.getErrorCode(), errorMessage.getDefaultMessage());
-            return parse(template, errorMessage.getArguments());
+            return parse(getMessage(errorMessage.errorCode(), errorMessage.defaultMessage()), errorMessage.arguments());
         } catch (Exception ex) {
             log.error("Exception occurred while interpolate a message. interpolate - ex: {}.", ExceptionUtils.getStackTrace(ex));
             return null;
@@ -33,7 +32,7 @@ public final class ExceptionMessageTemplateParser {
     private String parse(String template, List<Argument> arguments) {
         if (template != null && arguments != null && !arguments.isEmpty()) {
             Matcher matcher = this.pattern.matcher(template);
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
 
             while (matcher.find()) {
                 String placeholder = matcher.group();
@@ -53,7 +52,7 @@ public final class ExceptionMessageTemplateParser {
     private String getMessage(String code, String defaultMessage) {
         try {
             return this.messageSource.getMessage(String.format("error.%s", code), null, Locale.ENGLISH);
-        } catch (NoSuchMessageException var5) {
+        } catch (NoSuchMessageException _) {
             return defaultMessage;
         }
     }
@@ -61,7 +60,7 @@ public final class ExceptionMessageTemplateParser {
     private Object extractValue(String placeholder, List<Argument> arguments) {
         String variable = this.getPlaceholderVariable(placeholder);
         Optional<Argument> argument = arguments.stream()
-                .filter(a -> a.getName().equals(variable))
+                .filter(a -> a.name().equals(variable))
                 .findFirst();
         if (argument.isPresent()) {
             return argument.map(this::argumentValue).get();
@@ -69,7 +68,7 @@ public final class ExceptionMessageTemplateParser {
             try {
                 int index = Integer.parseInt(variable);
                 return this.argumentValue(arguments.get(index));
-            } catch (Exception var6) {
+            } catch (Exception _) {
                 return null;
             }
         }
@@ -80,7 +79,7 @@ public final class ExceptionMessageTemplateParser {
     }
 
     private Object argumentValue(Argument argument) {
-        Object value = argument.getValue();
+        Object value = argument.value();
         return value == null ? "null" : value;
     }
 }

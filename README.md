@@ -32,6 +32,7 @@
 
    ```
     * api-gateway
+    * notification-service
     * openai-service
     * payment-service
     * service-registry
@@ -57,6 +58,7 @@
     * Spring Cloud Eureka Server and Client integrations are completed with service-registry repo
     * KubernetesDeploymentGuide.md is added
     * Spring Config Server integration is completed with git version control
+    * notification-service with Email, SMS (DummySms) and Kafka-based notification support
    ```
 
 ---
@@ -154,6 +156,12 @@
     * spring-config-server
         * Health: http://localhost:8888/actuator/health
         * Config for swagger-application: http://localhost:8888/swagger-application/development/main
+    * Mailpit UI: http://localhost:8025/
+        * username: admin
+        * password: admin
+        * Mailpit is a local SMTP server for testing email sending functionality without actually sending emails to real
+          addresses. It captures and displays emails sent by the application, allowing developers to verify email
+          content and functionality during development.
 
 ####
 

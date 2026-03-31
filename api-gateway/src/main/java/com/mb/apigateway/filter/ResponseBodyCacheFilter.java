@@ -9,6 +9,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
 import org.springframework.stereotype.Component;
@@ -41,6 +42,10 @@ public class ResponseBodyCacheFilter implements GlobalFilter, Ordered {
             @NonNull
             @Override
             public Mono<Void> writeWith(@NonNull Publisher<? extends DataBuffer> body) {
+                if (isStreamingResponse()) {
+                    return super.writeWith(body);
+                }
+
                 if (body instanceof Flux<? extends DataBuffer> fluxBody) {
                     return super.writeWith(
                             fluxBody.buffer()
@@ -64,7 +69,15 @@ public class ResponseBodyCacheFilter implements GlobalFilter, Ordered {
             @NonNull
             @Override
             public Mono<Void> writeAndFlushWith(@NonNull Publisher<? extends Publisher<? extends DataBuffer>> body) {
+                if (isStreamingResponse()) {
+                    return getDelegate().writeAndFlushWith(body);
+                }
                 return writeWith(Flux.from(body).flatMapSequential(p -> p));
+            }
+
+            private boolean isStreamingResponse() {
+                MediaType contentType = getHeaders().getContentType();
+                return contentType != null && contentType.isCompatibleWith(MediaType.TEXT_EVENT_STREAM);
             }
         };
 

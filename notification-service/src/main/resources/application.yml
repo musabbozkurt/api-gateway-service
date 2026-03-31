@@ -1,0 +1,92 @@
+spring:
+  application:
+    name: notification-service
+  cloud:
+    config:
+      uri: ${CONFIG_SERVER_URI:http://localhost:8888}
+      profile: development
+      label: main
+      fail-fast: true # true: if config server is down, this service will not start
+    bus:
+      destination: springCloudBus # Kafka topic shared with config server for RefreshRemoteApplicationEvents
+
+  config:
+    import: "optional:configserver:" # "optional:configserver:${CONFIG_SERVER_URI:http://localhost:8888}"
+
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/postgres?currentSchema=notification_schema
+    username: ${DB_USERNAME:postgres} # username for postgres user
+    password: ${DB_PASSWORD:postgres} # password for postgres user
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: notification_schema
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: true
+    baseline-version: 0
+    baseline-on-migrate: true
+    schemas: notification_schema
+    table: schema_version
+    validate-on-migrate: false
+    locations: ${DB_MIGRATION_LOCATIONS:classpath:db/migration/common}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+
+  mail:
+    host: ${MAIL_HOST:localhost} # smtp.gmail.com
+    port: ${MAIL_PORT:1025} # 587
+    username: ${MAIL_USERNAME:admin}
+    password: ${MAIL_PASSWORD:admin}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+  thymeleaf:
+    check-template-location: false
+
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      indent-output: true
+
+  security:
+    oauth2:
+      resource-server:
+        jwt:
+          issuer-uri: ${KEYCLOAK_BASE_URL:http://localhost:9090}/realms/${NOTIFICATION_SERVICE_REALM:notification-service}
+          jwk-set-uri: ${spring.security.oauth2.resource-server.jwt.issuer-uri}/protocol/openid-connect/certs
+
+server:
+  port: 8085
+
+email:
+  from: ${EMAIL_FROM:noreply@example.com}
+  subject:
+    prefix: ""
+
+dummy-sms:
+  body-prefix: ${DUMMY_SMS_BODY_PREFIX:}
+  url: ${DUMMY_SMS_HOST:http://localhost:8086${DUMMY_SMS_URL:/sms}}
+
+springdoc:
+  api-docs:
+    path: /notification/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL:http://localhost:8761/eureka}

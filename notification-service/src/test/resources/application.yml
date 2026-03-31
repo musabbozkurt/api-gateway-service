@@ -1,0 +1,46 @@
+email:
+  from: test@test.com
+  retry:
+    backoff-delay: 100
+
+notification:
+  retry:
+    backoff-delay: 100
+
+dummy-sms:
+  body-prefix: "[TEST] "
+  url: http://localhost:8086/sms
+
+spring:
+  thymeleaf:
+    check-template-location: false
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
+  kafka:
+    bootstrap-servers: localhost:9092
+
+  main:
+    banner-mode: off
+
+  profiles:
+    active: test
+
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/migration/schema.sql
+
+  security:
+    oauth2:
+      resource-server:
+        jwt:
+          issuer-uri: http://localhost:9090/realms/test
+          jwk-set-uri: http://localhost:9090/realms/test/protocol/openid-connect/certs

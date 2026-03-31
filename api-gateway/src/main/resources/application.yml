@@ -3,6 +3,7 @@ STUDENT_SERVICE_BASE_URL: lb://student-service
 SWAGGER_APPLICATION_BASE_URL: lb://swagger-application
 PAYMENT_SERVICE_BASE_URL: lb://payment-service
 OPENAI_SERVICE_BASE_URL: lb://openai-service
+NOTIFICATION_SERVICE_BASE_URL: lb://notification-service
 
 server:
   port: 8080
@@ -64,6 +65,17 @@ spring:
               predicates:
                 - Path=/openai/**
               uri: ${OPENAI_SERVICE_BASE_URL}
+            - id: notification-service-sse
+              predicates:
+                - Path=/notification/api/v1/notifications/stream/**
+              uri: ${NOTIFICATION_SERVICE_BASE_URL}
+              metadata:
+                response-timeout: -1
+                connect-timeout: 10000
+            - id: notification-service
+              predicates:
+                - Path=/notification/**
+              uri: ${NOTIFICATION_SERVICE_BASE_URL}
             - id: role # This can be removed it's just a PrefixPath example.
               predicates:
                 - Path=/student/role/**
@@ -131,6 +143,10 @@ springdoc:
         name: Student Service
         uri: ${STUDENT_SERVICE_BASE_URL}
         server-url: ${BASE_URL}/student
+      - url: /notification/api-docs
+        name: Notification Service
+        uri: ${NOTIFICATION_SERVICE_BASE_URL}
+        server-url: ${BASE_URL}/notification
       - url: /swagger/api-docs
         name: Swagger Service
         uri: ${SWAGGER_APPLICATION_BASE_URL}
