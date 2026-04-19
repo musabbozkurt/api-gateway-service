@@ -7,5 +7,7 @@ public interface SseNotificationService {
 
     SseEmitter register(Long userId);
 
+    SseEmitter subscribe(Long userId, String application);
+
     void send(NotificationEventDto notification);
 }

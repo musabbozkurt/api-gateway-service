@@ -42,6 +42,9 @@ public class NotificationRequest {
     @Schema(example = "{\"priority\": \"high\"}")
     private Map<String, String> data = new HashMap<>();
 
+    @Schema(example = "[\"app-one\", \"app-two\"]")
+    private Set<String> applications = new HashSet<>();
+
     @Schema(example = "12345")
     private Long userId;
 

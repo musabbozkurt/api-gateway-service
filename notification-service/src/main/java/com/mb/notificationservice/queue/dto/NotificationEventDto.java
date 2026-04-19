@@ -20,6 +20,7 @@ public class NotificationEventDto {
     private UUID id;
     private NotificationChannel channel;
     private NotificationLevel level = NotificationLevel.INFO;
+    private Set<String> applications = new HashSet<>();
     private String subject;
     private String body;
     private String title;

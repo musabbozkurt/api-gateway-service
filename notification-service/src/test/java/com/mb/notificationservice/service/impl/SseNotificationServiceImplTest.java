@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,8 +36,8 @@ class SseNotificationServiceImplTest {
     }
 
     @SuppressWarnings("unchecked")
-    private Map<Long, List<SseEmitter>> getUserEmitters() {
-        return (Map<Long, List<SseEmitter>>) ReflectionTestUtils.getField(sseService, "userEmitters");
+    private Map<String, List<SseEmitter>> getEmitters() {
+        return (Map<String, List<SseEmitter>>) ReflectionTestUtils.getField(sseService, "emitters");
     }
 
     @Test
@@ -44,15 +45,40 @@ class SseNotificationServiceImplTest {
         SseEmitter emitter = sseService.register(1L);
 
         assertNotNull(emitter);
-        assertTrue(getUserEmitters().containsKey(1L));
-        assertEquals(1, getUserEmitters().get(1L).size());
+        assertTrue(getEmitters().containsKey("1:default"));
+        assertEquals(1, getEmitters().get("1:default").size());
     }
 
     @Test
-    void send_ShouldSendToAllEmittersOfUser_WhenUserIdIsSet() throws IOException {
+    void subscribe_ShouldReturnEmitterAndStoreIt_WhenUserIdAndApplicationAreProvided() {
+        SseEmitter emitter = sseService.subscribe(1L, "my-app");
+
+        assertNotNull(emitter);
+        assertTrue(getEmitters().containsKey("1:my-app"));
+        assertEquals(1, getEmitters().get("1:my-app").size());
+    }
+
+    @Test
+    void send_ShouldSendToApplicationScopedEmitters_WhenApplicationsAreSet() throws IOException {
+        SseEmitter emitter = mock(SseEmitter.class);
+        getEmitters().put("1:my-app", new CopyOnWriteArrayList<>(List.of(emitter)));
+
+        NotificationEventDto dto = new NotificationEventDto();
+        dto.setUserId(1L);
+        dto.setApplications(Set.of("my-app"));
+        dto.setChannel(NotificationChannel.PUSH);
+
+        sseService.send(dto);
+
+        verify(emitter).send(any(SseEmitter.SseEventBuilder.class));
+    }
+
+    @Test
+    void send_ShouldSendToAllUserEmitters_WhenNoApplicationsSpecified() throws IOException {
         SseEmitter emitter1 = mock(SseEmitter.class);
         SseEmitter emitter2 = mock(SseEmitter.class);
-        getUserEmitters().put(1L, new CopyOnWriteArrayList<>(List.of(emitter1, emitter2)));
+        getEmitters().put("1:app-a", new CopyOnWriteArrayList<>(List.of(emitter1)));
+        getEmitters().put("1:app-b", new CopyOnWriteArrayList<>(List.of(emitter2)));
 
         NotificationEventDto dto = new NotificationEventDto();
         dto.setUserId(1L);
@@ -68,8 +94,8 @@ class SseNotificationServiceImplTest {
     void send_ShouldBroadcastToAll_WhenUserIdIsNull() throws IOException {
         SseEmitter emitter1 = mock(SseEmitter.class);
         SseEmitter emitter2 = mock(SseEmitter.class);
-        getUserEmitters().put(1L, new CopyOnWriteArrayList<>(List.of(emitter1)));
-        getUserEmitters().put(2L, new CopyOnWriteArrayList<>(List.of(emitter2)));
+        getEmitters().put("1:app-a", new CopyOnWriteArrayList<>(List.of(emitter1)));
+        getEmitters().put("2:app-b", new CopyOnWriteArrayList<>(List.of(emitter2)));
 
         NotificationEventDto dto = new NotificationEventDto();
         dto.setUserId(null);
@@ -86,30 +112,32 @@ class SseNotificationServiceImplTest {
         SseEmitter brokenEmitter = mock(SseEmitter.class);
         SseEmitter healthyEmitter = mock(SseEmitter.class);
         doThrow(new IOException("broken pipe")).when(brokenEmitter).send(any(SseEmitter.SseEventBuilder.class));
-        getUserEmitters().put(1L, new CopyOnWriteArrayList<>(List.of(brokenEmitter, healthyEmitter)));
+        getEmitters().put("1:my-app", new CopyOnWriteArrayList<>(List.of(brokenEmitter, healthyEmitter)));
 
         NotificationEventDto dto = new NotificationEventDto();
         dto.setUserId(1L);
+        dto.setApplications(Set.of("my-app"));
         dto.setChannel(NotificationChannel.PUSH);
 
         sseService.send(dto);
 
-        assertTrue(getUserEmitters().containsKey(1L));
-        assertEquals(1, getUserEmitters().get(1L).size());
+        assertTrue(getEmitters().containsKey("1:my-app"));
+        assertEquals(1, getEmitters().get("1:my-app").size());
     }
 
     @Test
-    void send_ShouldRemoveUserEntry_WhenAllEmittersFail() throws IOException {
+    void send_ShouldRemoveKeyEntry_WhenAllEmittersFail() throws IOException {
         SseEmitter emitter = mock(SseEmitter.class);
         doThrow(new IOException("broken pipe")).when(emitter).send(any(SseEmitter.SseEventBuilder.class));
-        getUserEmitters().put(1L, new CopyOnWriteArrayList<>(List.of(emitter)));
+        getEmitters().put("1:my-app", new CopyOnWriteArrayList<>(List.of(emitter)));
 
         NotificationEventDto dto = new NotificationEventDto();
         dto.setUserId(1L);
+        dto.setApplications(Set.of("my-app"));
         dto.setChannel(NotificationChannel.PUSH);
 
         sseService.send(dto);
 
-        assertFalse(getUserEmitters().containsKey(1L));
+        assertFalse(getEmitters().containsKey("1:my-app"));
     }
 }

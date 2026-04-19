@@ -108,9 +108,9 @@ class NotificationMapperTest {
         assertNotNull(entity.getTemplateParameters());
         assertNotNull(entity.getData());
         assertEquals(5L, entity.getUserId());
-        assertEquals("905551234567", entity.getRecipients());
-        assertEquals("cc", entity.getCc());
-        assertEquals("bcc", entity.getBcc());
+        assertEquals(Set.of("905551234567"), entity.getRecipients());
+        assertEquals(Set.of("cc"), entity.getCc());
+        assertEquals(Set.of("bcc"), entity.getBcc());
         assertEquals("42", entity.getCreatedBy());
     }
 
@@ -127,9 +127,9 @@ class NotificationMapperTest {
 
         Notification entity = converter.convert(dto);
 
-        assertEquals("", entity.getRecipients());
-        assertEquals("", entity.getCc());
-        assertEquals("", entity.getBcc());
+        assertEquals(Set.of(), entity.getRecipients());
+        assertEquals(Set.of(), entity.getCc());
+        assertEquals(Set.of(), entity.getBcc());
         assertNull(entity.getTemplateParameters());
         assertNull(entity.getData());
     }
@@ -176,6 +176,7 @@ class NotificationMapperTest {
 
         assertEquals(1L, response.getId());
         assertEquals(NotificationChannel.PUSH, response.getChannel());
+        assertEquals("Subject", response.getSubject());
         assertEquals("Title", response.getTitle());
         assertEquals(NotificationLevel.INFO, response.getLevel());
         assertEquals(NotificationStatus.SENT, response.getStatus());
@@ -197,9 +198,9 @@ class NotificationMapperTest {
     void toNotificationDetailResponse_ShouldMapAllFields_WhenEntityIsPopulated() {
         Notification entity = createNotification();
         entity.setData("{\"orderId\":\"123\"}");
-        entity.setRecipients("a@test.com,b@test.com");
-        entity.setCc("cc@test.com");
-        entity.setBcc("bcc@test.com");
+        entity.setRecipients(Set.of("a@test.com", "b@test.com"));
+        entity.setCc(Set.of("cc@test.com"));
+        entity.setBcc(Set.of("bcc@test.com"));
 
         NotificationDetailResponse response = converter.toNotificationDetailResponse(entity);
 
@@ -222,9 +223,9 @@ class NotificationMapperTest {
     void toNotificationDetailResponse_ShouldReturnEmptyCollections_WhenFieldsAreNullOrBlank() {
         Notification entity = createNotification();
         entity.setData(null);
-        entity.setRecipients(null);
-        entity.setCc("");
-        entity.setBcc("  ");
+        entity.setRecipients(Set.of());
+        entity.setCc(Set.of());
+        entity.setBcc(Set.of());
 
         NotificationDetailResponse response = converter.toNotificationDetailResponse(entity);
 
