@@ -1,14 +1,11 @@
 package com.mb.notificationservice.api.controller;
 
+import com.mb.notificationservice.api.controller.swagger.NotificationTemplateApi;
 import com.mb.notificationservice.api.request.NotificationTemplateRequest;
 import com.mb.notificationservice.api.response.ApiResponse;
 import com.mb.notificationservice.api.response.NotificationTemplateResponse;
 import com.mb.notificationservice.enums.NotificationChannel;
 import com.mb.notificationservice.service.NotificationTemplateService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,46 +21,45 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/templates")
-@Tag(name = "Notification Template", description = "CRUD operations for notification templates")
-public class NotificationTemplateController {
+public class NotificationTemplateController implements NotificationTemplateApi {
 
     private final NotificationTemplateService notificationTemplateService;
 
+    @Override
     @PostMapping
-    @Operation(summary = "Create a notification template")
-    public ApiResponse<NotificationTemplateResponse> create(@Valid @RequestBody NotificationTemplateRequest request) {
+    public ApiResponse<NotificationTemplateResponse> create(@RequestBody NotificationTemplateRequest request) {
         return new ApiResponse<>(notificationTemplateService.create(request));
     }
 
+    @Override
     @PutMapping("/{id}")
-    @Operation(summary = "Update a notification template")
-    public ApiResponse<NotificationTemplateResponse> update(@Parameter(description = "Template ID", example = "1") @PathVariable Long id,
-                                                            @Valid @RequestBody NotificationTemplateRequest request) {
+    public ApiResponse<NotificationTemplateResponse> update(@PathVariable Long id,
+                                                            @RequestBody NotificationTemplateRequest request) {
         return new ApiResponse<>(notificationTemplateService.update(id, request));
     }
 
+    @Override
     @GetMapping("/{id}")
-    @Operation(summary = "Get a notification template by ID")
-    public ApiResponse<NotificationTemplateResponse> getById(@Parameter(description = "Template ID", example = "1") @PathVariable Long id) {
+    public ApiResponse<NotificationTemplateResponse> getById(@PathVariable Long id) {
         return new ApiResponse<>(notificationTemplateService.getById(id));
     }
 
+    @Override
     @GetMapping("/code/{code}/channel/{channel}")
-    @Operation(summary = "Get a notification template by code and channel")
-    public ApiResponse<NotificationTemplateResponse> getByCodeAndChannel(@Parameter(description = "Template code", example = "ORDER_CONFIRMATION") @PathVariable String code,
-                                                                         @Parameter(description = "Notification channel", example = "EMAIL") @PathVariable NotificationChannel channel) {
+    public ApiResponse<NotificationTemplateResponse> getByCodeAndChannel(@PathVariable String code,
+                                                                         @PathVariable NotificationChannel channel) {
         return new ApiResponse<>(notificationTemplateService.getByCodeAndChannel(code, channel));
     }
 
+    @Override
     @GetMapping
-    @Operation(summary = "Get all notification templates (paginated)")
     public ApiResponse<Page<NotificationTemplateResponse>> getAll(Pageable pageable) {
         return new ApiResponse<>(notificationTemplateService.getAll(pageable));
     }
 
+    @Override
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete a notification template")
-    public ApiResponse<Void> delete(@Parameter(description = "Template ID", example = "1") @PathVariable Long id) {
+    public ApiResponse<Void> delete(@PathVariable Long id) {
         notificationTemplateService.delete(id);
         return ApiResponse.ok(null);
     }

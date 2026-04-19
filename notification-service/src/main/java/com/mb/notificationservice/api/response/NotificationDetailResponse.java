@@ -42,6 +42,9 @@ public class NotificationDetailResponse {
     @Schema(example = "{\"orderId\": \"1234\", \"action\": \"OPEN_ORDER\"}")
     private Map<String, String> data;
 
+    @Schema(example = "[\"app-one\", \"app-two\"]")
+    private Set<String> applications;
+
     @Schema(example = "[\"user@example.com\"]")
     private Set<String> recipients;
 

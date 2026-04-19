@@ -90,3 +90,10 @@ eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_CLIENT_SERVICE_URL:http://localhost:8761/eureka}
+
+# Firebase configuration for push notifications
+# Add service account JSON files and configure as needed
+# firebase:
+#   apps:
+#     my-application: classpath:firebase/my-application-service-account.json
+#     another-application: file:/etc/config/another-service-account.json

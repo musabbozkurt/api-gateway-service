@@ -14,9 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -32,6 +30,7 @@ public class NotificationMapper {
         NotificationEventDto dto = new NotificationEventDto();
         dto.setChannel(request.getChannel());
         dto.setLevel(request.getLevel());
+        dto.setApplications(request.getApplications());
         dto.setSubject(request.getSubject());
         dto.setBody(request.getBody());
         dto.setTitle(request.getTitle());
@@ -67,9 +66,10 @@ public class NotificationMapper {
         }
 
         entity.setUserId(dto.getUserId());
-        entity.setRecipients(String.join(",", Objects.requireNonNullElse(dto.getRecipients(), Set.of())));
-        entity.setCc(String.join(",", Objects.requireNonNullElse(dto.getCc(), Set.of())));
-        entity.setBcc(String.join(",", Objects.requireNonNullElse(dto.getBcc(), Set.of())));
+        entity.setApplications(Objects.requireNonNullElse(dto.getApplications(), Set.of()));
+        entity.setRecipients(Objects.requireNonNullElse(dto.getRecipients(), Set.of()));
+        entity.setCc(Objects.requireNonNullElse(dto.getCc(), Set.of()));
+        entity.setBcc(Objects.requireNonNullElse(dto.getBcc(), Set.of()));
 
         entity.setCreatedBy(String.valueOf(dto.getCreatedBy()));
 
@@ -80,6 +80,7 @@ public class NotificationMapper {
         return NotificationSummaryResponse.builder()
                 .id(entity.getId())
                 .channel(entity.getChannel())
+                .subject(entity.getSubject())
                 .title(entity.getTitle())
                 .level(entity.getLevel())
                 .status(entity.getStatus())
@@ -108,9 +109,10 @@ public class NotificationMapper {
                 .body(entity.getBody())
                 .title(entity.getTitle())
                 .data(dataMap)
-                .recipients(parseCommaSeparated(entity.getRecipients()))
-                .cc(parseCommaSeparated(entity.getCc()))
-                .bcc(parseCommaSeparated(entity.getBcc()))
+                .applications(entity.getApplications())
+                .recipients(entity.getRecipients())
+                .cc(entity.getCc())
+                .bcc(entity.getBcc())
                 .status(entity.getStatus())
                 .read(entity.isRead())
                 .readAt(entity.getReadAt())
@@ -122,6 +124,7 @@ public class NotificationMapper {
         NotificationRequest request = new NotificationRequest();
         request.setChannel(dto.getChannel());
         request.setLevel(dto.getLevel());
+        request.setApplications(dto.getApplications());
         request.setSubject(dto.getSubject());
         request.setBody(dto.getBody());
         request.setTitle(dto.getTitle());
@@ -133,12 +136,5 @@ public class NotificationMapper {
         request.setCc(dto.getCc());
         request.setBcc(dto.getBcc());
         return request;
-    }
-
-    private Set<String> parseCommaSeparated(String value) {
-        if (value == null || value.isBlank()) {
-            return Collections.emptySet();
-        }
-        return new LinkedHashSet<>(Arrays.asList(value.split(",")));
     }
 }

@@ -21,6 +21,9 @@ public class NotificationSummaryResponse {
     @Schema(example = "PUSH")
     private NotificationChannel channel;
 
+    @Schema(example = "Order Confirmation")
+    private String subject;
+
     @Schema(example = "New Order")
     private String title;
 

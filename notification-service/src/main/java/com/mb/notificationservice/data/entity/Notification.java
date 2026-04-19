@@ -1,23 +1,18 @@
 package com.mb.notificationservice.data.entity;
 
+import com.mb.notificationservice.data.converter.StringToSetConverter;
 import com.mb.notificationservice.enums.NotificationChannel;
 import com.mb.notificationservice.enums.NotificationLevel;
 import com.mb.notificationservice.enums.NotificationStatus;
 import com.mb.notificationservice.enums.NotificationType;
 import com.mb.notificationservice.util.ServiceConstants;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -61,11 +56,17 @@ public class Notification extends BaseEntity {
 
     private Long userId;
 
-    private String recipients;
+    @Convert(converter = StringToSetConverter.class)
+    private Set<String> applications = new HashSet<>();
 
-    private String cc;
+    @Convert(converter = StringToSetConverter.class)
+    private Set<String> recipients = new HashSet<>();
 
-    private String bcc;
+    @Convert(converter = StringToSetConverter.class)
+    private Set<String> cc = new HashSet<>();
+
+    @Convert(converter = StringToSetConverter.class)
+    private Set<String> bcc = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
     private NotificationStatus status = NotificationStatus.PENDING;
