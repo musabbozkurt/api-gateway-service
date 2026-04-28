@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.mb.notificationservice.queue.dto.NotificationEventDto;
 import com.mb.notificationservice.service.SseNotificationService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
@@ -55,11 +55,13 @@ public class SseNotificationServiceImpl implements SseNotificationService {
     @Override
     public void send(NotificationEventDto notification) {
         Set<String> applications = notification.getApplications();
-        if (Objects.nonNull(notification.getUserId()) && !CollectionUtils.isEmpty(applications)) {
+        if (Objects.nonNull(notification.getUserId()) && CollectionUtils.isNotEmpty(applications)) {
             for (String application : applications) {
                 String key = buildKey(notification.getUserId(), application);
                 sendToKey(key, notification);
             }
+        } else if (CollectionUtils.isNotEmpty(notification.getApplications())) {
+            sendToApplications(notification.getApplications(), notification);
         } else if (Objects.nonNull(notification.getUserId())) {
             sendToUser(notification.getUserId(), notification);
         } else {
@@ -79,6 +81,18 @@ public class SseNotificationServiceImpl implements SseNotificationService {
         emitters.forEach((key, emitterList) -> {
             if (key.startsWith(prefix)) {
                 emitterList.forEach(emitter -> doSend(key, emitter, data));
+            }
+        });
+    }
+
+    private void sendToApplications(Set<String> applications, Object data) {
+        emitters.forEach((key, emitterList) -> {
+            for (String application : applications) {
+                String suffix = ":" + application;
+                if (key.endsWith(suffix)) {
+                    emitterList.forEach(emitter -> doSend(key, emitter, data));
+                    break;
+                }
             }
         });
     }

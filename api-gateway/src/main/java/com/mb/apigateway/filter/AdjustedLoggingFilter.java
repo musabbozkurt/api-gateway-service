@@ -28,6 +28,16 @@ import static com.mb.apigateway.constant.GatewayServiceConstants.MDC_CONTEXT;
 import static com.mb.apigateway.constant.GatewayServiceConstants.SESSION_ID;
 import static com.mb.apigateway.constant.GatewayServiceConstants.USERNAME;
 
+/**
+ * Initializes MDC and {@link com.mb.apigateway.context.ContextHolder} for every request and
+ * logs errors when downstream processing fails or returns an error status.
+ * <p>
+ * Reads {@code username} and {@code clientId} exchange attributes that were written by
+ * {@link AuthenticationFilter} (for authenticated requests) or {@link LoggingFilter}
+ * (test-header injection). Runs at the same precedence as {@link AuthenticationFilter}
+ * ({@link Ordered#HIGHEST_PRECEDENCE} + 1); MDC cleanup is handled by
+ * {@link GatewayGlobalFilters} at higher order numbers.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

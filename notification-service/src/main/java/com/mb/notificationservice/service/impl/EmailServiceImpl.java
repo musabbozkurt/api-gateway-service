@@ -2,16 +2,13 @@ package com.mb.notificationservice.service.impl;
 
 import com.mb.notificationservice.api.request.NotificationRequest;
 import com.mb.notificationservice.api.response.NotificationResponse;
-import com.mb.notificationservice.data.entity.NotificationTemplate;
 import com.mb.notificationservice.enums.NotificationChannel;
 import com.mb.notificationservice.service.NotificationStrategy;
-import com.mb.notificationservice.service.NotificationTemplateService;
-import com.mb.notificationservice.service.ThymeleafTemplateService;
+import com.mb.notificationservice.util.ContentUtils;
 import com.mb.notificationservice.util.EmailUtils;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailSendException;
@@ -20,7 +17,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -30,8 +26,6 @@ import java.util.UUID;
 public class EmailServiceImpl implements NotificationStrategy {
 
     private final JavaMailSender javaMailSender;
-    private final NotificationTemplateService notificationTemplateService;
-    private final ThymeleafTemplateService thymeleafTemplateService;
 
     @Value("${email.from}")
     private String emailFrom;
@@ -78,22 +72,10 @@ public class EmailServiceImpl implements NotificationStrategy {
         }
 
         try {
-            String subject;
-            String body;
+            String subject = request.getSubject();
+            String body = request.getBody();
 
-            if (StringUtils.isNotBlank(request.getTemplateCode())) {
-                log.info("Using email template: {}", request.getTemplateCode());
-                NotificationTemplate template = notificationTemplateService.findActiveByCode(request.getTemplateCode(), NotificationChannel.EMAIL);
-                Map<String, Object> variables = request.getTemplateParameters();
-
-                subject = thymeleafTemplateService.processTemplate(template.getSubject(), variables);
-                body = thymeleafTemplateService.processTemplate(template.getBody(), variables);
-            } else {
-                subject = request.getSubject();
-                body = request.getBody();
-            }
-
-            boolean isHtml = isHtmlContent(body);
+            boolean isHtml = ContentUtils.isHtml(body);
 
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "UTF-8");
@@ -119,18 +101,5 @@ public class EmailServiceImpl implements NotificationStrategy {
             log.error("Exception occurred while sending email. Exception: {}", ExceptionUtils.getStackTrace(e));
             throw new MailSendException("Failed to send email", e);
         }
-    }
-
-    private boolean isHtmlContent(String content) {
-        if (StringUtils.isEmpty(content)) {
-            return false;
-        }
-
-        String trimmed = content.trim().toLowerCase();
-        return trimmed.startsWith("<!doctype html") ||
-                trimmed.startsWith("<html") ||
-                trimmed.contains("<body") ||
-                trimmed.contains("<table") ||
-                trimmed.contains("<div");
     }
 }

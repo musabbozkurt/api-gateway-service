@@ -12,7 +12,7 @@
 
 ## Project Description
 
-Notification Service is a Spring Boot-based enterprise-grade multi-channel notification platform. It enables other
+Notification Service is a Spring Boot-based enterprise-grade multichannel notification platform. It enables other
 services in a microservice architecture to send email, SMS, and real-time push notifications to users.
 
 **Core Function:** Processes events asynchronously via Kafka or synchronously via REST API; delivers through email
@@ -22,7 +22,7 @@ services in a microservice architecture to send email, SMS, and real-time push n
 
 **Multi-Channel Notification**
 
-- **EMAIL** — SMTP + Thymeleaf template support (HTML email)
+- **EMAIL** — SMTP and Thymeleaf/placeholder template support (HTML auto-detected via `ContentUtils`)
 - **SMS** — DummySms OTP integration
 - **PUSH** — Firebase Cloud Messaging (FCM) + Server-Sent Events (SSE) for real-time web/mobile push
 
@@ -36,7 +36,7 @@ services in a microservice architecture to send email, SMS, and real-time push n
 **Real-time Communication (SSE)**
 
 - One-way event stream from server to client over a single HTTP connection
-- User + application scoped (`userId:application`) targeting
+- User and application scoped (`userId:application`) targeting
 - Broadcast support (to all connected clients)
 - `ConcurrentHashMap`-based thread-safe emitter registry
 
@@ -45,18 +45,21 @@ services in a microservice architecture to send email, SMS, and real-time push n
 - **SYSTEM**: Broadcast to all connected clients
 - **USER**: Push specific to a user (`userId`)
 - **USER + APPLICATION**: Push specific to a user's specific applications
+- **APPLICATION**: Push to all users of specific applications (no `userId` required)
 
 **Event-Driven Architecture**
 
 - Asynchronous message processing with Kafka producer/consumer (`notification-topic`)
 - Automatic retry with configurable backoff
 - DLT (Dead Letter Topic) handler for tracking failed notifications
-- Loosely-coupled integration from external services
+- Loosely coupled integration from external services
 
 **Template Management**
 
 - `NotificationTemplate` entity: channel + code based template management (`code + channel` unique constraint)
-- Dynamic HTML email templates with Thymeleaf
+- Centralized `NotificationTemplateResolver` resolves templates before any channel strategy
+- Dynamic HTML templates with Thymeleaf (`th:`, `[[${...}]]`)
+- Plain-text `{{placeholder}}` replacement for non-HTML templates (e.g., SMS, PUSH)
 - REST API for template CRUD operations
 
 **Data Persistence**
@@ -82,6 +85,10 @@ services in a microservice architecture to send email, SMS, and real-time push n
 │  Services       │───────────────▶│     Consumer         │
 │  (Kafka)        │                └──────────┬───────────┘
 └─────────────────┘                           │
+                                   ┌──────────▼───────────┐
+                                   │ NotificationTemplate │
+                                   │     Resolver         │
+                                   └──────────┬───────────┘
                                    ┌──────────┼──────────┐
                                    ▼          ▼          ▼
                              ┌──────────┐ ┌────────┐ ┌──────────┐
@@ -102,7 +109,7 @@ services in a microservice architecture to send email, SMS, and real-time push n
                                    └──────────────────┘
 
                              ┌──────────────────────────────────────┐
-                             │    PostgreSQL (notification_schema)   │
+                             │    PostgreSQL (notification_schema)  │
                              │  Notification + Template + Device    │
                              └──────────────────────────────────────┘
 ```
@@ -111,17 +118,18 @@ services in a microservice architecture to send email, SMS, and real-time push n
 
 | Channel | Strategy               | Dispatch Logic                                  |
 |---------|------------------------|-------------------------------------------------|
-| EMAIL   | `EmailServiceImpl`     | SMTP via JavaMailSender + Thymeleaf             |
+| EMAIL   | `EmailServiceImpl`     | SMTP via JavaMailSender (HTML auto-detected)    |
 | SMS     | `SmsServiceImpl`       | DummySms REST API                               |
 | PUSH    | `PushNotificationImpl` | SSE + Firebase FCM (multi-application per-user) |
 
 ### SSE Dispatch Rules
 
-| Condition                         | Action                                        |
-|-----------------------------------|-----------------------------------------------|
-| `userId` + `applications` are set | `sendToKey(userId:app, event)` for each app   |
-| `userId` is set, no applications  | `sendToUser(userId, event)` → all user's apps |
-| Neither set                       | `broadcast(event)` → all clients              |
+| Condition                          | Action                                            |
+|------------------------------------|---------------------------------------------------|
+| `userId` + `applications` are set  | `sendToKey(userId:app, event)` for each app       |
+| `applications` set, no `userId`    | `sendToApplications(apps, event)` → matching apps |
+| `userId` is set, no `applications` | `sendToUser(userId, event)` → all user's apps     |
+| Neither set                        | `broadcast(event)` → all clients                  |
 
 ### Firebase Configuration
 
@@ -169,7 +177,7 @@ notification_schema.notification_template
 ├── channel     ─┘
 ├── name
 ├── subject
-├── body                (HTML/Thymeleaf)
+├── body                (HTML/Thymeleaf or plain text with {{placeholders}})
 ├── description
 └── active
 
@@ -309,7 +317,7 @@ Content-Type: application/json
 ### Notification Query
 
 ```http
-# List user's notifications (paginated, optional channel filter)
+# List user's notifications (paginated, optional channel filter, default sort: createdDate DESC)
 GET /api/v1/notifications?channel=PUSH&page=0&size=20
 
 # Notification detail (your own notifications only)
@@ -353,8 +361,8 @@ DELETE /api/v1/templates/{id}
 | `subject`            | `String`              | No       | Email subject                                     |
 | `title`              | `String`              | No       | Notification title                                |
 | `body`               | `String`              | No       | Notification content                              |
-| `templateCode`       | `String`              | No       | Template code (used for EMAIL channel)            |
-| `templateParameters` | `Map<String, Object>` | No       | Thymeleaf template variables                      |
+| `templateCode`       | `String`              | No       | Template code (resolved before strategy dispatch) |
+| `templateParameters` | `Map<String, Object>` | No       | Thymeleaf or `{{placeholder}}` template variables |
 | `data`               | `Map<String, String>` | No       | Additional metadata                               |
 | `cc`                 | `Set<String>`         | No       | Email CC                                          |
 | `bcc`                | `Set<String>`         | No       | Email BCC                                         |
@@ -424,8 +432,10 @@ eventSource.onerror = function (err) {
 ### Async Flow
 
 1. `POST /send` request arrives → `NotificationRequest` → `NotificationEventDto` → produced to Kafka
-2. `NotificationEventConsumer` consumes → `NotificationStrategy.send()` is called
-3. Success → `Notification.status = SENT`; failure → retry → DLT → `FAILED`
+2. `NotificationEventConsumer` consumes → `NotificationTemplateResolver.resolve()` resolves template (if `templateCode`
+   is set)
+3. `NotificationStrategy.send()` is called for the appropriate channel
+4. Success → `Notification.status = SENT`; failure → retry → DLT → `FAILED`
 
 ### Event Format (`notification-topic`)
 

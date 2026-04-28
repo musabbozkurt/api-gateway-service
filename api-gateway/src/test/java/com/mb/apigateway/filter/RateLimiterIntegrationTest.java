@@ -2,28 +2,40 @@ package com.mb.apigateway.filter;
 
 import com.redis.testcontainers.RedisContainer;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockserver.client.MockServerClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.mockserver.MockServerContainer;
 import org.testcontainers.utility.DockerImageName;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
@@ -40,6 +52,9 @@ class RateLimiterIntegrationTest {
     @Container
     private static final RedisContainer redis = new RedisContainer("redis:8.6.1")
             .withExposedPorts(6379);
+
+    @MockitoBean
+    private ReactiveOpaqueTokenIntrospector opaqueTokenIntrospector;
 
     private MockServerClient mockServerClient;
 
@@ -64,6 +79,24 @@ class RateLimiterIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        when(opaqueTokenIntrospector.introspect(anyString())).thenReturn(Mono.just(new OAuth2AuthenticatedPrincipal() {
+            @Override
+            public Map<String, Object> getAttributes() {
+                return Map.of("active", true, "sub", "rate-limiter-test-user");
+            }
+
+            @Override
+            public Collection<? extends GrantedAuthority> getAuthorities() {
+                return List.of();
+            }
+
+            @NonNull
+            @Override
+            public String getName() {
+                return "rate-limiter-test-user";
+            }
+        }));
+
         // Close previous instance if exists
         if (mockServerClient != null) {
             try {
@@ -143,10 +176,11 @@ class RateLimiterIntegrationTest {
         AtomicInteger errorCount = new AtomicInteger(0);
 
         // Add slight delay between requests
-        IntStream.range(0, 200).forEach(i -> {
+        IntStream.range(0, 200).forEach(_ -> {
             try {
                 WebTestClient.ResponseSpec response = client.get()
                         .uri("/students/test")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer test-token")
                         .exchange();
 
                 HttpStatusCode status = response.returnResult(String.class).getStatus();

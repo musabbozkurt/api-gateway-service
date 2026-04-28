@@ -2,7 +2,6 @@ package com.mb.notificationservice.service;
 
 import com.mb.notificationservice.api.request.NotificationRequest;
 import com.mb.notificationservice.api.response.NotificationResponse;
-import com.mb.notificationservice.data.entity.NotificationTemplate;
 import com.mb.notificationservice.enums.NotificationChannel;
 import com.mb.notificationservice.service.impl.EmailServiceImpl;
 import jakarta.mail.Session;
@@ -21,13 +20,10 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyMap;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
@@ -44,15 +40,9 @@ class EmailServiceImplTest {
     @Mock
     private JavaMailSender javaMailSender;
 
-    @Mock
-    private NotificationTemplateService notificationTemplateService;
-
-    @Mock
-    private ThymeleafTemplateService thymeleafTemplateService;
-
     @BeforeEach
     void init() {
-        emailServiceImpl = new EmailServiceImpl(javaMailSender, notificationTemplateService, thymeleafTemplateService);
+        emailServiceImpl = new EmailServiceImpl(javaMailSender);
         ReflectionTestUtils.setField(emailServiceImpl, "emailFrom", "sender@test.com");
         ReflectionTestUtils.setField(emailServiceImpl, "subjectPrefix", "Prefix: ");
     }
@@ -111,26 +101,6 @@ class EmailServiceImplTest {
         assertFalse(response.isSuccess());
     }
 
-    @Test
-    void send_ShouldSendEmailWithResolvedTemplate_WhenTemplateCodeIsProvided() {
-        NotificationTemplate template = new NotificationTemplate();
-        template.setSubject("Welcome [[${name}]]!");
-        template.setBody("Hello [[${name}]]!");
-
-        NotificationRequest request = createTemplateRequest(Map.of("name", "John"));
-
-        when(notificationTemplateService.findActiveByCode("WELCOME_EMAIL", NotificationChannel.EMAIL)).thenReturn(template);
-        when(thymeleafTemplateService.processTemplate(eq("Welcome [[${name}]]!"), anyMap())).thenReturn("Welcome John!");
-        when(thymeleafTemplateService.processTemplate(eq("Hello [[${name}]]!"), anyMap())).thenReturn("Hello John!");
-        doNothing().when(javaMailSender).send(any(MimeMessage.class));
-        when(javaMailSender.createMimeMessage()).thenReturn(new MimeMessage((Session) null));
-
-        emailServiceImpl.send(request);
-
-        verify(javaMailSender).send(any(MimeMessage.class));
-        verify(notificationTemplateService).findActiveByCode("WELCOME_EMAIL", NotificationChannel.EMAIL);
-    }
-
     private NotificationRequest createValidRequest() {
         NotificationRequest request = new NotificationRequest();
         request.setChannel(NotificationChannel.EMAIL);
@@ -139,17 +109,6 @@ class EmailServiceImplTest {
         request.setBcc(Set.of("bcc@test.com"));
         request.setSubject("Test Subject");
         request.setBody("Test Body");
-        return request;
-    }
-
-    private NotificationRequest createTemplateRequest(Map<String, Object> parameters) {
-        NotificationRequest request = new NotificationRequest();
-        request.setChannel(NotificationChannel.EMAIL);
-        request.setRecipients(Set.of("to@test.com"));
-        request.setCc(Set.of("cc@test.com"));
-        request.setBcc(Set.of("bcc@test.com"));
-        request.setTemplateCode("WELCOME_EMAIL");
-        request.setTemplateParameters(parameters);
         return request;
     }
 }

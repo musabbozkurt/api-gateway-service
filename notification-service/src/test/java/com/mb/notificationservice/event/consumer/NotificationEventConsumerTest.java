@@ -10,6 +10,7 @@ import com.mb.notificationservice.mapper.NotificationMapper;
 import com.mb.notificationservice.queue.consumer.NotificationEventConsumer;
 import com.mb.notificationservice.queue.dto.NotificationEventDto;
 import com.mb.notificationservice.service.NotificationStrategy;
+import com.mb.notificationservice.service.NotificationTemplateResolver;
 import com.mb.notificationservice.service.impl.NotificationStrategyFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,6 +52,9 @@ class NotificationEventConsumerTest {
     @Mock
     private PlatformTransactionManager transactionManager;
 
+    @Mock
+    private NotificationTemplateResolver notificationTemplateResolver;
+
     @Captor
     private ArgumentCaptor<Notification> notificationCaptor;
 
@@ -67,6 +71,7 @@ class NotificationEventConsumerTest {
 
         consumer.listen(eventDto);
 
+        verify(notificationTemplateResolver).resolve(request);
         verify(notificationRepository).save(notificationCaptor.capture());
         assertEquals(NotificationStatus.SENT, notificationCaptor.getValue().getStatus());
         assertEquals(0, notificationCaptor.getValue().getRetryCount());
@@ -85,6 +90,7 @@ class NotificationEventConsumerTest {
 
         consumer.listen(eventDto);
 
+        verify(notificationTemplateResolver).resolve(request);
         verify(notificationRepository).save(notificationCaptor.capture());
         assertEquals(NotificationStatus.FAILED, notificationCaptor.getValue().getStatus());
         assertEquals("delivery failed", notificationCaptor.getValue().getErrorMessage());
@@ -120,6 +126,7 @@ class NotificationEventConsumerTest {
 
         consumer.listen(eventDto);
 
+        verify(notificationTemplateResolver).resolve(request);
         verify(strategyFactory).getStrategy(channel);
         verify(notificationRepository).save(notificationCaptor.capture());
         assertEquals(NotificationStatus.SENT, notificationCaptor.getValue().getStatus());
