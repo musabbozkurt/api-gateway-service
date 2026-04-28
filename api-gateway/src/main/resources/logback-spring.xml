@@ -1,20 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
+    <!-- Silence Logback internal status messages -->
     <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+
+    <!-- Spring Boot defaults -->
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <!-- Spring properties -->
     <springProperty scope="context" name="service" source="spring.application.name"/>
-    <springProperty scope="context" name="logfilepath" source="logging.file:logs/console-${service}.log"/>
+    <springProperty scope="context" name="logFilePath" source="logging.file:logs/console-${service}.log"/>
+
     <property scope="context" name="host" value="${HOSTNAME}"/>
+
+    <!-- Console pattern (human-readable) -->
     <property name="localConsoleLogPattern"
               value="%green(%d{dd-MM-yyyy HH:mm:ss.SSS}) %magenta([%thread]) %highlight(%-5level) [%X{traceId:-},%X{spanId:-},%X{username:-},%X{client_id:-},%X{sessionId:-}] %logger{36} %msg%n"/>
 
+    <!-- ===== OpenTelemetry Appender ===== -->
+    <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender"/>
+
+    <!-- ===== Human-readable console (local) ===== -->
     <appender name="LocalConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>${localConsoleLogPattern}</pattern>
         </encoder>
     </appender>
 
+    <!-- ===== JSON console (dev/prod/stage) ===== -->
     <appender name="ConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <fieldNames>
@@ -30,15 +43,19 @@
         </encoder>
     </appender>
 
+    <!-- ===== Default / local profile ===== -->
     <springProfile name="! (dev | prod | stage)">
         <root level="INFO">
             <appender-ref ref="LocalConsoleAppender"/>
+            <appender-ref ref="OTEL"/>
         </root>
     </springProfile>
 
+    <!-- ===== Dev / Prod / Stage ===== -->
     <springProfile name="(dev | prod | stage)">
         <root level="INFO">
             <appender-ref ref="ConsoleAppender"/>
+            <appender-ref ref="OTEL"/>
         </root>
     </springProfile>
 </configuration>

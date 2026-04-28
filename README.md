@@ -47,7 +47,9 @@
     * Spring Cloud Gateway
     * SpringDoc Swagger
     * Event Driven Architecture with RabbitMQ
+    * Event Driven Architecture with Apache Kafka (notification-service)
     * micrometer-tracing dependencies to track the logs
+    * OpenTelemetry (OTLP) export for metrics, traces, and logs to Grafana LGTM stack
     * Postman collection to test by using Postman
     * Keycloak integration is completed under the payment-service
     * Feign Client secure call with Keycloak integration is completed under the student-service
@@ -58,7 +60,9 @@
     * Spring Cloud Eureka Server and Client integrations are completed with service-registry repo
     * KubernetesDeploymentGuide.md is added
     * Spring Config Server integration is completed with git version control
-    * notification-service with Email, SMS (DummySms) and Kafka-based notification support
+    * notification-service with Email, SMS (DummySms), Push (Firebase FCM + SSE) and Kafka-based notification support
+    * Configurable security permitted paths via application.yml (gateway-service.security.permitted-paths)
+    * Multi-application Firebase push notification support in notification-service
    ```
 
 ---
@@ -153,6 +157,8 @@
     * Redis: http://localhost:6379/
     * RedisInsight: http://localhost:5540/
     * Zipkin: http://localhost:9411/
+    * Grafana: http://localhost:3001/ with `username`: `admin` and `password`: `admin`
+    * Kafka UI: http://localhost:9999/
     * spring-config-server
         * Health: http://localhost:8888/actuator/health
         * Config for swagger-application: http://localhost:8888/swagger-application/development/main

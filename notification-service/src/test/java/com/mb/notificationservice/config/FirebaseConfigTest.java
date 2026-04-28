@@ -6,12 +6,15 @@ import com.google.firebase.FirebaseOptions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.MockedStatic;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 
-import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -32,12 +35,15 @@ import static org.mockito.Mockito.when;
 class FirebaseConfigTest {
 
     private FirebaseConfig firebaseConfig;
+    private ResourceLoader resourceLoader;
     private MockedStatic<FirebaseApp> firebaseAppMockedStatic;
     private MockedStatic<GoogleCredentials> googleCredentialsMockedStatic;
 
     @BeforeEach
     void setUp() {
+        resourceLoader = mock(ResourceLoader.class);
         firebaseConfig = new FirebaseConfig();
+        firebaseConfig.setResourceLoader(resourceLoader);
         firebaseAppMockedStatic = mockStatic(FirebaseApp.class);
         googleCredentialsMockedStatic = mockStatic(GoogleCredentials.class);
     }
@@ -49,12 +55,57 @@ class FirebaseConfigTest {
     }
 
     @Test
-    void initialize_ShouldInitializeFirebaseApp_WhenAppNotAlreadyRegistered() {
+    void initialize_ShouldInitializeFirebaseApp_WhenInlineJsonProvided() {
         // Arrange
         String appName = "test-app";
-        Resource resource = new ByteArrayResource("{}".getBytes());
-        Map<String, Resource> apps = new HashMap<>();
-        apps.put(appName, resource);
+        String json = "{}";
+        Map<String, String> apps = new HashMap<>();
+        apps.put(appName, json);
+        firebaseConfig.setApps(apps);
+
+        firebaseAppMockedStatic.when(FirebaseApp::getApps).thenReturn(Collections.emptyList());
+        googleCredentialsMockedStatic.when(() -> GoogleCredentials.fromStream(any(InputStream.class))).thenReturn(mock(GoogleCredentials.class));
+        firebaseAppMockedStatic.when(() -> FirebaseApp.initializeApp(any(FirebaseOptions.class), eq(appName))).thenReturn(mock(FirebaseApp.class));
+
+        // Act
+        assertDoesNotThrow(() -> firebaseConfig.initialize());
+
+        // Assertions
+        firebaseAppMockedStatic.verify(() -> FirebaseApp.initializeApp(any(FirebaseOptions.class), eq(appName)));
+    }
+
+    @Test
+    void initialize_ShouldInitializeFirebaseApp_WhenSpringResourceProvided() {
+        // Arrange
+        String appName = "resource-app";
+        String resourcePath = "classpath:firebase/service-account.json";
+        Resource mockResource = new ByteArrayResource("{}".getBytes());
+        when(resourceLoader.getResource(resourcePath)).thenReturn(mockResource);
+
+        Map<String, String> apps = new HashMap<>();
+        apps.put(appName, resourcePath);
+        firebaseConfig.setApps(apps);
+
+        firebaseAppMockedStatic.when(FirebaseApp::getApps).thenReturn(Collections.emptyList());
+        googleCredentialsMockedStatic.when(() -> GoogleCredentials.fromStream(any(InputStream.class))).thenReturn(mock(GoogleCredentials.class));
+        firebaseAppMockedStatic.when(() -> FirebaseApp.initializeApp(any(FirebaseOptions.class), eq(appName))).thenReturn(mock(FirebaseApp.class));
+
+        // Act
+        assertDoesNotThrow(() -> firebaseConfig.initialize());
+
+        // Assertions
+        firebaseAppMockedStatic.verify(() -> FirebaseApp.initializeApp(any(FirebaseOptions.class), eq(appName)));
+    }
+
+    @Test
+    void initialize_ShouldInitializeFirebaseApp_WhenFilePathProvided(@TempDir Path tempDir) throws Exception {
+        // Arrange
+        String appName = "filepath-app";
+        Path tempFile = tempDir.resolve("service-account.json");
+        Files.writeString(tempFile, "{}");
+
+        Map<String, String> apps = new HashMap<>();
+        apps.put(appName, tempFile.toString());
         firebaseConfig.setApps(apps);
 
         firebaseAppMockedStatic.when(FirebaseApp::getApps).thenReturn(Collections.emptyList());
@@ -72,9 +123,9 @@ class FirebaseConfigTest {
     void initialize_ShouldSkipInitialization_WhenAppAlreadyRegistered() {
         // Arrange
         String appName = "existing-app";
-        Resource resource = new ByteArrayResource("{}".getBytes());
-        Map<String, Resource> apps = new HashMap<>();
-        apps.put(appName, resource);
+        String json = "{}";
+        Map<String, String> apps = new HashMap<>();
+        apps.put(appName, json);
         firebaseConfig.setApps(apps);
 
         FirebaseApp existingApp = mock(FirebaseApp.class);
@@ -89,14 +140,13 @@ class FirebaseConfigTest {
     }
 
     @Test
-    void initialize_ShouldHandleException_WhenResourceIsInvalid() throws IOException {
+    void initialize_ShouldHandleException_WhenFilePathDoesNotExist() {
         // Arrange
         String appName = "invalid-app";
-        Resource badResource = mock(Resource.class);
-        when(badResource.getInputStream()).thenThrow(new IOException("File not found"));
+        String nonExistentPath = "/non/existent/path/service-account.json";
 
-        Map<String, Resource> apps = new HashMap<>();
-        apps.put(appName, badResource);
+        Map<String, String> apps = new HashMap<>();
+        apps.put(appName, nonExistentPath);
         firebaseConfig.setApps(apps);
 
         firebaseAppMockedStatic.when(FirebaseApp::getApps).thenReturn(Collections.emptyList());
@@ -111,11 +161,11 @@ class FirebaseConfigTest {
     @Test
     void initialize_ShouldInitializeMultipleApps_WhenMultipleAppsConfigured() {
         // Arrange
-        Resource resource1 = new ByteArrayResource("{}".getBytes());
-        Resource resource2 = new ByteArrayResource("{}".getBytes());
-        Map<String, Resource> apps = new HashMap<>();
-        apps.put("app-one", resource1);
-        apps.put("app-two", resource2);
+        String json1 = "{}";
+        String json2 = "{}";
+        Map<String, String> apps = new HashMap<>();
+        apps.put("app-one", json1);
+        apps.put("app-two", json2);
         firebaseConfig.setApps(apps);
 
         GoogleCredentials mockCredentials = mock(GoogleCredentials.class);

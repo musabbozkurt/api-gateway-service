@@ -29,8 +29,15 @@ services:
         condition: service_started
       spring-config-server:
         condition: service_healthy
+      grafana-lgtm:
+        condition: service_started
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
+      OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
+      OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
+      ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      REDIS_HOST: redis-service
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:
@@ -345,6 +352,17 @@ services:
       - "9411:9411"
     # Uncomment to enable debug logging
     # command: --logging.level.zipkin2=DEBUG
+    networks:
+      - mb-network
+
+  grafana-lgtm:
+    image: 'grafana/otel-lgtm:0.26.0'
+    ports:
+      - "3001:3000"   # Grafana UI
+      - "4318:4318"   # OTLP HTTP receiver
+      - "4317:4317"   # OTLP gRPC receiver
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
     networks:
       - mb-network
 

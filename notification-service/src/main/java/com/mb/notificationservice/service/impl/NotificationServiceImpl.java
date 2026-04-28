@@ -14,10 +14,13 @@ import com.mb.notificationservice.mapper.NotificationMapper;
 import com.mb.notificationservice.queue.dto.NotificationEventDto;
 import com.mb.notificationservice.queue.producer.NotificationEventProducer;
 import com.mb.notificationservice.service.NotificationService;
+import com.mb.notificationservice.service.NotificationTemplateResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +37,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationEventProducer notificationEventProducer;
     private final NotificationMapper notificationMapper;
     private final NotificationRepository notificationRepository;
+    private final NotificationTemplateResolver notificationTemplateResolver;
 
     @Override
     public NotificationResponse sendAsync(NotificationRequest request) {
@@ -62,7 +66,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public NotificationResponse sendSync(NotificationRequest request) {
         log.info("Sending notification synchronously via channel: {}", request.getChannel());
-
+        notificationTemplateResolver.resolve(request);
         return strategyFactory.getStrategy(request.getChannel()).send(request);
     }
 
@@ -70,16 +74,20 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional(readOnly = true)
     public Page<NotificationSummaryResponse> getNotifications(Pageable pageable, NotificationChannel channel) {
         Long userId = ContextHolder.getContext().userId();
+        Pageable sortedPageable = pageable.getSort().isSorted()
+                ? pageable
+                : PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdDate"));
         Page<Notification> page = Objects.nonNull(channel)
-                ? notificationRepository.findByUserIdAndChannel(userId, channel, pageable)
-                : notificationRepository.findByUserId(userId, pageable);
+                ? notificationRepository.findByUserIdAndChannel(userId, channel, sortedPageable)
+                : notificationRepository.findByUserId(userId, sortedPageable);
         return page.map(notificationMapper::toNotificationSummaryResponse);
     }
 
     @Override
     @Transactional
     public NotificationDetailResponse getNotificationDetailById(Long id) {
-        Notification notification = notificationRepository.findById(id)
+        Long userId = ContextHolder.getContext().userId();
+        Notification notification = notificationRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new BaseException(NotificationErrorCode.NOTIFICATION_NOT_FOUND));
 
         if (!notification.isRead()) {

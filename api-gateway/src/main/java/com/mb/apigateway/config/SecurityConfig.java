@@ -1,16 +1,12 @@
-/**
- * Security configuration for the API Gateway using Spring Security and OAuth2.
- * This configuration sets up route-based access control, disables CSRF protection,
- * and configures an opaque token introspector with custom WebClient settings.
- * It allows unauthenticated access to specific endpoints while securing all other routes.
-
 package com.mb.apigateway.config;
 
 import io.netty.channel.ChannelOption;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
@@ -24,16 +20,20 @@ import reactor.util.retry.Retry;
 
 import java.time.Duration;
 
+/**
+ * Configures WebFlux security for the API Gateway.
+ * <p>
+ * Disables CSRF, permits a configurable set of public paths (defined in {@code gateway-service.security.permitted-paths}),
+ * and enforces opaque token introspection for all other routes. The introspection {@link org.springframework.web.reactive.function.client.WebClient}
+ * is built with Netty connection pooling, configurable timeouts, and automatic retry on transient
+ * {@link org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException}s.
+ */
 @Configuration
 @EnableWebFluxSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    private static final String[] PERMITTED_PATHS = {
-            "/actuator/health",
-            "/rbac-service/api/v1/forgot-password/generate-code",
-            "/rbac-service/api/v1/forgot-password/validate-code",
-            "/rbac-service/api/v1/forgot-password/change"
-    };
+    private final GatewaySecurityProperties gatewaySecurityProperties;
 
     @Value("${secure-service.introspection-uri}")
     private String introspectionUri;
@@ -58,12 +58,13 @@ public class SecurityConfig {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers(PERMITTED_PATHS).permitAll()
+                        .pathMatchers(gatewaySecurityProperties.getPermittedPaths().toArray(String[]::new)).permitAll()
                         .anyExchange().authenticated()
                 )
                 .oauth2ResourceServer(serverSpec -> serverSpec
                         .opaqueToken(token -> token.introspector(opaqueTokenIntrospector()))
                 )
+                .anonymous(Customizer.withDefaults())
                 .build();
     }
 
@@ -91,4 +92,3 @@ public class SecurityConfig {
         return new SpringReactiveOpaqueTokenIntrospector(introspectionUri, webClient);
     }
 }
-*/
