@@ -8,11 +8,18 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.jspecify.annotations.NonNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.ResourceLoaderAware;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,23 +28,42 @@ import java.util.Map;
 @Setter
 @Configuration
 @ConfigurationProperties(prefix = "firebase")
-public class FirebaseConfig {
+public class FirebaseConfig implements ResourceLoaderAware {
 
     /**
-     * Map of Firebase applications. Key is the applicationName, value is the service account JSON resource location.
+     * Map of Firebase applications. Key is the applicationName, value is the service account credential source.
+     *
+     * <p>The value is resolved in 3 ways based on its content:</p>
+     * <ul>
+     *     <li><b>Spring Resource</b> (prefix {@code classpath:} or {@code file:} or {@code https:}):
+     *         loaded via Spring's {@link ResourceLoader}.</li>
+     *     <li><b>Inline JSON</b> (value starts with {@code {}):
+     *         treated as raw JSON content.</li>
+     *     <li><b>File path</b> (anything else):
+     *         treated as a file system path.</li>
+     * </ul>
+     * <p>
      * Example:
      * <pre>
-     * firebase.apps.my-application=classpath:firebase/my-service-account.json
-     * firebase.apps.another-application=file:/etc/config/another-service-account.json
+     * firebase.apps.first-app-application=classpath:firebase/first-app-service-account.json
+     * firebase.apps.second-app-application={"type":"service_account","project_id":"...","private_key":"..."}
+     * firebase.apps.another-application=/etc/config/another-service-account.json
      * </pre>
      */
-    private Map<String, Resource> apps = new HashMap<>();
+    private Map<String, String> apps = new HashMap<>();
+
+    private ResourceLoader resourceLoader;
+
+    @Override
+    public void setResourceLoader(@NonNull ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
+    }
 
     @PostConstruct
     public void initialize() {
-        apps.forEach((application, serviceAccountResource) -> {
+        apps.forEach((application, serviceAccountValue) -> {
             if (FirebaseApp.getApps().stream().noneMatch(app -> app.getName().equals(application))) {
-                try (InputStream serviceAccount = serviceAccountResource.getInputStream()) {
+                try (InputStream serviceAccount = resolveInputStream(serviceAccountValue)) {
                     FirebaseApp.initializeApp(
                             FirebaseOptions.builder()
                                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
@@ -58,5 +84,16 @@ public class FirebaseConfig {
      */
     public FirebaseApp getFirebaseApp(String application) {
         return FirebaseApp.getInstance(application);
+    }
+
+    private InputStream resolveInputStream(String value) throws IOException {
+        String trimmed = value.trim();
+        if (trimmed.startsWith("classpath:") || trimmed.startsWith("file:") || trimmed.startsWith("https:")) {
+            return resourceLoader.getResource(trimmed).getInputStream();
+        } else if (trimmed.startsWith("{")) {
+            return new ByteArrayInputStream(trimmed.getBytes(StandardCharsets.UTF_8));
+        } else {
+            return Files.newInputStream(Paths.get(trimmed));
+        }
     }
 }

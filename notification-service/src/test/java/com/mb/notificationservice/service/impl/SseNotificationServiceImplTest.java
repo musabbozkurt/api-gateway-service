@@ -91,7 +91,27 @@ class SseNotificationServiceImplTest {
     }
 
     @Test
-    void send_ShouldBroadcastToAll_WhenUserIdIsNull() throws IOException {
+    void send_ShouldSendToApplicationScopedEmitters_WhenUserIdIsNullButApplicationsAreSet() throws IOException {
+        SseEmitter emitter1 = mock(SseEmitter.class);
+        SseEmitter emitter2 = mock(SseEmitter.class);
+        SseEmitter emitter3 = mock(SseEmitter.class);
+        getEmitters().put("1:my-app", new CopyOnWriteArrayList<>(List.of(emitter1)));
+        getEmitters().put("2:my-app", new CopyOnWriteArrayList<>(List.of(emitter2)));
+        getEmitters().put("3:other-app", new CopyOnWriteArrayList<>(List.of(emitter3)));
+
+        NotificationEventDto dto = new NotificationEventDto();
+        dto.setUserId(null);
+        dto.setApplications(Set.of("my-app"));
+        dto.setChannel(NotificationChannel.PUSH);
+
+        sseService.send(dto);
+
+        verify(emitter1).send(any(SseEmitter.SseEventBuilder.class));
+        verify(emitter2).send(any(SseEmitter.SseEventBuilder.class));
+    }
+
+    @Test
+    void send_ShouldBroadcastToAll_WhenUserIdIsNullAndApplicationsAreEmpty() throws IOException {
         SseEmitter emitter1 = mock(SseEmitter.class);
         SseEmitter emitter2 = mock(SseEmitter.class);
         getEmitters().put("1:app-a", new CopyOnWriteArrayList<>(List.of(emitter1)));

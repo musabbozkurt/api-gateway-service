@@ -29,8 +29,15 @@ services:
         condition: service_started
       spring-config-server:
         condition: service_healthy
+      grafana-lgtm:
+        condition: service_started
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
+      OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
+      OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
+      ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      REDIS_HOST: redis-service
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:
@@ -55,10 +62,15 @@ services:
         condition: service_started
       spring-config-server:
         condition: service_healthy
+      grafana-lgtm:
+        condition: service_started
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
+      OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
+      OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:
@@ -82,12 +94,17 @@ services:
         condition: service_healthy
       kafka: # Bus must be available to receive RefreshRemoteApplicationEvents from the config server
         condition: service_started
+      grafana-lgtm:
+        condition: service_started
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
       CONFIG_SERVER_URI: http://spring-config-server:8888
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092 # Internal Docker listener — used by Spring Cloud Bus (Kafka) for receiving refresh events
+      OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
+      OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:
@@ -110,10 +127,15 @@ services:
         condition: service_started
       spring-config-server:
         condition: service_healthy
+      grafana-lgtm:
+        condition: service_started
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
       DB_HOST: postgres
       DB_PORT: 5432
+      OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
+      OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:
@@ -130,8 +152,13 @@ services:
         condition: service_started
       spring-config-server:
         condition: service_healthy
+      grafana-lgtm:
+        condition: service_started
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
+      OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
+      OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:
@@ -156,6 +183,8 @@ services:
         condition: service_started
       spring-config-server:
         condition: service_healthy
+      grafana-lgtm:
+        condition: service_started
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
       DB_HOST: postgres
@@ -165,6 +194,9 @@ services:
       MAIL_HOST: mailpit
       MAIL_PORT: 1025
       CONFIG_SERVER_URI: http://spring-config-server:8888
+      OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
+      OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:
@@ -176,6 +208,13 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8761:8761" # Map host port 8761 to container port 8761
+    depends_on:
+      grafana-lgtm:
+        condition: service_started
+    environment:
+      OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
+      OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:
@@ -192,9 +231,13 @@ services:
     depends_on:
       - service-registry
       - kafka # Bus must be available so ConfigChangeWatcher can publish RefreshRemoteApplicationEvents
+      - grafana-lgtm
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092 # Internal Docker listener — used by Spring Cloud Bus (Kafka) for broadcasting refresh events
+      OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
+      OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
     healthcheck:
       test: [ "CMD-SHELL", "curl -sf http://localhost:8888/actuator/health || exit 1" ]
       interval: 10s
@@ -345,6 +388,17 @@ services:
       - "9411:9411"
     # Uncomment to enable debug logging
     # command: --logging.level.zipkin2=DEBUG
+    networks:
+      - mb-network
+
+  grafana-lgtm:
+    image: 'grafana/otel-lgtm:0.26.0'
+    ports:
+      - "3001:3000"   # Grafana UI
+      - "4318:4318"   # OTLP HTTP receiver
+      - "4317:4317"   # OTLP gRPC receiver
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
     networks:
       - mb-network
 

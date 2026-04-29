@@ -9,17 +9,17 @@ spring:
     gateway:
       server:
         webflux:
+          httpclient:
+            connect-timeout: 5000
+            response-timeout: 5000
+            pool:
+              max-idle-time: 30s
           default-filters:
-            - StripPrefix=1
             - name: RequestRateLimiter
               args:
                 redis-rate-limiter.replenishRate: 40
                 redis-rate-limiter.burstCapacity: 80
                 redis-rate-limiter.requestedTokens: 1
-          routes:
-            - id: student-service
-              predicates:
-                - Path=/students/**
 
 springdoc:
   api-docs:
@@ -34,3 +34,33 @@ springdoc:
 eureka:
   client:
     enabled: false
+
+secure-service:
+  introspection-uri: https://secure-service:8443/oauth/check_token
+
+gateway-service:
+  client-id: test-client-id
+  client-secret: test-client-secret
+  security:
+    permitted-paths:
+      - /actuator/health
+      - /content-service/**
+      - /rbac-service/api/v1/forgot-password/generate-code
+      - /rbac-service/api/v1/forgot-password/validate-code
+      - /rbac-service/api/v1/forgot-password/change
+      - /swagger-ui.html
+      - /swagger-ui/**
+      - /v3/api-docs/**
+      - /v3/api-docs
+      - /webjars/**
+      - /openai/api-docs
+      - /payment/api-docs
+      - /student/api-docs
+      - /notification/api-docs
+      - /swagger/api-docs
+      - /** # This allows all paths to be accessed without authentication, it will be removed in production
+
+management:
+  health:
+    redis:
+      enabled: false

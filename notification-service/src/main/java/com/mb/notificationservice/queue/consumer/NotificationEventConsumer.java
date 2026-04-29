@@ -8,6 +8,7 @@ import com.mb.notificationservice.enums.NotificationStatus;
 import com.mb.notificationservice.mapper.NotificationMapper;
 import com.mb.notificationservice.queue.dto.NotificationEventDto;
 import com.mb.notificationservice.service.NotificationStrategy;
+import com.mb.notificationservice.service.NotificationTemplateResolver;
 import com.mb.notificationservice.service.impl.NotificationStrategyFactory;
 import com.mb.notificationservice.util.ServiceConstants;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class NotificationEventConsumer {
     private final NotificationStrategyFactory strategyFactory;
     private final NotificationRepository notificationRepository;
     private final NotificationMapper notificationMapper;
+    private final NotificationTemplateResolver notificationTemplateResolver;
     private final PlatformTransactionManager transactionManager;
 
     @KafkaListener(groupId = ServiceConstants.NOTIFICATION_GROUP, topics = ServiceConstants.NOTIFICATION_TOPIC)
@@ -38,6 +40,7 @@ public class NotificationEventConsumer {
         try {
             NotificationStrategy strategy = strategyFactory.getStrategy(eventDto.getChannel());
             NotificationRequest request = notificationMapper.toRequest(eventDto);
+            notificationTemplateResolver.resolve(request);
 
             NotificationResponse response = strategy.send(request);
 

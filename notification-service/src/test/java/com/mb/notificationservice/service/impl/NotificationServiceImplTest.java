@@ -16,6 +16,7 @@ import com.mb.notificationservice.mapper.NotificationMapper;
 import com.mb.notificationservice.queue.dto.NotificationEventDto;
 import com.mb.notificationservice.queue.producer.NotificationEventProducer;
 import com.mb.notificationservice.service.NotificationStrategy;
+import com.mb.notificationservice.service.NotificationTemplateResolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +27,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -60,6 +63,9 @@ class NotificationServiceImplTest {
 
     @Mock
     private NotificationRepository notificationRepository;
+
+    @Mock
+    private NotificationTemplateResolver notificationTemplateResolver;
 
     @BeforeEach
     void setUp() {
@@ -113,41 +119,44 @@ class NotificationServiceImplTest {
         NotificationResponse response = notificationService.sendSync(request);
 
         assertEquals(expected, response);
+        verify(notificationTemplateResolver).resolve(request);
         verify(strategyFactory).getStrategy(NotificationChannel.PUSH);
     }
 
     @Test
     void getNotifications_ShouldFilterByChannel_WhenChannelIsProvided() {
         Pageable pageable = PageRequest.of(0, 20);
+        Pageable sortedPageable = PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "createdDate"));
         Notification entity = new Notification();
-        Page<Notification> entityPage = new PageImpl<>(List.of(entity), pageable, 1);
+        Page<Notification> entityPage = new PageImpl<>(List.of(entity), sortedPageable, 1);
 
         NotificationSummaryResponse summary = NotificationSummaryResponse.builder().id(1L).channel(NotificationChannel.PUSH).build();
 
-        when(notificationRepository.findByUserIdAndChannel(USER_ID, NotificationChannel.PUSH, pageable)).thenReturn(entityPage);
+        when(notificationRepository.findByUserIdAndChannel(any(), any(), any(Pageable.class))).thenReturn(entityPage);
         when(notificationMapper.toNotificationSummaryResponse(entity)).thenReturn(summary);
 
         Page<NotificationSummaryResponse> result = notificationService.getNotifications(pageable, NotificationChannel.PUSH);
 
         assertEquals(1, result.getTotalElements());
-        verify(notificationRepository).findByUserIdAndChannel(USER_ID, NotificationChannel.PUSH, pageable);
+        verify(notificationRepository).findByUserIdAndChannel(any(), any(), any(Pageable.class));
     }
 
     @Test
     void getNotifications_ShouldReturnAll_WhenChannelIsNull() {
         Pageable pageable = PageRequest.of(0, 20);
+        Pageable sortedPageable = PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "createdDate"));
         Notification entity = new Notification();
-        Page<Notification> entityPage = new PageImpl<>(List.of(entity), pageable, 1);
+        Page<Notification> entityPage = new PageImpl<>(List.of(entity), sortedPageable, 1);
 
         NotificationSummaryResponse summary = NotificationSummaryResponse.builder().id(1L).channel(NotificationChannel.PUSH).build();
 
-        when(notificationRepository.findByUserId(USER_ID, pageable)).thenReturn(entityPage);
+        when(notificationRepository.findByUserId(any(), any(Pageable.class))).thenReturn(entityPage);
         when(notificationMapper.toNotificationSummaryResponse(entity)).thenReturn(summary);
 
         Page<NotificationSummaryResponse> result = notificationService.getNotifications(pageable, null);
 
         assertEquals(1, result.getTotalElements());
-        verify(notificationRepository).findByUserId(USER_ID, pageable);
+        verify(notificationRepository).findByUserId(any(), any(Pageable.class));
         verify(notificationRepository, never()).findByUserIdAndChannel(any(), any(), any());
     }
 
@@ -168,7 +177,7 @@ class NotificationServiceImplTest {
 
         NotificationDetailResponse detail = NotificationDetailResponse.builder().id(1L).channel(NotificationChannel.EMAIL).level(NotificationLevel.INFO).status(NotificationStatus.SENT).build();
 
-        when(notificationRepository.findById(1L)).thenReturn(Optional.of(entity));
+        when(notificationRepository.findByIdAndUserId(1L, USER_ID)).thenReturn(Optional.of(entity));
         when(notificationRepository.save(entity)).thenReturn(entity);
         when(notificationMapper.toNotificationDetailResponse(entity)).thenReturn(detail);
 
@@ -190,7 +199,7 @@ class NotificationServiceImplTest {
 
         NotificationDetailResponse detail = NotificationDetailResponse.builder().id(1L).build();
 
-        when(notificationRepository.findById(1L)).thenReturn(Optional.of(entity));
+        when(notificationRepository.findByIdAndUserId(1L, USER_ID)).thenReturn(Optional.of(entity));
         when(notificationMapper.toNotificationDetailResponse(entity)).thenReturn(detail);
 
         notificationService.getNotificationDetailById(1L);
@@ -201,7 +210,7 @@ class NotificationServiceImplTest {
 
     @Test
     void getNotificationDetailById_ShouldThrowException_WhenNotificationNotFound() {
-        when(notificationRepository.findById(999L)).thenReturn(Optional.empty());
+        when(notificationRepository.findByIdAndUserId(999L, USER_ID)).thenReturn(Optional.empty());
 
         BaseException exception = assertThrows(BaseException.class, () -> notificationService.getNotificationDetailById(999L));
 

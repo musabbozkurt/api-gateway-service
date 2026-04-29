@@ -47,6 +47,7 @@ public class PushNotificationImpl implements NotificationStrategy {
 
             NotificationEventDto dto = new NotificationEventDto();
             dto.setUserId(request.getUserId());
+            dto.setSubject(request.getSubject());
             dto.setTitle(request.getTitle());
             dto.setBody(request.getBody());
             dto.setChannel(NotificationChannel.PUSH);

@@ -9,3 +9,27 @@ eureka:
   client:
     register-with-eureka: false
     fetch-registry: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # POST /actuator/refresh      — refreshes @RefreshScope beans on THIS instance only
+        # POST /actuator/busrefresh   — broadcasts refresh to ALL instances via Spring Cloud Bus (Kafka)
+        include: refresh,busrefresh,health,info # curl --location --request POST 'http://127.0.0.1:8888/actuator/refresh', curl --location --request POST 'http://127.0.0.1:8888/actuator/busrefresh'
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    metrics:
+      export:
+        url: ${OTEL_EXPORTER_OTLP_METRICS_URL:http://localhost:4318/v1/metrics}
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: ${OTEL_EXPORTER_OTLP_TRACES_URL:http://localhost:4318/v1/traces}
+    logging:
+      export:
+        otlp:
+          endpoint: ${OTEL_EXPORTER_OTLP_LOGS_URL:http://localhost:4318/v1/logs}
