@@ -4,7 +4,7 @@
     <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <springProperty scope="context" name="service" source="spring.application.name"/>
-    <springProperty scope="context" name="logfilepath" source="logging.file:logs/console-${service}.log"/>
+    <springProperty scope="context" name="logFilePath" source="logging.file:logs/console-${service}.log"/>
     <property scope="context" name="host" value="${HOSTNAME}"/>
     <property name="localConsoleLogPattern"
               value="%green(%d{dd-MM-yyyy HH:mm:ss.SSS}) %magenta([%thread]) %highlight(%-5level) [%X{traceId:-},%X{spanId:-},%X{username:-},%X{client_id:-},%X{sessionId:-}] %logger{36} %msg%n"/>
@@ -13,6 +13,12 @@
         <layout class="ch.qos.logback.classic.PatternLayout">
             <pattern>${localConsoleLogPattern}</pattern>
         </layout>
+    </appender>
+
+    <!-- ===== OpenTelemetry Appender ===== -->
+    <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+        <captureExperimentalAttributes>true</captureExperimentalAttributes>
+        <captureMdcAttributes>*</captureMdcAttributes>
     </appender>
 
     <appender name="ConsoleAppender" class="ch.qos.logback.core.ConsoleAppender">
@@ -33,12 +39,14 @@
     <springProfile name="! (dev | prod | stage)">
         <root level="INFO">
             <appender-ref ref="LocalConsoleAppender"/>
+            <appender-ref ref="OTEL"/>
         </root>
     </springProfile>
 
     <springProfile name="(dev | prod | stage)">
         <root level="INFO">
             <appender-ref ref="ConsoleAppender"/>
+            <appender-ref ref="OTEL"/>
         </root>
     </springProfile>
 </configuration>
