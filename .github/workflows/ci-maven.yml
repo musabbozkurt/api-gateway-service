@@ -66,6 +66,23 @@ jobs:
           echo "Service URL: $SERVICE_URL"
           echo "Health URL: $HEALTH_URL"
 
+  build_notification_service:
+    runs-on: ubuntu-latest
+    # https://stackoverflow.com/a/70448851
+    permissions: write-all
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build notification-service with Maven
+        run: mvn -B package --file notification-service/pom.xml
+
   build_openai_service:
     runs-on: ubuntu-latest
     # https://stackoverflow.com/a/70448851
@@ -134,6 +151,23 @@ jobs:
       - name: Build student-service with Maven
         run: mvn -B package --file student-service/pom.xml
 
+  build_spring_config_server:
+    runs-on: ubuntu-latest
+    # https://stackoverflow.com/a/70448851
+    permissions: write-all
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build spring-config-server with Maven
+        run: mvn -B package --file spring-config-server/pom.xml
+
   build_swagger_application:
     runs-on: ubuntu-latest
     # https://stackoverflow.com/a/70448851
@@ -154,7 +188,7 @@ jobs:
   success-job:
     runs-on: ubuntu-latest
     if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
-    needs: [ build_api_gateway, build_openai_service, build_payment_service, build_service_registry, build_student_service, build_swagger_application ]
+    needs: [ build_api_gateway, build_notification_service, build_openai_service, build_payment_service, build_service_registry, build_student_service, build_spring_config_server, build_swagger_application ]
     steps:
       - name: Build is Succeeded
         env:
