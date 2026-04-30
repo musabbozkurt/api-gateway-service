@@ -14,8 +14,10 @@ COPY . /app/openai-service
 RUN --mount=type=cache,target=/root/.m2 mvn -f /app/openai-service/pom.xml clean package
 
 # Create a custom Java runtime - Added java.compiler module to provide javax.lang.model.SourceVersion
+# Added jdk.net and java.net.http because Spring RestClient / Apache HttpClient may require
+# jdk.net.Sockets and related networking classes at runtime inside Docker
 RUN "$JAVA_HOME"/bin/jlink \
-         --add-modules jdk.unsupported,java.base,java.sql,java.naming,java.desktop,java.management,java.security.jgss,java.instrument,java.compiler \
+         --add-modules jdk.unsupported,jdk.net,java.net.http,java.base,java.sql,java.naming,java.desktop,java.management,java.security.jgss,java.instrument,java.compiler \
          --strip-java-debug-attributes \
          --no-man-pages \
          --no-header-files \

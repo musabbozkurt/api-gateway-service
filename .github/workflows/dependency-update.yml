@@ -20,7 +20,7 @@ on:
   pull_request:
     branches: [ "main" ]
   schedule:
-    - cron: '0/5 * * * *' # Every 5 minutes (for testing, adjust as needed)
+    - cron: '0 0 * * 0' # Every Sunday at midnight
 
 permissions:
   contents: write
