@@ -1,0 +1,192 @@
+# =============================================================================
+# MB Dependency Version Update
+# =============================================================================
+# Detects outdated Maven dependencies across all service pom.xml files using the
+# versions-maven-plugin configured in each service pom.xml with ../version-rules.xml.
+#
+# Behavior per trigger:
+#   pull_request       → Read-only check: displays available updates in the log
+#   push (this file)   → Applies updates, verifies changed services compile, creates a PR (for testing)
+#   schedule/dispatch  → Applies updates, verifies changed services compile, creates a PR
+# =============================================================================
+
+name: MB Dependency Version Update
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+    paths: [ ".github/workflows/dependency-update.yml" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '0/5 * * * *' # Every 5 minutes (for testing, adjust as needed)
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  SERVICE_DIRS: >-
+    api-gateway
+    notification-service
+    openai-service
+    payment-service
+    service-registry
+    spring-config-server
+    student-service
+    swagger-application
+
+jobs:
+  check-versions:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Check for available version updates
+        run: |
+          for service in $SERVICE_DIRS; do
+            pom="$service/pom.xml"
+
+            echo "::group::$service parent POM updates"
+            mvn -B versions:display-parent-updates --file "$pom"
+            echo "::endgroup::"
+
+            echo "::group::$service property updates"
+            mvn -B versions:display-property-updates --file "$pom"
+            echo "::endgroup::"
+
+            echo "::group::$service dependency updates"
+            mvn -B versions:display-dependency-updates --file "$pom"
+            echo "::endgroup::"
+          done
+
+  update-and-pr:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      # https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/making-authenticated-api-requests-with-a-github-app-in-a-github-actions-workflow
+      - name: Generate GitHub App Token
+        id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Checkout main
+        uses: actions/checkout@v6
+        with:
+          ref: main
+          token: ${{ steps.generate-token.outputs.token }}
+
+      - name: Check if update PR already exists
+        id: pr-exists
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        run: |
+          OPEN_PRS=$(gh pr list --head automated/dependency-updates --state open --json number --jq 'length')
+          if [ "$OPEN_PRS" -gt 0 ]; then
+            echo "An open dependency update PR already exists. Skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No open dependency update PR found. Proceeding."
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up JDK 25
+        if: steps.pr-exists.outputs.skip == 'false'
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Apply all version updates
+        if: steps.pr-exists.outputs.skip == 'false'
+        run: |
+          for service in $SERVICE_DIRS; do
+            pom="$service/pom.xml"
+            mvn -B versions:update-parent -DgenerateBackupPoms=false --file "$pom"
+            mvn -B versions:update-properties -DgenerateBackupPoms=false --file "$pom"
+            mvn -B versions:use-latest-releases -DgenerateBackupPoms=false --file "$pom"
+          done
+
+      - name: Check if service pom.xml files changed
+        if: steps.pr-exists.outputs.skip == 'false'
+        id: diff
+        run: |
+          CHANGED_POMS=$(git diff --name-only | grep '/pom\.xml$' || true)
+
+          if [ -z "$CHANGED_POMS" ]; then
+            echo "All service dependencies are up to date."
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            {
+              echo 'changed_poms<<EOF'
+              printf '%s\n' "$CHANGED_POMS"
+              echo 'EOF'
+              echo 'body<<EOF'
+              echo '## 🔄 MB Dependency Version Updates'
+              echo ''
+              echo 'This PR was automatically created by the **MB Dependency Version Update** workflow.'
+              echo ''
+              echo '### Updated service POM files'
+              while IFS= read -r pom; do
+                [ -n "$pom" ] || continue
+                echo "- \`$pom\`"
+              done <<< "$CHANGED_POMS"
+              echo ''
+              while IFS= read -r pom; do
+                [ -n "$pom" ] || continue
+                echo "#### \`$pom\`"
+                echo '```diff'
+                git diff -- "$pom"
+                echo '```'
+                echo ''
+              done <<< "$CHANGED_POMS"
+              echo '### Checklist'
+              echo '- [ ] Review the version changes above'
+              echo '- [ ] Verify CI build passes'
+              echo '- [ ] Check for breaking changes in release notes'
+              echo 'EOF'
+            } >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify changed services compile
+        if: steps.pr-exists.outputs.skip == 'false' && steps.diff.outputs.has_changes == 'true'
+        env:
+          CHANGED_POMS: ${{ steps.diff.outputs.changed_poms }}
+        run: |
+          while IFS= read -r pom; do
+            [ -n "$pom" ] || continue
+            echo "::group::Compiling $pom"
+            mvn -B compile --file "$pom"
+            echo "::endgroup::"
+          done <<< "$CHANGED_POMS"
+
+      - name: Create Pull Request
+        if: steps.pr-exists.outputs.skip == 'false' && steps.diff.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          commit-message: "build(deps): update Maven dependency versions"
+          branch: automated/dependency-updates
+          delete-branch: true
+          title: "build(deps): update Maven dependency versions"
+          body: ${{ steps.diff.outputs.body }}
+          labels: |
+            dependencies
+            automated
+          reviewers: ${{ github.repository_owner }}
