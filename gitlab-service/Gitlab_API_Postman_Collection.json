@@ -1,0 +1,202 @@
+{
+  "info": {
+    "_postman_id": "4c4e01a8-c1f9-471b-a6fa-e6158e733561",
+    "name": "Gitlab API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "12754990"
+  },
+  "item": [
+    {
+      "name": "Get Gitlab Projects",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "PRIVATE-TOKEN",
+            "value": "{{gitlab_private_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{gitlab_base_url}}/projects?per_page=20&page=1&visibility=private",
+          "host": [
+            "{{gitlab_base_url}}"
+          ],
+          "path": [
+            "projects"
+          ],
+          "query": [
+            {
+              "key": "per_page",
+              "value": "20",
+              "description": "max 100"
+            },
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "visibility",
+              "value": "private"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Compare Branches",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "PRIVATE-TOKEN",
+            "value": "{{gitlab_private_token}}"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": []
+        },
+        "url": {
+          "raw": "{{gitlab_base_url}}/projects/{{project_id}}/repository/compare?from=develop&to=release&straight=true&from_project_id={{from_project_id}}",
+          "host": [
+            "{{gitlab_base_url}}"
+          ],
+          "path": [
+            "projects",
+            "{{project_id}}",
+            "repository",
+            "compare"
+          ],
+          "query": [
+            {
+              "key": "from",
+              "value": "develop"
+            },
+            {
+              "key": "to",
+              "value": "release"
+            },
+            {
+              "key": "straight",
+              "value": "true"
+            },
+            {
+              "key": "from_project_id",
+              "value": "{{from_project_id}}",
+              "description": "optional"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Merge Request",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "PRIVATE-TOKEN",
+            "value": "{{gitlab_private_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{gitlab_base_url}}/projects/{{project_id}}/merge_requests?source_branch=develop&target_branch=release&title=develop&target_project_id={{target_project_id}}",
+          "host": [
+            "{{gitlab_base_url}}"
+          ],
+          "path": [
+            "projects",
+            "{{project_id}}",
+            "merge_requests"
+          ],
+          "query": [
+            {
+              "key": "source_branch",
+              "value": "develop"
+            },
+            {
+              "key": "target_branch",
+              "value": "release"
+            },
+            {
+              "key": "title",
+              "value": "develop"
+            },
+            {
+              "key": "target_project_id",
+              "value": "{{target_project_id}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Merge Requests",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "PRIVATE-TOKEN",
+            "value": "{{gitlab_private_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{gitlab_base_url}}/projects/{{project_id}}/merge_requests?state=opened",
+          "host": [
+            "{{gitlab_base_url}}"
+          ],
+          "path": [
+            "projects",
+            "{{project_id}}",
+            "merge_requests"
+          ],
+          "query": [
+            {
+              "key": "state",
+              "value": "opened"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update or Close Merge Requests",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "PRIVATE-TOKEN",
+            "value": "{{gitlab_private_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{gitlab_base_url}}/projects/{{project_id}}/merge_requests/{{merge_request_id}}?state_event=close",
+          "host": [
+            "{{gitlab_base_url}}"
+          ],
+          "path": [
+            "projects",
+            "{{project_id}}",
+            "merge_requests",
+            "{{merge_request_id}}"
+          ],
+          "query": [
+            {
+              "key": "state_event",
+              "value": "close",
+              "description": "close, reopen, https://docs.gitlab.com/ee/api/merge_requests.html#update-mr"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

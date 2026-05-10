@@ -1,0 +1,68 @@
+server:
+  port: 8001
+
+spring:
+  application:
+    name: kafka-debezium-service
+
+  config:
+    import: optional:file:.env[.properties]
+
+  kafka:
+    consumer:
+      bootstrap-servers: ${KAFKA_CONSUMER_BOOTSTRAP_SERVERS:localhost:9092,localhost:9094,localhost:9096}
+      group-id: mb
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+    producer:
+      bootstrap-servers: ${KAFKA_PRODUCER_BOOTSTRAP_SERVERS:localhost:9092,localhost:9094,localhost:9096}
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    topics:
+      topic1: orders
+      topic2: inventory-db-server.inventory.customers
+      topic3: customers
+      topic4: inventory-db-server.inventory.products
+      topic5: oracle-db-19-server.DEBEZIUM.CUSTOMERS
+  jackson:
+    serialization:
+      indent_output: true
+
+  docker:
+    compose:
+      enabled: false
+
+springdoc:
+  api-docs:
+    path: /kafka-debezium/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL:http://localhost:8761/eureka}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, loggers, prometheus
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    metrics:
+      export:
+        url: ${OTEL_EXPORTER_OTLP_METRICS_URL:http://localhost:4318/v1/metrics}
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: ${OTEL_EXPORTER_OTLP_TRACES_URL:http://localhost:4318/v1/traces}
+    logging:
+      export:
+        otlp:
+          endpoint: ${OTEL_EXPORTER_OTLP_LOGS_URL:http://localhost:4318/v1/logs}
