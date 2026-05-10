@@ -17,7 +17,7 @@
 
     <properties>
         <java.version>25</java.version>
-        <oauth2-oidc-sdk.version>11.37</oauth2-oidc-sdk.version>
+        <oauth2-oidc-sdk.version>11.37.1</oauth2-oidc-sdk.version>
         <aspectjweaver.version>1.9.25.1</aspectjweaver.version>
         <springdoc-openapi-starter-webflux-ui.version>3.0.3</springdoc-openapi-starter-webflux-ui.version>
         <org.projectlombok.version>1.18.46</org.projectlombok.version>
