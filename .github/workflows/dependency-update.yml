@@ -29,6 +29,8 @@ permissions:
 env:
   SERVICE_DIRS: >-
     api-gateway
+    gitlab-service
+    kafka-debezium-service
     notification-service
     openai-service
     payment-service

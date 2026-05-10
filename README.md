@@ -32,6 +32,8 @@
 
    ```
     * api-gateway
+    * gitlab-service
+    * kafka-debezium-service
     * notification-service
     * openai-service
     * payment-service
@@ -63,6 +65,8 @@
     * notification-service with Email, SMS (DummySms), Push (Firebase FCM + SSE) and Kafka-based notification support
     * Configurable security permitted paths via application.yml (gateway-service.security.permitted-paths)
     * Multi-application Firebase push notification support in notification-service
+    * gitlab-service repo migration is completed for bulk Gitlab operations via Feign Client
+    * kafka-debezium-service repo migration is completed for CDC with Debezium, Kafka cluster, PostgreSQL, and Oracle
    ```
 
 ---
@@ -168,6 +172,7 @@
         * Mailpit is a local SMTP server for testing email sending functionality without actually sending emails to real
           addresses. It captures and displays emails sent by the application, allowing developers to verify email
           content and functionality during development.
+    * Debezium Connectors: http://localhost:8087/connectors
 
 ####
 

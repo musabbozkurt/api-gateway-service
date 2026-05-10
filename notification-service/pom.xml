@@ -22,6 +22,7 @@
         <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
         <opentelemetry-logback-appender-1.0.version>2.25.0-alpha</opentelemetry-logback-appender-1.0.version>
         <protobuf.version>4.34.1</protobuf.version>
+        <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
         <firebase-admin.version>9.8.0</firebase-admin.version>
         <spring-cloud.version>2025.1.1</spring-cloud.version>
         <commons-validator.version>1.10.1</commons-validator.version>
@@ -129,6 +130,13 @@
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
             <version>${protobuf.version}</version>
+        </dependency>
+
+        <!-- Structured JSON logging (used by LogstashEncoder in logback-spring.xml) -->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>${logstash-logback-encoder.version}</version>
         </dependency>
 
         <dependency>

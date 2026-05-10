@@ -9,35 +9,39 @@ services:
     ports:
       - "8080:8080" # Map host port 8080 to container port 8080
     depends_on:
+      gitlab-service:
+        condition: service_started
+      grafana-lgtm:
+        condition: service_started
+      kafka-debezium-service:
+        condition: service_started
+      notification-service:
+        condition: service_started
+      openai-service:
+        condition: service_started
+      payment-service:
+        condition: service_started
+      redis-insight-service:
+        condition: service_started
+      redis-service:
+        condition: service_started
+      service-registry:
+        condition: service_started
+      spring-config-server:
+        condition: service_healthy
       student-service:
         condition: service_started
       swagger-application:
         condition: service_started
-      payment-service:
-        condition: service_started
-      openai-service:
-        condition: service_started
-      notification-service:
-        condition: service_started
-      service-registry:
-        condition: service_started
-      redis-service:
-        condition: service_started
-      redis-insight-service:
-        condition: service_started
       zipkin:
-        condition: service_started
-      spring-config-server:
-        condition: service_healthy
-      grafana-lgtm:
         condition: service_started
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
       OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
       OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
-      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
-      ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       REDIS_HOST: redis-service
+      ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:
@@ -52,25 +56,25 @@ services:
     ports:
       - "8081:8081" # Map host port 8081 to container port 8080
     depends_on:
-      rabbitmq:
+      grafana-lgtm:
+        condition: service_started
+      keycloak:
         condition: service_started
       postgres:
         condition: service_started
-      keycloak:
+      rabbitmq:
         condition: service_started
       service-registry:
         condition: service_started
       spring-config-server:
         condition: service_healthy
-      grafana-lgtm:
-        condition: service_started
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
       OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
       OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
-      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:
@@ -88,23 +92,23 @@ services:
     ports:
       - "8082:8082" # Map host port 8082 to container port 8080
     depends_on:
+      grafana-lgtm:
+        condition: service_started
+      kafka: # Bus must be available to receive RefreshRemoteApplicationEvents from the config server
+        condition: service_started
       service-registry:
         condition: service_started
       spring-config-server:
         condition: service_healthy
-      kafka: # Bus must be available to receive RefreshRemoteApplicationEvents from the config server
-        condition: service_started
-      grafana-lgtm:
-        condition: service_started
     environment:
-      EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
       CONFIG_SERVER_URI: http://spring-config-server:8888
+      EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092 # Internal Docker listener — used by Spring Cloud Bus (Kafka) for receiving refresh events
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
       OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
       OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
-      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:
@@ -117,25 +121,25 @@ services:
     ports:
       - "8083:8083" # Map host port 8083 to container port 8080
     depends_on:
-      rabbitmq:
+      grafana-lgtm:
+        condition: service_started
+      keycloak:
         condition: service_started
       postgres:
         condition: service_started
-      keycloak:
+      rabbitmq:
         condition: service_started
       service-registry:
         condition: service_started
       spring-config-server:
         condition: service_healthy
-      grafana-lgtm:
-        condition: service_started
     environment:
-      EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
       DB_HOST: postgres
       DB_PORT: 5432
+      EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
       OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
       OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
-      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:
@@ -148,17 +152,17 @@ services:
     ports:
       - "8084:8084" # Map host port 8084 to container port 8080
     depends_on:
+      grafana-lgtm:
+        condition: service_started
       service-registry:
         condition: service_started
       spring-config-server:
         condition: service_healthy
-      grafana-lgtm:
-        condition: service_started
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
       OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
       OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
-      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:
@@ -171,7 +175,7 @@ services:
     ports:
       - "8085:8085"
     depends_on:
-      postgres:
+      grafana-lgtm:
         condition: service_started
       kafka:
         condition: service_started
@@ -179,24 +183,24 @@ services:
         condition: service_started
       mailpit:
         condition: service_started
+      postgres:
+        condition: service_started
       service-registry:
         condition: service_started
       spring-config-server:
         condition: service_healthy
-      grafana-lgtm:
-        condition: service_started
     environment:
-      EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
+      CONFIG_SERVER_URI: http://spring-config-server:8888
       DB_HOST: postgres
       DB_PORT: 5432
+      EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       KEYCLOAK_BASE_URL: http://keycloak:9090
       MAIL_HOST: mailpit
       MAIL_PORT: 1025
-      CONFIG_SERVER_URI: http://spring-config-server:8888
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
       OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
       OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
-      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:
@@ -212,9 +216,9 @@ services:
       grafana-lgtm:
         condition: service_started
     environment:
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
       OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
       OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
-      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:
@@ -229,15 +233,15 @@ services:
     ports:
       - "8888:8888" # Map host port 8888 to container port 8888
     depends_on:
-      - service-registry
-      - kafka # Bus must be available so ConfigChangeWatcher can publish RefreshRemoteApplicationEvents
       - grafana-lgtm
+      - kafka # Bus must be available so ConfigChangeWatcher can publish RefreshRemoteApplicationEvents
+      - service-registry
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092 # Internal Docker listener — used by Spring Cloud Bus (Kafka) for broadcasting refresh events
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
       OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
       OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
-      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
     healthcheck:
       test: [ "CMD-SHELL", "curl -sf http://localhost:8888/actuator/health || exit 1" ]
       interval: 10s
@@ -289,13 +293,15 @@ services:
   kafka-ui:
     image: provectuslabs/kafka-ui:v0.7.2
     ports:
-      - "9999:8080"                                   # Kafka UI dashboard accessible at http://localhost:9999
+      - "9999:8080"                                                                                               # Kafka UI dashboard accessible at http://localhost:9999
     depends_on:
-      - kafka                                         # Ensure Kafka broker is up before starting the UI
+      - kafka                                                                                                     # Ensure Kafka broker is up before starting the UI
     environment:
-      DYNAMIC_CONFIG_ENABLED: true                    # Allows clusters to be added/edited at runtime via the UI
-      KAFKA_CLUSTERS_0_NAME: local                    # Display name for the cluster in the UI
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092  # Uses the internal PLAINTEXT listener (Docker network only)
+      DYNAMIC_CONFIG_ENABLED: true                                                                                # Allows clusters to be added/edited at runtime via the UI
+      KAFKA_CLUSTERS_0_NAME: local                                                                                # Display name for the main cluster in the UI
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092                                                              # Main Kafka broker (notification-service, spring-config-server, swagger-application)
+      KAFKA_CLUSTERS_1_NAME: debezium-local                                                                       # Display name for the Debezium cluster in the UI
+      KAFKA_CLUSTERS_1_BOOTSTRAPSERVERS: debezium-kafka1:29092,debezium-kafka2:29092,debezium-kafka3:29092        # Debezium 3-node Kafka cluster
     networks:
       - mb-network
 
@@ -312,7 +318,7 @@ services:
     networks:
       - mb-network
     volumes:
-      # PostgreSQL 18+ stores data under a major-version subdirectory (e.g. /var/lib/postgresql/18/main).
+      # PostgreSQL 18+ stores data under a major-version subdirectory (e.g., /var/lib/postgresql/18/main).
       # Mounting at /var/lib/postgresql (without /data) lets the image manage the subdirectory itself
       # and avoids the "data in unused mount/volume" error introduced in postgres:18+.
       # If upgrading from a postgres:16/17 image, remove the old volume first:
@@ -371,7 +377,7 @@ services:
       - mb-network
 
   # Note: openzipkin/zipkin-slim is mirrored as ghcr.io/openzipkin/zipkin-slim
-  # The zipkin process services the UI, and also exposes a POST endpoint that
+  # The zipkin process services the UI and also exposes a POST endpoint that
   # instrumentation can send trace data to.
   zipkin:
     image: ghcr.io/openzipkin/zipkin-slim:master
@@ -419,10 +425,276 @@ services:
     networks:
       - mb-network
 
+  # ========================================================================================
+  # gitlab-service (standalone — Feign Client for bulk Gitlab operations)
+  # ========================================================================================
+
+  gitlab-service:
+    build:
+      context: ./gitlab-service
+      dockerfile: Dockerfile
+    ports:
+      - "8086:8086"
+    environment:
+      EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
+      GITLAB_API_URL: ${GITLAB_API_URL:-https://gitlab.com/api/v4}
+      GITLAB_PRIVATE_TOKEN: ${GITLAB_PRIVATE_TOKEN:-}
+      GITLAB_URL_PATH_WITH_NAMESPACE: ${GITLAB_URL_PATH_WITH_NAMESPACE:-}
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
+      OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
+      OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
+    depends_on:
+      grafana-lgtm:
+        condition: service_started
+      service-registry:
+        condition: service_started
+      spring-config-server:
+        condition: service_healthy
+    profiles:
+      - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
+
+  # ========================================================================================
+  # kafka-debezium-service (CDC with Debezium, Kafka cluster, PostgreSQL, and Oracle)
+  # ========================================================================================
+
+  debezium-postgres:
+    image: postgres:18
+    container_name: debezium-postgres
+    restart: on-failure
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    command:
+      - "postgres"
+      - "-c"
+      - "wal_level=logical"
+      - "-c"
+      - "max_wal_senders=10"
+      - "-c"
+      - "max_replication_slots=10"
+    volumes:
+      - ./kafka-debezium-service/scripts/postgres:/docker-entrypoint-initdb.d
+    profiles:
+      - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
+
+  oracle-db:
+    image: gvenzl/oracle-free:23.8
+    container_name: oracle-db
+    restart: on-failure
+    ports:
+      - "1522:1521"
+    environment:
+      - ORACLE_ARCHIVELOG=true
+      - APP_USER=MB_ORACLE_USER
+      - APP_USER_PASSWORD=oracle_password
+      - ORACLE_PASSWORD=oracle_password
+      - ORACLE_CHARACTERSET=AL32UTF8
+    volumes:
+      - ./kafka-debezium-service/scripts/oracle:/container-entrypoint-startdb.d
+    profiles:
+      - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
+
+  oracle-db-19:
+    image: ${ORACLE_CONTAINER_REGISTRY_URL:-container-registry.oracle.com/database/enterprise:19.3.0.0}
+    container_name: oracle-db-19
+    restart: on-failure
+    ports:
+      - "1521:1521"
+    environment:
+      - ORACLE_PWD=oracle_19_password
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+      - ./kafka-debezium-service/scripts/oracle-19:/docker-entrypoint-initdb.d
+    profiles:
+      - debezium-oracle-19
+    networks:
+      - mb-network
+
+  debezium-kafka1:
+    image: confluentinc/cp-kafka:8.2.0
+    hostname: debezium-kafka1
+    container_name: debezium-kafka1
+    restart: on-failure
+    ports:
+      - "19092:19092"
+      - "19093:19093"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_BROKER_ID: 1
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@debezium-kafka1:19093,2@debezium-kafka2:19093,3@debezium-kafka3:19093'
+      KAFKA_LISTENERS: 'PLAINTEXT://debezium-kafka1:29092,EXTERNAL://0.0.0.0:19092,CONTROLLER://debezium-kafka1:19093'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://debezium-kafka1:29092,EXTERNAL://localhost:19092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      CLUSTER_ID: 'Y_K8U2FuTtqok5Zpyp3ltA'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
+      KAFKA_MIN_INSYNC_REPLICAS: 2
+    volumes:
+      - debezium-kafka1-data:/var/lib/kafka/data
+    profiles:
+      - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
+
+  debezium-kafka2:
+    image: confluentinc/cp-kafka:8.2.0
+    hostname: debezium-kafka2
+    container_name: debezium-kafka2
+    restart: on-failure
+    ports:
+      - "19094:19094"
+      - "19095:19093"
+    environment:
+      KAFKA_NODE_ID: 2
+      KAFKA_BROKER_ID: 2
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@debezium-kafka1:19093,2@debezium-kafka2:19093,3@debezium-kafka3:19093'
+      KAFKA_LISTENERS: 'PLAINTEXT://debezium-kafka2:29092,EXTERNAL://0.0.0.0:19094,CONTROLLER://debezium-kafka2:19093'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://debezium-kafka2:29092,EXTERNAL://localhost:19094'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      CLUSTER_ID: 'Y_K8U2FuTtqok5Zpyp3ltA'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
+      KAFKA_MIN_INSYNC_REPLICAS: 2
+    volumes:
+      - debezium-kafka2-data:/var/lib/kafka/data
+    profiles:
+      - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
+
+  debezium-kafka3:
+    image: confluentinc/cp-kafka:8.2.0
+    hostname: debezium-kafka3
+    container_name: debezium-kafka3
+    restart: on-failure
+    ports:
+      - "19096:19096"
+      - "19097:19093"
+    environment:
+      KAFKA_NODE_ID: 3
+      KAFKA_BROKER_ID: 3
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@debezium-kafka1:19093,2@debezium-kafka2:19093,3@debezium-kafka3:19093'
+      KAFKA_LISTENERS: 'PLAINTEXT://debezium-kafka3:29092,EXTERNAL://0.0.0.0:19096,CONTROLLER://debezium-kafka3:19093'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://debezium-kafka3:29092,EXTERNAL://localhost:19096'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      CLUSTER_ID: 'Y_K8U2FuTtqok5Zpyp3ltA'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 3
+      KAFKA_MIN_INSYNC_REPLICAS: 2
+    volumes:
+      - debezium-kafka3-data:/var/lib/kafka/data
+    profiles:
+      - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
+
+  debezium-connector:
+    image: debezium/connect:3.0.0.Final
+    hostname: debezium-connector
+    container_name: debezium-connector
+    restart: on-failure
+    ports:
+      - "8087:8083"
+    environment:
+      BOOTSTRAP_SERVERS: debezium-kafka1:29092,debezium-kafka2:29092,debezium-kafka3:29092
+      CONFIG_STORAGE_TOPIC: my_connect_configs
+      OFFSET_STORAGE_TOPIC: my_connect_offsets
+      STATUS_STORAGE_TOPIC: my_connect_statuses
+    depends_on:
+      debezium-kafka1:
+        condition: service_started
+      debezium-kafka2:
+        condition: service_started
+      debezium-kafka3:
+        condition: service_started
+      debezium-postgres:
+        condition: service_started
+      oracle-db:
+        condition: service_started
+    profiles:
+      - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
+
+  debezium-init:
+    image: curlimages/curl:8.20.0
+    container_name: debezium-init
+    depends_on:
+      debezium-connector:
+        condition: service_started
+      oracle-db:
+        condition: service_started
+    volumes:
+      - ./kafka-debezium-service/scripts/register-connectors.sh:/register-connectors.sh:ro
+    entrypoint: [ "sh", "/register-connectors.sh" ]
+    restart: "no"
+    profiles:
+      - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
+
+  kafka-debezium-service:
+    build:
+      context: ./kafka-debezium-service
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
+      KAFKA_CONSUMER_BOOTSTRAP_SERVERS: debezium-kafka1:29092,debezium-kafka2:29092,debezium-kafka3:29092
+      KAFKA_PRODUCER_BOOTSTRAP_SERVERS: debezium-kafka1:29092,debezium-kafka2:29092,debezium-kafka3:29092
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
+      OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
+      OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
+    depends_on:
+      debezium-connector:
+        condition: service_started
+      debezium-kafka1:
+        condition: service_started
+      debezium-kafka2:
+        condition: service_started
+      debezium-kafka3:
+        condition: service_started
+      grafana-lgtm:
+        condition: service_started
+      service-registry:
+        condition: service_started
+      spring-config-server:
+        condition: service_healthy
+    profiles:
+      - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
+
 volumes:
   redis-data:
   redis-insight:
   postgres_data:
+  oracle-data:
+  debezium-kafka1-data:
+  debezium-kafka2-data:
+  debezium-kafka3-data:
 
 networks:
   mb-network:
