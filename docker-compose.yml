@@ -46,6 +46,7 @@ services:
       - ${SERVICE_START_PROFILE}
     networks:
       - mb-network
+    restart: on-failure
 
   student-service:
     build:
@@ -79,6 +80,7 @@ services:
       - ${SERVICE_START_PROFILE}
     networks:
       - mb-network
+    restart: on-failure
 
   swagger-application:
     deploy:
@@ -113,6 +115,7 @@ services:
       - ${SERVICE_START_PROFILE}
     networks:
       - mb-network
+    restart: on-failure
 
   payment-service:
     build:
@@ -144,6 +147,7 @@ services:
       - ${SERVICE_START_PROFILE}
     networks:
       - mb-network
+    restart: on-failure
 
   openai-service:
     build:
@@ -167,6 +171,7 @@ services:
       - ${SERVICE_START_PROFILE}
     networks:
       - mb-network
+    restart: on-failure
 
   notification-service:
     build:
@@ -205,6 +210,7 @@ services:
       - ${SERVICE_START_PROFILE}
     networks:
       - mb-network
+    restart: on-failure
 
   service-registry:
     build:
@@ -223,6 +229,7 @@ services:
       - ${SERVICE_START_PROFILE}
     networks:
       - mb-network
+    restart: on-failure
 
   spring-config-server:
     build:
@@ -252,10 +259,11 @@ services:
       - ${SERVICE_START_PROFILE}
     networks:
       - mb-network
+    restart: on-failure
 
   rabbitmq:
     image: rabbitmq:4.2.4
-    restart: always
+    restart: on-failure
     container_name: test-rabbitmq
     ports:
       - "5673:5672" # default ports 5672:5672
@@ -289,6 +297,7 @@ services:
       CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'                                                                        # Pre-generated base64-encoded UUID that uniquely identifies this KRaft cluster; required on first startup
     networks:
       - mb-network
+    restart: on-failure
 
   kafka-ui:
     image: provectuslabs/kafka-ui:v0.7.2
@@ -304,10 +313,11 @@ services:
       KAFKA_CLUSTERS_1_BOOTSTRAPSERVERS: debezium-kafka1:29092,debezium-kafka2:29092,debezium-kafka3:29092        # Debezium 3-node Kafka cluster
     networks:
       - mb-network
+    restart: on-failure
 
   postgres:
     image: postgres:18.3
-    restart: always
+    restart: on-failure
     container_name: postgres-db
     ports:
       - "5433:5432" # default ports 5432:5432
@@ -345,7 +355,7 @@ services:
       KC_DB_PASSWORD: ${POSTGRESQL_PASS}
     ports:
       - "127.0.0.1:9090:9090"
-    restart: always
+    restart: on-failure
     depends_on:
       - postgres
     profiles:
@@ -361,13 +371,13 @@ services:
     volumes:
       - redis-data:/data
     command: redis-server --appendonly yes
-    restart: unless-stopped
+    restart: on-failure
     networks:
       - mb-network
 
   redis-insight-service:
     image: redis/redisinsight:latest
-    restart: always
+    restart: on-failure
     container_name: redis-insight-service
     ports:
       - "5540:5540"
@@ -396,6 +406,7 @@ services:
     # command: --logging.level.zipkin2=DEBUG
     networks:
       - mb-network
+    restart: on-failure
 
   grafana-lgtm:
     image: 'grafana/otel-lgtm:0.26.0'
@@ -407,10 +418,11 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     networks:
       - mb-network
+    restart: on-failure
 
   prometheus:
     image: "prom/prometheus"
-    restart: always
+    restart: on-failure
     ports:
       - "9091:9090"
     volumes:
@@ -423,7 +435,7 @@ services:
   mailpit:
     image: axllent/mailpit:v1.29.2
     container_name: mailpit
-    restart: always
+    restart: on-failure
     ports:
       - "1025:1025"   # SMTP server
       - "8025:8025"   # Web UI (http://localhost:8025)
@@ -466,6 +478,7 @@ services:
       - ${SERVICE_START_PROFILE}
     networks:
       - mb-network
+    restart: on-failure
 
   # ========================================================================================
   # brokerage-provider
@@ -504,6 +517,7 @@ services:
       - ${SERVICE_START_PROFILE}
     networks:
       - mb-network
+    restart: on-failure
 
   # ========================================================================================
   # kafka-debezium-service (CDC with Debezium, Kafka cluster, PostgreSQL, and Oracle)
@@ -736,6 +750,7 @@ services:
       - ${SERVICE_START_PROFILE}
     networks:
       - mb-network
+    restart: on-failure
 
 volumes:
   redis-data:
