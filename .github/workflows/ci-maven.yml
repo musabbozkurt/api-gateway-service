@@ -239,10 +239,26 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+  build_brokerage_provider:
+    runs-on: ubuntu-latest
+    permissions: write-all
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build brokerage-provider with Maven
+        run: mvn -B package --file brokerage-provider/pom.xml
+
   success-job:
     runs-on: ubuntu-latest
     if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
-    needs: [ build_api_gateway, build_notification_service, build_openai_service, build_payment_service, build_service_registry, build_student_service, build_spring_config_server, build_swagger_application, build_gitlab_service, build_kafka_debezium_service ]
+    needs: [ build_api_gateway, build_notification_service, build_openai_service, build_payment_service, build_service_registry, build_student_service, build_spring_config_server, build_swagger_application, build_gitlab_service, build_kafka_debezium_service, build_brokerage_provider ]
     steps:
       - name: Build is Succeeded
         env:

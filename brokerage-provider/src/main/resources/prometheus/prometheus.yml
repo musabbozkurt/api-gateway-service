@@ -1,0 +1,14 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+# https://github.com/NoahHsu/event-sourcing-order-poc/blob/fa4c91c939b6e8d54cb84bb6bb5bf875cc3f5224/Docker/config/prometheus/prometheus.yml
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: [ 'host.docker.internal:9090' ]
+
+  - job_name: 'brokerage-provider'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'host.docker.internal:8088' ]

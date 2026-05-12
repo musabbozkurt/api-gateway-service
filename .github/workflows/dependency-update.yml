@@ -29,6 +29,7 @@ permissions:
 env:
   SERVICE_DIRS: >-
     api-gateway
+    brokerage-provider
     gitlab-service
     kafka-debezium-service
     notification-service

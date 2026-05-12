@@ -408,6 +408,18 @@ services:
     networks:
       - mb-network
 
+  prometheus:
+    image: "prom/prometheus"
+    restart: always
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./brokerage-provider/src/main/resources/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command: --web.enable-lifecycle --config.file=/etc/prometheus/prometheus.yml
+    container_name: prometheus
+    networks:
+      - mb-network
+
   mailpit:
     image: axllent/mailpit:v1.29.2
     container_name: mailpit
@@ -450,6 +462,44 @@ services:
         condition: service_started
       spring-config-server:
         condition: service_healthy
+    profiles:
+      - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
+
+  # ========================================================================================
+  # brokerage-provider
+  # ========================================================================================
+
+  brokerage-provider:
+    build:
+      context: ./brokerage-provider
+      dockerfile: Dockerfile
+    ports:
+      - "8088:8088"
+    depends_on:
+      grafana-lgtm:
+        condition: service_started
+      kafka:
+        condition: service_started
+      postgres:
+        condition: service_started
+      service-registry:
+        condition: service_started
+      spring-config-server:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      POSTGRES_DB: ${POSTGRESQL_DB}
+      POSTGRES_USER: ${POSTGRESQL_USER}
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASS}
+      EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
+      KAFKA_CONSUMER_BOOTSTRAP_SERVERS: kafka:29092
+      KAFKA_PRODUCER_BOOTSTRAP_SERVERS: kafka:29092
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
+      OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
+      OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:

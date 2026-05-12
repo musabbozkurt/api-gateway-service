@@ -32,6 +32,7 @@
 
    ```
     * api-gateway
+    * brokerage-provider
     * gitlab-service
     * kafka-debezium-service
     * notification-service
@@ -67,6 +68,7 @@
     * Multi-application Firebase push notification support in notification-service
     * gitlab-service repo migration is completed for bulk Gitlab operations via Feign Client
     * kafka-debezium-service repo migration is completed for CDC with Debezium, Kafka cluster, PostgreSQL, and Oracle
+    * brokerage-provider repo migration is completed
    ```
 
 ---
@@ -162,6 +164,7 @@
     * RedisInsight: http://localhost:5540/
     * Zipkin: http://localhost:9411/
     * Grafana: http://localhost:3001/ with `username`: `admin` and `password`: `admin`
+    * Prometheus: http://localhost:9091/graph
     * Kafka UI: http://localhost:9999/
     * spring-config-server
         * Health: http://localhost:8888/actuator/health
