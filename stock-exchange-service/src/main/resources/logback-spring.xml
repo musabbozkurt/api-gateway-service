@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+    <!-- To enable JMX Management -->
+    <jmxConfigurator/>
+
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+
+    <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+        <captureExperimentalAttributes>true</captureExperimentalAttributes>
+        <captureKeyValuePairAttributes>true</captureKeyValuePairAttributes>
+    </appender>
+
+    <logger name="org.springframework.web" level="INFO"/>
+    <logger name="org.springframework.data" level="INFO"/>
+    <logger name="org.hibernate.SQL" level="INFO"/>
+    <logger name="com.mb.stockexchangeservice" level="INFO"/>
+
+    <root level="INFO">
+        <appender-ref ref="OTEL"/>
+    </root>
+
+</configuration>

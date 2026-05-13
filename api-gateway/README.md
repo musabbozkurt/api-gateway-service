@@ -41,7 +41,7 @@ limiting, request/response logging, and aggregated Swagger documentation.
 | `spring.data.redis.host`                                | `localhost`                     | Redis host (env: `REDIS_HOST`)                     |
 | `spring.data.redis.port`                                | `6379`                          | Redis port (env: `REDIS_PORT`)                     |
 | `gateway-service.security.permitted-paths`              | *(see application.yml)*         | Paths accessible without authentication            |
-| `gateway-service.client-id`                             | `gateway-service`               | OAuth2 client ID (env: `CLIENT_ID`)                |
+| `gateway-service.client-id`                             | `api-gateway-client`            | OAuth2 client ID (env: `CLIENT_ID`)                |
 | `gateway-service.client-secret`                         | `gateway-secret`                | OAuth2 client secret (env: `CLIENT_SECRET`)        |
 | `secure-service.introspection-uri`                      | `localhost:8081/.../introspect` | Token introspection URI (env: `INTROSPECTION_URI`) |
 | `google.recaptcha.*`                                    | Configured via `.env`           | reCAPTCHA site/secret keys                         |

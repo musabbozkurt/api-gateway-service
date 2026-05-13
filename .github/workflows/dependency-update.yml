@@ -35,6 +35,7 @@ env:
     notification-service
     openai-service
     payment-service
+    stock-exchange-service
     service-registry
     spring-config-server
     student-service

@@ -2,6 +2,7 @@ package com.mb.apigateway;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -10,6 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.server.resource.introspection.BadOpaqueTokenException;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
 import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -19,6 +24,9 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -32,8 +40,11 @@ class GatewayServiceApplicationTest {
     @Autowired
     private WebTestClient webTestClient;
 
-    @MockitoBean
+    @MockitoBean(name = "opaqueTokenIntrospector")
     private ReactiveOpaqueTokenIntrospector opaqueTokenIntrospector;
+
+    @MockitoBean(name = "stockExchangeTokenIntrospector")
+    private ReactiveOpaqueTokenIntrospector stockExchangeTokenIntrospector;
 
     @BeforeAll
     static void setUp() throws IOException {
@@ -55,6 +66,10 @@ class GatewayServiceApplicationTest {
         registry.add("spring.cloud.gateway.server.webflux.routes[0].uri", () -> mockBackendUrl);
         registry.add("spring.cloud.gateway.server.webflux.routes[0].predicates[0]", () -> "Path=/rbac-service/**");
         registry.add("spring.cloud.gateway.server.webflux.routes[0].filters[0]", () -> "StripPrefix=1");
+
+        registry.add("spring.cloud.gateway.server.webflux.routes[1].id", () -> "stock-exchange-service");
+        registry.add("spring.cloud.gateway.server.webflux.routes[1].uri", () -> mockBackendUrl);
+        registry.add("spring.cloud.gateway.server.webflux.routes[1].predicates[0]", () -> "Path=/stock-exchange/**");
     }
 
     @Test
@@ -123,5 +138,112 @@ class GatewayServiceApplicationTest {
                 .expectBody()
                 .jsonPath("$.status").isEqualTo(500)
                 .jsonPath("$.error").isEqualTo("Internal Server Error");
+    }
+
+    @Test
+    void stockExchangeEndpoint_ShouldReturnOk_WhenValidStockExchangeTokenProvided() {
+        // Arrange
+        mockBackendServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("""
+                        {
+                          "id": 1,
+                          "username": "stock_user"
+                        }
+                        """)
+                .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
+
+        when(stockExchangeTokenIntrospector.introspect(anyString()))
+                .thenReturn(Mono.just(createPrincipal()));
+
+        // Act
+        // Assertions
+        webTestClient.get()
+                .uri("/stock-exchange/api/v1/users/1")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer valid-stock-exchange-token")
+                .exchange()
+                .expectStatus().isOk();
+    }
+
+    @Test
+    void stockExchangeEndpoint_ShouldReturnUnauthorized_WhenInvalidStockExchangeTokenProvided() {
+        // Arrange
+        when(stockExchangeTokenIntrospector.introspect(anyString()))
+                .thenReturn(Mono.error(new BadOpaqueTokenException("Token is not active")));
+
+        // Act
+        // Assertions
+        webTestClient.get()
+                .uri("/stock-exchange/api/v1/users/1")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer invalid-stock-exchange-token")
+                .exchange()
+                .expectStatus().isUnauthorized();
+    }
+
+    @Test
+    void stockExchangeAuthEndpoint_ShouldBeAccessible_WhenNoTokenProvided() {
+        // Arrange
+        mockBackendServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("""
+                        {
+                          "token": "eyJhbGciOiJIUzUxMiJ9..."
+                        }
+                        """)
+                .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
+
+        // Act
+        // Assertions
+        webTestClient.post()
+                .uri("/stock-exchange/api/v1/auth/signin")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue("""
+                        {
+                          "username": "admin_user",
+                          "password": "password"
+                        }
+                        """)
+                .exchange()
+                .expectStatus().is2xxSuccessful();
+    }
+
+    @Test
+    void stockExchangeEndpoint_ShouldUseStockExchangeIntrospector_NotKeycloak() {
+        // Arrange - Only mock stockExchange introspector, leave Keycloak unmocked
+        mockBackendServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody("{}")
+                .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
+
+        when(stockExchangeTokenIntrospector.introspect(anyString()))
+                .thenReturn(Mono.just(createPrincipal()));
+
+        // Act
+        // Assertions - Should succeed using stock-exchange introspector, not Keycloak
+        webTestClient.get()
+                .uri("/stock-exchange/api/v1/stocks")
+                .header(HttpHeaders.AUTHORIZATION, "Bearer stock-token")
+                .exchange()
+                .expectStatus().isOk();
+    }
+
+    private OAuth2AuthenticatedPrincipal createPrincipal() {
+        return new OAuth2AuthenticatedPrincipal() {
+            @Override
+            public Map<String, Object> getAttributes() {
+                return Map.of("active", true, "sub", "stock_user");
+            }
+
+            @Override
+            public Collection<? extends GrantedAuthority> getAuthorities() {
+                return List.of();
+            }
+
+            @NonNull
+            @Override
+            public String getName() {
+                return "stock_user";
+            }
+        };
     }
 }

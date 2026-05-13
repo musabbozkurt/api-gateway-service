@@ -14,7 +14,7 @@ public class RestResponseExceptionHandler {
     @ResponseBody
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<ErrorResponse> handleBaseException(BaseException ex) {
-        log.error("BaseException occurred: {}", ex.getErrorCode(), ex);
+        log.debug("BaseException occurred: {}", ex.getErrorCode(), ex);
         return new ResponseEntity<>(new ErrorResponse(ex.getErrorCode().getCode(), ex.getMessage()), ex.getErrorCode().getHttpStatus());
     }
 

@@ -38,6 +38,10 @@ eureka:
 secure-service:
   introspection-uri: https://secure-service:8443/oauth/check_token
 
+stock-exchange-service:
+  introspection-uri: http://localhost:8080/api/v1/auth/introspect
+  path-prefix: /stock-exchange
+
 gateway-service:
   client-id: test-client-id
   client-secret: test-client-secret

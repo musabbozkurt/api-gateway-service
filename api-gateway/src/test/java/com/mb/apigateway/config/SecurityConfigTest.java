@@ -25,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
+import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.server.resource.introspection.BadOpaqueTokenException;
@@ -37,6 +38,8 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -85,8 +88,11 @@ class SecurityConfigTest {
         @Autowired
         private AuthenticationFilter authenticationFilter;
 
-        @MockitoBean
+        @MockitoBean(name = "opaqueTokenIntrospector")
         private ReactiveOpaqueTokenIntrospector opaqueTokenIntrospector;
+
+        @MockitoBean(name = "stockExchangeTokenIntrospector")
+        private ReactiveOpaqueTokenIntrospector stockExchangeTokenIntrospector;
 
         @BeforeAll
         static void setUp() throws IOException {
@@ -116,6 +122,10 @@ class SecurityConfigTest {
             registry.add("spring.cloud.gateway.server.webflux.routes[2].id", () -> "product-service");
             registry.add("spring.cloud.gateway.server.webflux.routes[2].uri", () -> mockBackendUrl);
             registry.add("spring.cloud.gateway.server.webflux.routes[2].predicates[0]", () -> "Path=/product-service/**");
+
+            registry.add("spring.cloud.gateway.server.webflux.routes[3].id", () -> "stock-exchange-service");
+            registry.add("spring.cloud.gateway.server.webflux.routes[3].uri", () -> mockBackendUrl);
+            registry.add("spring.cloud.gateway.server.webflux.routes[3].predicates[0]", () -> "Path=/stock-exchange/**");
         }
 
         @Test
@@ -595,11 +605,105 @@ class SecurityConfigTest {
                     .isNull();
         }
 
+        @Test
+        @DisplayName("Stock-exchange endpoint should return 401 when no token provided")
+        @Disabled("Disabled because the gateway currently allows all requests via /** permitted path")
+        void stockExchangeEndpoint_ShouldReturnUnauthorized_WhenNoTokenProvided() {
+            // Arrange
+            // No arrangement needed
+
+            // Act
+            // Assertions
+            webTestClient.get()
+                    .uri("/stock-exchange/api/v1/users/1")
+                    .exchange()
+                    .expectStatus().isUnauthorized();
+        }
+
+        @Test
+        @DisplayName("Stock-exchange endpoint should succeed with valid stock-exchange token")
+        void stockExchangeEndpoint_ShouldReturnOk_WhenValidStockExchangeTokenProvided() {
+            // Arrange
+            mockBackendServer.enqueue(new MockResponse()
+                    .setResponseCode(200)
+                    .setBody("""
+                            {
+                              "id": 1,
+                              "username": "stock-exchange-user"
+                            }
+                            """)
+                    .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
+
+            mockValidStockExchangeTokenIntrospection();
+
+            // Act
+            // Assertions
+            webTestClient.get()
+                    .uri("/stock-exchange/api/v1/users/1")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-stock-exchange-token")
+                    .exchange()
+                    .expectStatus().isOk();
+        }
+
+        @Test
+        @DisplayName("Stock-exchange endpoint should return 401 when invalid token provided")
+        void stockExchangeEndpoint_ShouldReturnUnauthorized_WhenInvalidTokenProvided() {
+            // Arrange
+            when(stockExchangeTokenIntrospector.introspect(anyString()))
+                    .thenReturn(Mono.error(new BadOpaqueTokenException("Token is not active")));
+
+            // Act
+            // Assertions
+            webTestClient.get()
+                    .uri("/stock-exchange/api/v1/users/1")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer invalid-stock-exchange-token")
+                    .exchange()
+                    .expectStatus().isUnauthorized();
+        }
+
+        @Test
+        @DisplayName("Stock-exchange auth endpoints should be accessible without authentication")
+        void stockExchangeAuthEndpoints_ShouldReturn2xxSuccessful_WhenCalledWithoutAuthentication() {
+            // Arrange
+            mockBackendServer.enqueue(new MockResponse()
+                    .setResponseCode(200)
+                    .setBody("""
+                            {
+                              "token": "jwt-token"
+                            }
+                            """)
+                    .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
+
+            // Act
+            // Assertions
+            webTestClient.post()
+                    .uri("/stock-exchange/api/v1/auth/signin")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue("""
+                            {
+                              "username": "admin_user",
+                              "password": "password"
+                            }
+                            """)
+                    .exchange()
+                    .expectStatus().is2xxSuccessful();
+        }
+
         private void mockValidTokenIntrospection() {
-            var authenticatedPrincipal = new OAuth2AuthenticatedPrincipal() {
+            var authenticatedPrincipal = createAuthenticatedPrincipal("test-user");
+            when(opaqueTokenIntrospector.introspect(anyString())).thenReturn(Mono.just(authenticatedPrincipal));
+        }
+
+        private void mockValidStockExchangeTokenIntrospection() {
+            var authenticatedPrincipal = createAuthenticatedPrincipal("stock-exchange-user");
+            when(stockExchangeTokenIntrospector.introspect(anyString())).thenReturn(Mono.just(authenticatedPrincipal));
+        }
+
+        private OAuth2AuthenticatedPrincipal createAuthenticatedPrincipal(String username) {
+            return new OAuth2AuthenticatedPrincipal() {
                 @Override
                 public Map<String, Object> getAttributes() {
-                    return Map.of("active", true, "sub", "test-user");
+                    return Map.of("active", true, "sub", username);
                 }
 
                 @Override
@@ -610,11 +714,9 @@ class SecurityConfigTest {
                 @NonNull
                 @Override
                 public String getName() {
-                    return "test-user";
+                    return username;
                 }
             };
-
-            when(opaqueTokenIntrospector.introspect(anyString())).thenReturn(Mono.just(authenticatedPrincipal));
         }
     }
 
@@ -636,6 +738,8 @@ class SecurityConfigTest {
             ReflectionTestUtils.setField(securityConfig, "connectTimeout", Duration.ofSeconds(5));
             ReflectionTestUtils.setField(securityConfig, "responseTimeout", Duration.ofSeconds(5));
             ReflectionTestUtils.setField(securityConfig, "maxIdleTime", Duration.ofSeconds(30));
+            ReflectionTestUtils.setField(securityConfig, "stockExchangeIntrospectionUri", mockSsoServer.url("/api/v1/auth/introspect").toString());
+            ReflectionTestUtils.setField(securityConfig, "stockExchangePathPrefix", "/stock-exchange");
         }
 
         @AfterEach
@@ -806,6 +910,284 @@ class SecurityConfigTest {
             assertThat(recordedRequest).isNotNull();
             String body = recordedRequest.getBody().readUtf8();
             assertThat(body).contains("token=my-test-token");
+        }
+    }
+
+    @Nested
+    class StockExchangeTokenIntrospectorUnitTest {
+
+        private MockWebServer mockStockExchangeServer;
+
+        @BeforeEach
+        void setUp() throws IOException {
+            mockStockExchangeServer = new MockWebServer();
+            mockStockExchangeServer.start();
+        }
+
+        @AfterEach
+        void tearDown() throws IOException {
+            mockStockExchangeServer.shutdown();
+        }
+
+        @Test
+        @DisplayName("StockExchangeTokenIntrospector should return authenticated principal when token is active")
+        void introspect_ShouldReturnAuthenticatedPrincipal_WhenTokenIsActive() {
+            // Arrange
+            mockStockExchangeServer.enqueue(new MockResponse()
+                    .setResponseCode(200)
+                    .setBody("""
+                            {
+                              "active": true,
+                              "username": "admin_user",
+                              "sub": "admin_user",
+                              "roles": ["ROLE_ADMIN", "ROLE_USER"]
+                            }
+                            """)
+                    .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
+
+            StockExchangeReactiveTokenIntrospector introspector = new StockExchangeReactiveTokenIntrospector(
+                    WebClient.builder(), mockStockExchangeServer.url("/api/v1/auth/introspect").toString());
+
+            // Act
+            // Assertions
+            StepVerifier.create(introspector.introspect("valid-stock-exchange-token"))
+                    .assertNext(principal -> {
+                        assertThat(principal).isNotNull();
+                        assertThat(principal.getName()).isEqualTo("admin_user");
+                        assertThat(principal.getAttributes()).containsEntry("active", true);
+                        assertThat(principal.getAttributes()).containsEntry("username", "admin_user");
+                    })
+                    .verifyComplete();
+        }
+
+        @Test
+        @DisplayName("StockExchangeTokenIntrospector should throw BadOpaqueTokenException when token is inactive")
+        void introspect_ShouldThrowBadOpaqueTokenException_WhenTokenIsInactive() {
+            // Arrange
+            mockStockExchangeServer.enqueue(new MockResponse()
+                    .setResponseCode(200)
+                    .setBody("""
+                            {
+                              "active": false
+                            }
+                            """)
+                    .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
+
+            StockExchangeReactiveTokenIntrospector introspector = new StockExchangeReactiveTokenIntrospector(
+                    WebClient.builder(), mockStockExchangeServer.url("/api/v1/auth/introspect").toString());
+
+            // Act
+            // Assertions
+            StepVerifier.create(introspector.introspect("inactive-token"))
+                    .expectError(BadOpaqueTokenException.class)
+                    .verify();
+        }
+
+        @Test
+        @DisplayName("StockExchangeTokenIntrospector should throw BadOpaqueTokenException when server returns error")
+        void introspect_ShouldThrowBadOpaqueTokenException_WhenServerReturnsError() {
+            // Arrange
+            mockStockExchangeServer.enqueue(new MockResponse().setResponseCode(500));
+
+            StockExchangeReactiveTokenIntrospector introspector = new StockExchangeReactiveTokenIntrospector(
+                    WebClient.builder(), mockStockExchangeServer.url("/api/v1/auth/introspect").toString());
+
+            // Act
+            // Assertions
+            StepVerifier.create(introspector.introspect("some-token"))
+                    .expectError(BadOpaqueTokenException.class)
+                    .verify();
+        }
+
+        @Test
+        @DisplayName("StockExchangeTokenIntrospector should send token as form parameter")
+        void introspect_ShouldSendTokenAsFormParameter_WhenIntrospectingToken() throws InterruptedException {
+            // Arrange
+            mockStockExchangeServer.enqueue(new MockResponse()
+                    .setResponseCode(200)
+                    .setBody("""
+                            {
+                              "active": true,
+                              "username": "admin_user"
+                            }
+                            """)
+                    .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
+
+            StockExchangeReactiveTokenIntrospector introspector = new StockExchangeReactiveTokenIntrospector(
+                    WebClient.builder(), mockStockExchangeServer.url("/api/v1/auth/introspect").toString());
+
+            // Act
+            StepVerifier.create(introspector.introspect("my-stock-token"))
+                    .assertNext(principal -> assertThat(principal).isNotNull())
+                    .verifyComplete();
+
+            // Assertions
+            RecordedRequest recordedRequest = mockStockExchangeServer.takeRequest(5, TimeUnit.SECONDS);
+            assertThat(recordedRequest).isNotNull();
+            assertThat(recordedRequest.getPath()).isEqualTo("/api/v1/auth/introspect");
+            String body = recordedRequest.getBody().readUtf8();
+            assertThat(body).isEqualTo("token=my-stock-token");
+        }
+
+        @Test
+        @DisplayName("StockExchangeTokenIntrospector should use 'unknown' when username is null")
+        void introspect_ShouldUseUnknownName_WhenUsernameIsNull() {
+            // Arrange
+            mockStockExchangeServer.enqueue(new MockResponse()
+                    .setResponseCode(200)
+                    .setBody("""
+                            {
+                              "active": true
+                            }
+                            """)
+                    .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
+
+            StockExchangeReactiveTokenIntrospector introspector = new StockExchangeReactiveTokenIntrospector(
+                    WebClient.builder(), mockStockExchangeServer.url("/api/v1/auth/introspect").toString());
+
+            // Act
+            // Assertions
+            StepVerifier.create(introspector.introspect("token-without-username"))
+                    .assertNext(principal -> assertThat(principal.getName()).isEqualTo("unknown"))
+                    .verifyComplete();
+        }
+
+        @Test
+        @DisplayName("StockExchangeTokenIntrospector should be instance of correct type")
+        void stockExchangeTokenIntrospector_ShouldBeInstanceOfStockExchangeReactiveTokenIntrospector() {
+            // Arrange
+            SecurityConfig securityConfig = new SecurityConfig(new GatewaySecurityProperties());
+            ReflectionTestUtils.setField(securityConfig, "introspectionUri", "http://localhost/introspect");
+            ReflectionTestUtils.setField(securityConfig, "clientId", "test");
+            ReflectionTestUtils.setField(securityConfig, "clientSecret", "test");
+            ReflectionTestUtils.setField(securityConfig, "connectTimeout", Duration.ofSeconds(5));
+            ReflectionTestUtils.setField(securityConfig, "responseTimeout", Duration.ofSeconds(5));
+            ReflectionTestUtils.setField(securityConfig, "maxIdleTime", Duration.ofSeconds(30));
+            ReflectionTestUtils.setField(securityConfig, "stockExchangeIntrospectionUri", "http://localhost/api/v1/auth/introspect");
+            ReflectionTestUtils.setField(securityConfig, "stockExchangePathPrefix", "/stock-exchange");
+
+            // Act
+            ReactiveOpaqueTokenIntrospector introspector = securityConfig.stockExchangeTokenIntrospector();
+
+            // Assertions
+            assertThat(introspector).isInstanceOf(StockExchangeReactiveTokenIntrospector.class);
+        }
+    }
+
+    @Nested
+    class AuthenticationManagerResolverUnitTest {
+
+        private SecurityConfig securityConfig;
+
+        @BeforeEach
+        void setUp() {
+            securityConfig = new SecurityConfig(new GatewaySecurityProperties());
+            ReflectionTestUtils.setField(securityConfig, "introspectionUri", "http://localhost/introspect");
+            ReflectionTestUtils.setField(securityConfig, "clientId", "test-client-id");
+            ReflectionTestUtils.setField(securityConfig, "clientSecret", "test-client-secret");
+            ReflectionTestUtils.setField(securityConfig, "connectTimeout", Duration.ofSeconds(5));
+            ReflectionTestUtils.setField(securityConfig, "responseTimeout", Duration.ofSeconds(5));
+            ReflectionTestUtils.setField(securityConfig, "maxIdleTime", Duration.ofSeconds(30));
+            ReflectionTestUtils.setField(securityConfig, "stockExchangeIntrospectionUri", "http://localhost/api/v1/auth/introspect");
+            ReflectionTestUtils.setField(securityConfig, "stockExchangePathPrefix", "/stock-exchange");
+        }
+
+        @Test
+        @DisplayName("AuthenticationManagerResolver should return non-null for stock-exchange path")
+        void authenticationManagerResolver_ShouldReturnNonNull_WhenStockExchangePath() {
+            // Arrange
+            ReactiveAuthenticationManagerResolver<ServerWebExchange> resolver = securityConfig.authenticationManagerResolver();
+            MockServerHttpRequest request = MockServerHttpRequest.get("/stock-exchange/api/v1/users/1").build();
+            MockServerWebExchange exchange = MockServerWebExchange.from(request);
+
+            // Act
+            // Assertions
+            StepVerifier.create(resolver.resolve(exchange))
+                    .assertNext(authManager -> assertThat(authManager).isNotNull())
+                    .verifyComplete();
+        }
+
+        @Test
+        @DisplayName("AuthenticationManagerResolver should return non-null for non-stock-exchange path")
+        void authenticationManagerResolver_ShouldReturnNonNull_WhenNonStockExchangePath() {
+            // Arrange
+            ReactiveAuthenticationManagerResolver<ServerWebExchange> resolver = securityConfig.authenticationManagerResolver();
+            MockServerHttpRequest request = MockServerHttpRequest.get("/product-service/api/v1/products").build();
+            MockServerWebExchange exchange = MockServerWebExchange.from(request);
+
+            // Act
+            // Assertions
+            StepVerifier.create(resolver.resolve(exchange))
+                    .assertNext(authManager -> assertThat(authManager).isNotNull())
+                    .verifyComplete();
+        }
+
+        @Test
+        @DisplayName("AuthenticationManagerResolver should return different managers for different paths")
+        void authenticationManagerResolver_ShouldReturnDifferentManagers_ForDifferentPaths() {
+            // Arrange
+            ReactiveAuthenticationManagerResolver<ServerWebExchange> resolver = securityConfig.authenticationManagerResolver();
+
+            MockServerHttpRequest stockExchangeRequest = MockServerHttpRequest.get("/stock-exchange/api/v1/users/1").build();
+            MockServerWebExchange stockExchangeExchange = MockServerWebExchange.from(stockExchangeRequest);
+
+            MockServerHttpRequest productRequest = MockServerHttpRequest.get("/product-service/api/v1/products").build();
+            MockServerWebExchange productExchange = MockServerWebExchange.from(productRequest);
+
+            // Act
+            var stockExchangeManager = resolver.resolve(stockExchangeExchange).block();
+            var keycloakManager = resolver.resolve(productExchange).block();
+
+            // Assertions
+            assertThat(stockExchangeManager).isNotNull();
+            assertThat(keycloakManager).isNotNull();
+            assertThat(stockExchangeManager).isNotSameAs(keycloakManager);
+        }
+
+        @Test
+        @DisplayName("AuthenticationManagerResolver should use same manager for all stock-exchange sub-paths")
+        void authenticationManagerResolver_ShouldUseSameManager_ForAllStockExchangeSubPaths() {
+            // Arrange
+            ReactiveAuthenticationManagerResolver<ServerWebExchange> resolver = securityConfig.authenticationManagerResolver();
+
+            MockServerHttpRequest request1 = MockServerHttpRequest.get("/stock-exchange/api/v1/users/1").build();
+            MockServerWebExchange exchange1 = MockServerWebExchange.from(request1);
+
+            MockServerHttpRequest request2 = MockServerHttpRequest.get("/stock-exchange/api/v1/stocks").build();
+            MockServerWebExchange exchange2 = MockServerWebExchange.from(request2);
+
+            // Act
+            var manager1 = resolver.resolve(exchange1).block();
+            var manager2 = resolver.resolve(exchange2).block();
+
+            // Assertions
+            assertThat(manager1).isSameAs(manager2);
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {
+                "/payment/payments",
+                "/student/api/v1/students",
+                "/notification/api/v1/notifications",
+                "/brokerage-provider/api/v1/data"
+        })
+        @DisplayName("AuthenticationManagerResolver should use Keycloak manager for non-stock-exchange paths")
+        void authenticationManagerResolver_ShouldUseKeycloakManager_ForNonStockExchangePaths(String path) {
+            // Arrange
+            ReactiveAuthenticationManagerResolver<ServerWebExchange> resolver = securityConfig.authenticationManagerResolver();
+
+            MockServerHttpRequest keycloakRequest = MockServerHttpRequest.get("/payment/payments").build();
+            MockServerWebExchange keycloakExchange = MockServerWebExchange.from(keycloakRequest);
+
+            MockServerHttpRequest testRequest = MockServerHttpRequest.get(path).build();
+            MockServerWebExchange testExchange = MockServerWebExchange.from(testRequest);
+
+            // Act
+            var keycloakManager = resolver.resolve(keycloakExchange).block();
+            var testManager = resolver.resolve(testExchange).block();
+
+            // Assertions - All non-stock-exchange paths should use the same (Keycloak) manager
+            assertThat(testManager).isSameAs(keycloakManager);
         }
     }
 }

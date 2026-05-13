@@ -5,6 +5,7 @@ KAFKA_DEBEZIUM_SERVICE_BASE_URL: lb://kafka-debezium-service
 NOTIFICATION_SERVICE_BASE_URL: lb://notification-service
 OPENAI_SERVICE_BASE_URL: lb://openai-service
 PAYMENT_SERVICE_BASE_URL: lb://payment-service
+STOCK_EXCHANGE_SERVICE_BASE_URL: lb://stock-exchange-service
 STUDENT_SERVICE_BASE_URL: lb://student-service
 SWAGGER_APPLICATION_BASE_URL: lb://swagger-application
 
@@ -83,6 +84,10 @@ spring:
               predicates:
                 - Path=/student/**
               uri: ${STUDENT_SERVICE_BASE_URL}
+            - id: stock-exchange-service
+              predicates:
+                - Path=/stock-exchange/**
+              uri: ${STOCK_EXCHANGE_SERVICE_BASE_URL}
             - id: swagger-application
               predicates:
                 - Path=/swagger/**
@@ -185,6 +190,10 @@ springdoc:
         name: Student Service
         uri: ${STUDENT_SERVICE_BASE_URL}
         server-url: ${BASE_URL}/student
+      - url: /stock-exchange/api-docs
+        name: Stock Exchange Service
+        uri: ${STOCK_EXCHANGE_SERVICE_BASE_URL}
+        server-url: ${BASE_URL}/stock-exchange
       - url: /swagger/api-docs
         name: Swagger Service
         uri: ${SWAGGER_APPLICATION_BASE_URL}
@@ -215,11 +224,15 @@ logging:
       - "multipart/form-data"
 
 secure-service:
-  introspection-uri: ${INTROSPECTION_URI:http://localhost:8081/auth/realms/mb-realm/protocol/openid-connect/token/introspect}
+  introspection-uri: ${INTROSPECTION_URI:http://localhost:9090/realms/${KEYCLOAK_REALM:mb-realm}/protocol/openid-connect/token/introspect}
+
+stock-exchange-service:
+  introspection-uri: ${STOCK_EXCHANGE_INTROSPECTION_URI:lb://stock-exchange-service/api/v1/auth/introspect}
+  path-prefix: /stock-exchange
 
 gateway-service:
-  client-id: ${CLIENT_ID:gateway-service}
-  client-secret: ${CLIENT_SECRET:gateway-secret}
+  client-id: ${CLIENT_ID:api-gateway-client}
+  client-secret: ${CLIENT_SECRET:m5CxL5t54ACk17mDjp0Zje0jBBRsXJuM}
   security:
     permitted-paths:
       - /actuator/health
@@ -239,5 +252,11 @@ gateway-service:
       - /openai/api-docs
       - /payment/api-docs
       - /student/api-docs
+      - /stock-exchange/api-docs
+      - /stock-exchange/api/v1/auth/** # Stock-exchange-service auth endpoints (signin, signup, introspect)
+      - /stock-exchange/swagger-ui/** # Stock-exchange-service Swagger UI
+      - /stock-exchange/swagger-ui.html
+      - /stock-exchange/v3/api-docs/**
+      - /stock-exchange/actuator/**
       - /swagger/api-docs
       - /** # This allows all paths to be accessed without authentication, it will be removed in production
