@@ -18,7 +18,7 @@ public class HCaptchaConfiguration {
         return new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .setPrettyPrinting()
-                .registerTypeAdapter(OffsetDateTime.class, (JsonDeserializer<OffsetDateTime>) (json, type, context) -> OffsetDateTime.parse(json.getAsString()))
+                .registerTypeAdapter(OffsetDateTime.class, (JsonDeserializer<OffsetDateTime>) (json, _, _) -> OffsetDateTime.parse(json.getAsString()))
                 .create();
     }
 
@@ -26,5 +26,4 @@ public class HCaptchaConfiguration {
     public OkHttpClient okHttpClient() {
         return new OkHttpClient();
     }
-
 }

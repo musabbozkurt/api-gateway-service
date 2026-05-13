@@ -10,7 +10,7 @@ import java.util.List;
 @FeignClient(name = "payment-client", url = "${feign.services.payment-client.url}", configuration = PaymentFeignConfig.class)
 public interface PaymentClient {
 
-    @GetMapping(value = "/payments")
+    @GetMapping(value = "/payment/payments")
     List<PaymentResponse> getPayments();
 
 }

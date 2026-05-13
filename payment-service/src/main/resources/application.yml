@@ -1,6 +1,7 @@
 GATEWAY_BASE_URL: ${GATEWAY_BASE_URL_ENV:http://localhost:8080}
-KEYCLOAK_BASE_URL: http://localhost:9090
-PAYMENT_SERVICE_REALM: payment-service
+KEYCLOAK_BASE_URL: ${KEYCLOAK_BASE_URL_ENV:http://localhost:9090}
+KEYCLOAK_EXTERNAL_URL: ${KEYCLOAK_EXTERNAL_URL_ENV:http://localhost:9090} # Browser-accessible Keycloak URL used by Swagger UI OAuth flows (must be reachable from the user's browser, not the Docker internal network)
+KEYCLOAK_REALM: ${KEYCLOAK_REALM_ENV:mb-realm}
 
 spring:
   application:
@@ -40,14 +41,13 @@ spring:
     oauth2:
       resource-server:
         jwt:
-          issuer-uri: ${KEYCLOAK_BASE_URL}/realms/${PAYMENT_SERVICE_REALM}
-          jwk-set-uri: ${spring.security.oauth2.resource-server.jwt.issuer-uri}/protocol/openid-connect/certs
+          issuer-uri: ${KEYCLOAK_EXTERNAL_URL}/realms/${KEYCLOAK_REALM} # Must match JWT "iss" claim (browser-issued tokens use external URL)
+          jwk-set-uri: ${KEYCLOAK_BASE_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/certs # Must be reachable from the service (Docker internal URL)
 
 jwt:
   auth:
     converter:
-      resource-id: payment-service
-      principle-attribute: payment-service
+      principle-attribute: api-gateway-client
 
 server:
   port: 8083

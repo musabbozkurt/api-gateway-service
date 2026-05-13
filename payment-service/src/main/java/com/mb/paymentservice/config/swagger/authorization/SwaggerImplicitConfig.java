@@ -43,7 +43,7 @@ public class SwaggerImplicitConfig {
 
     private OAuthFlow createImplicitFlow(KeycloakProperties properties) {
         return new OAuthFlow()
-                .authorizationUrl(String.format(AUTH_URL_FORMAT, properties.getAuthServerUrl(), properties.getRealm()))
+                .authorizationUrl(String.format(AUTH_URL_FORMAT, properties.getExternalUrl(), properties.getRealm()))
                 .scopes(new Scopes());
     }
 }

@@ -19,7 +19,7 @@ public class InMemoryPaymentTokenStoreService implements TokenStoreService {
 
     @Override
     public String getPaymentToken() {
-        String keycloakAccessToken = keycloakService.getAccessToken("payment-service-user", "test");
+        String keycloakAccessToken = keycloakService.getAccessToken("developer", "admin");
         if (StringUtils.isNotEmpty(keycloakAccessToken)) {
             return keycloakAccessToken;
         }

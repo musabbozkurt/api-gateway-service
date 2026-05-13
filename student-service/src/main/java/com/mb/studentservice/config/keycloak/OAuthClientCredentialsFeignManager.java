@@ -1,6 +1,8 @@
 package com.mb.studentservice.config.keycloak;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
@@ -29,7 +31,7 @@ public class OAuthClientCredentialsFeignManager {
     private Authentication createPrincipal() {
         return new Authentication() {
             @Override
-            public Collection<? extends GrantedAuthority> getAuthorities() {
+            public @NonNull Collection<? extends GrantedAuthority> getAuthorities() {
                 return Collections.emptySet();
             }
 
@@ -55,6 +57,7 @@ public class OAuthClientCredentialsFeignManager {
 
             @Override
             public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
+                // This is not used
             }
 
             @Override
@@ -76,7 +79,7 @@ public class OAuthClientCredentialsFeignManager {
             }
             return client.getAccessToken().getTokenValue();
         } catch (Exception exp) {
-            log.error("client credentials error " + exp.getMessage());
+            log.error("Error occurred while fetching access token. Exception: {}", ExceptionUtils.getStackTrace(exp));
         }
         return null;
     }

@@ -21,5 +21,4 @@ public class KeycloakClientConfig {
     public Logger keycloakClientLogger() {
         return new Slf4jLogger(KeycloakClientConfig.class);
     }
-
 }
