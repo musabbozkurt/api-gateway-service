@@ -39,12 +39,17 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          # Need at least 2 commits to compare HEAD with its parent
           fetch-depth: 2
+      - name: Resolve base ref
+        id: base
+        # Resolve HEAD~1 to an actual SHA — dorny/paths-filter cannot use relative refs like HEAD~1 directly
+        run: echo "sha=$(git rev-parse HEAD~1)" >> "$GITHUB_OUTPUT"
       - uses: dorny/paths-filter@v3
         id: filter
         with:
-          # Compare against the parent commit so only changes in the latest commit trigger builds
-          base: HEAD~1
+          # Compare only the latest commit (not the entire PR) to detect which services changed
+          base: ${{ steps.base.outputs.sha }}
           filters: |
             api-gateway:
               - 'api-gateway/**'
