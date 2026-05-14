@@ -53,8 +53,11 @@ class RateLimiterIntegrationTest {
     private static final RedisContainer redis = new RedisContainer("redis:8.6.1")
             .withExposedPorts(6379);
 
-    @MockitoBean
+    @MockitoBean(name = "opaqueTokenIntrospector")
     private ReactiveOpaqueTokenIntrospector opaqueTokenIntrospector;
+
+    @MockitoBean(name = "stockExchangeTokenIntrospector")
+    private ReactiveOpaqueTokenIntrospector stockExchangeTokenIntrospector;
 
     private MockServerClient mockServerClient;
 
@@ -79,7 +82,7 @@ class RateLimiterIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        when(opaqueTokenIntrospector.introspect(anyString())).thenReturn(Mono.just(new OAuth2AuthenticatedPrincipal() {
+        OAuth2AuthenticatedPrincipal principal = new OAuth2AuthenticatedPrincipal() {
             @Override
             public Map<String, Object> getAttributes() {
                 return Map.of("active", true, "sub", "rate-limiter-test-user");
@@ -95,7 +98,10 @@ class RateLimiterIntegrationTest {
             public String getName() {
                 return "rate-limiter-test-user";
             }
-        }));
+        };
+
+        when(opaqueTokenIntrospector.introspect(anyString())).thenReturn(Mono.just(principal));
+        when(stockExchangeTokenIntrospector.introspect(anyString())).thenReturn(Mono.just(principal));
 
         // Close previous instance if exists
         if (mockServerClient != null) {

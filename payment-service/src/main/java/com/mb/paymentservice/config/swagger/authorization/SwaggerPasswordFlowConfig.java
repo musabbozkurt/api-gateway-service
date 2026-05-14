@@ -43,7 +43,7 @@ public class SwaggerPasswordFlowConfig {
 
     private OAuthFlow createPasswordFlow(KeycloakProperties properties) {
         return new OAuthFlow()
-                .tokenUrl(String.format(TOKEN_URL_FORMAT, properties.getAuthServerUrl(), properties.getRealm()))
+                .tokenUrl(String.format(TOKEN_URL_FORMAT, properties.getExternalUrl(), properties.getRealm()))
                 .scopes(new Scopes());
     }
 }

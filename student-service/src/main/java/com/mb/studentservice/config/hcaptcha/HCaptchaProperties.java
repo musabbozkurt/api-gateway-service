@@ -15,5 +15,4 @@ public class HCaptchaProperties {
     private String siteKey;
     private String remoteIp;
     private float riskScoreThreshold;
-
 }

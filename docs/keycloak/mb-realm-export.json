@@ -1,6 +1,6 @@
 {
   "id": "045fe410-a36e-4ba6-bc3e-e20977716556",
-  "realm": "payment-service",
+  "realm": "mb-realm",
   "notBefore": 0,
   "defaultSignatureAlgorithm": "RS256",
   "revokeRefreshToken": false,
@@ -61,7 +61,7 @@
         "composite": true,
         "composites": {
           "client": {
-            "payment-service": [
+            "api-gateway-client": [
               "client_admin"
             ]
           }
@@ -72,7 +72,7 @@
       },
       {
         "id": "bdea7f62-8bdc-4f40-88b0-976dd42ae0fb",
-        "name": "default-roles-payment-service",
+        "name": "default-roles-mb-realm",
         "description": "${role_default-roles}",
         "composite": true,
         "composites": {
@@ -107,7 +107,7 @@
         "composite": true,
         "composites": {
           "client": {
-            "payment-service": [
+            "api-gateway-client": [
               "client_user"
             ]
           }
@@ -330,7 +330,7 @@
           "attributes": {}
         }
       ],
-      "payment-service": [
+      "api-gateway-client": [
         {
           "id": "6e365a0a-2b87-4054-b36c-02a575d2e158",
           "name": "uma_protection",
@@ -465,7 +465,7 @@
   "groups": [],
   "defaultRole": {
     "id": "bdea7f62-8bdc-4f40-88b0-976dd42ae0fb",
-    "name": "default-roles-payment-service",
+    "name": "default-roles-mb-realm",
     "description": "${role_default-roles}",
     "composite": true,
     "clientRole": false,
@@ -515,20 +515,54 @@
   "webAuthnPolicyPasswordlessExtraOrigins": [],
   "users": [
     {
-      "id": "ef506d4b-6f95-46e7-9e54-d613fa33b5fb",
-      "createdTimestamp": 1706445311166,
-      "username": "service-account-payment-service",
+      "id": "3c751c7c-4335-4f57-a66c-e2e19558c47a",
+      "createdTimestamp": 1706445400000,
+      "username": "developer",
       "enabled": true,
       "totp": false,
       "emailVerified": false,
-      "serviceAccountClientId": "payment-service",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin",
+          "temporary": false
+        }
+      ],
       "disableableCredentialTypes": [],
       "requiredActions": [],
       "realmRoles": [
-        "default-roles-payment-service"
+        "default-roles-mb-realm",
+        "offline_access",
+        "uma_authorization"
       ],
       "clientRoles": {
-        "payment-service": [
+        "api-gateway-client": [
+          "client_admin"
+        ],
+        "account": [
+          "manage-account",
+          "manage-account-links",
+          "view-profile"
+        ]
+      },
+      "notBefore": 0,
+      "groups": []
+    },
+    {
+      "id": "ef506d4b-6f95-46e7-9e54-d613fa33b5fb",
+      "createdTimestamp": 1706445311166,
+      "username": "service-account-api-gateway-client",
+      "enabled": true,
+      "totp": false,
+      "emailVerified": false,
+      "serviceAccountClientId": "api-gateway-client",
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "default-roles-mb-realm"
+      ],
+      "clientRoles": {
+        "api-gateway-client": [
           "uma_protection"
         ]
       },
@@ -561,13 +595,13 @@
       "clientId": "account",
       "name": "${client_account}",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/payment-service/account/",
+      "baseUrl": "/realms/mb-realm/account/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/realms/payment-service/account/*"
+        "/realms/mb-realm/account/*"
       ],
       "webOrigins": [],
       "notBefore": 0,
@@ -605,13 +639,13 @@
       "clientId": "account-console",
       "name": "${client_account-console}",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/payment-service/account/",
+      "baseUrl": "/realms/mb-realm/account/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/realms/payment-service/account/*"
+        "/realms/mb-realm/account/*"
       ],
       "webOrigins": [],
       "notBefore": 0,
@@ -733,7 +767,7 @@
     },
     {
       "id": "45eb297e-54a6-46af-80c9-68c271113053",
-      "clientId": "payment-service",
+      "clientId": "api-gateway-client",
       "name": "",
       "description": "",
       "rootUrl": "http://localhost:8083",
@@ -743,7 +777,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "m5CxL5t54ACk17mDjp0Zje0jBBRsXJuM",
       "redirectUris": [
         "http://localhost:8083/*"
       ],
@@ -877,13 +911,13 @@
       "clientId": "security-admin-console",
       "name": "${client_security-admin-console}",
       "rootUrl": "${authAdminUrl}",
-      "baseUrl": "/admin/payment-service/console/",
+      "baseUrl": "/admin/mb-realm/console/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/admin/payment-service/console/*"
+        "/admin/mb-realm/console/*"
       ],
       "webOrigins": [
         "+"

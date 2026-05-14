@@ -18,14 +18,16 @@ public class SpringValidationWebExceptionMessageBuilder {
 
         try {
             code = ConstraintViolations.getErrorCode(error.unwrap(ConstraintViolation.class));
-        } catch (Exception ignored) {
+        } catch (Exception _) {
+            // ignore
         }
 
         if (code == null) {
             try {
                 TypeMismatchException mismatchException = error.unwrap(TypeMismatchException.class);
                 code = getErrorCode(mismatchException);
-            } catch (Exception ignored) {
+            } catch (Exception _) {
+                // ignore
             }
         }
 
@@ -41,10 +43,10 @@ public class SpringValidationWebExceptionMessageBuilder {
         try {
             ConstraintViolation<?> violation = (ConstraintViolation) error.unwrap(ConstraintViolation.class);
             return ConstraintViolations.getArguments(violation);
-        } catch (Exception ex) {
+        } catch (Exception _) {
             try {
                 return getArguments(error.unwrap(TypeMismatchException.class));
-            } catch (Exception exception) {
+            } catch (Exception _) {
                 return Collections.emptyList();
             }
         }
@@ -67,6 +69,6 @@ public class SpringValidationWebExceptionMessageBuilder {
     }
 
     private String getPropertyName(TypeMismatchException mismatchException) {
-        return mismatchException instanceof MethodArgumentTypeMismatchException ? ((MethodArgumentTypeMismatchException) mismatchException).getName() : mismatchException.getPropertyName();
+        return mismatchException instanceof MethodArgumentTypeMismatchException methodArgumentTypeMismatchException ? methodArgumentTypeMismatchException.getName() : mismatchException.getPropertyName();
     }
 }

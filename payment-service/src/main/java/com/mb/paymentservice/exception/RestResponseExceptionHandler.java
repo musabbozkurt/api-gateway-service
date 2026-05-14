@@ -62,14 +62,14 @@ public class RestResponseExceptionHandler {
 
     @ResponseBody
     @ExceptionHandler(PaymentServiceException.class)
-    public ResponseEntity<? extends LocalizedErrorResponse> handleTypeMismatchException(PaymentServiceException ex) {
+    public ResponseEntity<LocalizedErrorResponse> handleTypeMismatchException(PaymentServiceException ex) {
         log.error("PaymentServiceException occurred. handleTypeMismatchException - ex: {}.", ExceptionUtils.getStackTrace(ex));
         return new ResponseEntity<>(new LocalizedErrorResponse(ex.getErrorCode().name(), ex.getMessage()), ex.getErrorCode().getHttpStatus());
     }
 
     @ResponseBody
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<? extends LocalizedErrorResponse> handleConstraintViolationException(ConstraintViolationException ex) {
+    public ResponseEntity<LocalizedErrorResponse> handleConstraintViolationException(ConstraintViolationException ex) {
         log.error("ConstraintViolationException occurred. handleConstraintViolationException - ex: {}.", ExceptionUtils.getStackTrace(ex));
 
         HttpStatus httpStatus = HttpStatus.NOT_ACCEPTABLE;
@@ -86,7 +86,7 @@ public class RestResponseExceptionHandler {
 
     @ResponseBody
     @ExceptionHandler(ConversionFailedException.class)
-    public ResponseEntity<? extends LocalizedErrorResponse> handleConversionFailedException(ConversionFailedException ex) {
+    public ResponseEntity<LocalizedErrorResponse> handleConversionFailedException(ConversionFailedException ex) {
         log.error("ConversionFailedException occurred. handleConversionFailedException - ex: {}.", ExceptionUtils.getStackTrace(ex));
 
         String errorCode = ErrorCode.CONVERSION_FAILED.name();
@@ -102,7 +102,7 @@ public class RestResponseExceptionHandler {
             MissingRequestCookieException.class,
             MissingMatrixVariableException.class
     })
-    public ResponseEntity<? extends LocalizedErrorResponse> handleMissingRequestParametersException(Throwable ex) {
+    public ResponseEntity<LocalizedErrorResponse> handleMissingRequestParametersException(Throwable ex) {
         log.error("{} occurred. handleMissingRequestParametersException - ex: {}.", ex.getClass().getSimpleName(), ExceptionUtils.getStackTrace(ex));
 
         List<Argument> arguments = new ArrayList<>();
@@ -137,7 +137,7 @@ public class RestResponseExceptionHandler {
 
     @ResponseBody
     @ExceptionHandler(MultipartException.class)
-    public ResponseEntity<? extends LocalizedErrorResponse> handleMissingMatrixVariableException(MultipartException ex) {
+    public ResponseEntity<LocalizedErrorResponse> handleMissingMatrixVariableException(MultipartException ex) {
         log.error("MultipartException occurred. handleMissingMatrixVariableException - ex: {}.", ExceptionUtils.getStackTrace(ex));
 
         String errorCode = ErrorCode.MULTIPART_EXPECTED.name();
@@ -155,7 +155,7 @@ public class RestResponseExceptionHandler {
 
     @ResponseBody
     @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<? extends LocalizedErrorResponse> handleResponseStatusException(Throwable ex) {
+    public ResponseEntity<LocalizedErrorResponse> handleResponseStatusException(Throwable ex) {
         log.error("{} occurred. handleMissingRequestParametersException - ex: {}.", ex.getClass().getSimpleName(), ExceptionUtils.getStackTrace(ex));
 
         List<Argument> args = null;
@@ -213,17 +213,20 @@ public class RestResponseExceptionHandler {
 
     @ResponseBody
     @ExceptionHandler(WebExchangeBindException.class)
-    public ResponseEntity<? extends LocalizedErrorResponse> handleWebExchangeBindException(WebExchangeBindException ex) {
+    public ResponseEntity<LocalizedErrorResponse> handleWebExchangeBindException(WebExchangeBindException ex) {
         log.error("{} occurred. handleWebExchangeBindException - ex: {}.", ex.getClass().getSimpleName(), ExceptionUtils.getStackTrace(ex));
 
         String errorCode = ErrorCode.VALIDATION_ERROR.name();
         HttpStatus httpStatus = ErrorCode.VALIDATION_ERROR.getHttpStatus();
         BindingResult bindingResult = ex.getBindingResult();
-        List<ValidationErrorDetail.ValidationError> errors = bindingResult.getFieldErrors().stream().map(error -> {
-            ErrorMessage errorMessage = messageBuilder.errorMessage(error, error.getDefaultMessage());
-            templateParser.interpolate(errorMessage);
-            return new ValidationErrorDetail.ValidationError(error.getField(), error.getRejectedValue(), error.getDefaultMessage(), errorMessage.errorCode());
-        }).collect(Collectors.toList());
+        List<ValidationErrorDetail.ValidationError> errors = bindingResult.getFieldErrors()
+                .stream()
+                .map(error -> {
+                    ErrorMessage errorMessage = messageBuilder.errorMessage(error, error.getDefaultMessage());
+                    templateParser.interpolate(errorMessage);
+                    return new ValidationErrorDetail.ValidationError(error.getField(), error.getRejectedValue(), error.getDefaultMessage(), errorMessage.errorCode());
+                })
+                .toList();
         ErrorMessage errorMessage = new ErrorMessage(errorCode, List.of(new Argument("size", errors.size())), String.format("Validation failed for object='%s'. Error count: %s", bindingResult.getObjectName(), errors.size()));
         String formattedMessage = templateParser.interpolate(errorMessage);
 
@@ -232,7 +235,7 @@ public class RestResponseExceptionHandler {
 
     @ResponseBody
     @ExceptionHandler(TypeMismatchException.class)
-    public ResponseEntity<? extends LocalizedErrorResponse> handleTypeMismatchException(TypeMismatchException ex) {
+    public ResponseEntity<LocalizedErrorResponse> handleTypeMismatchException(TypeMismatchException ex) {
         log.error("TypeMismatchException occurred. handleTypeMismatchException - ex: {}.", ExceptionUtils.getStackTrace(ex));
 
         List<Argument> arguments = messageBuilder.getArguments(ex);
@@ -251,7 +254,7 @@ public class RestResponseExceptionHandler {
             MissingServletRequestPartException.class,
             NoHandlerFoundException.class
     })
-    public ResponseEntity<? extends LocalizedErrorResponse> handleServletWebException(Throwable ex) {
+    public ResponseEntity<LocalizedErrorResponse> handleServletWebException(Throwable ex) {
         log.error("{} occurred. handleServletWebException - ex: {}.", ex.getClass().getSimpleName(), ExceptionUtils.getStackTrace(ex));
 
         ErrorCode errorCode = ErrorCode.UNKNOWN_ERROR;

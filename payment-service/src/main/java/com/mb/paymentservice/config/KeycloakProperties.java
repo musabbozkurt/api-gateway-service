@@ -11,6 +11,9 @@ public class KeycloakProperties {
     @Value("${KEYCLOAK_BASE_URL}")
     private String authServerUrl;
 
-    @Value("${PAYMENT_SERVICE_REALM}")
+    @Value("${KEYCLOAK_EXTERNAL_URL}")
+    private String externalUrl;
+
+    @Value("${KEYCLOAK_REALM}")
     private String realm;
 }

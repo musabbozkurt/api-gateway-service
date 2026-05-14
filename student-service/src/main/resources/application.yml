@@ -1,7 +1,7 @@
 GATEWAY_BASE_URL: ${GATEWAY_BASE_URL_ENV:http://localhost:8080}
-PAYMENT_SERVICE_KEYCLOAK_BASE_URL: ${KEYCLOAK_BASE_URL:http://localhost:9090}/realms/${PAYMENT_REALM:payment-service}/protocol/openid-connect
-PAYMENT_CLIENT_ID: payment-service
-PAYMENT_CLIENT_SECRET: ${PAYMENT_CLIENT_SECRET_ENV}
+KEYCLOAK_OPENID_URL: ${KEYCLOAK_BASE_URL:http://localhost:9090}/realms/${KEYCLOAK_REALM:mb-realm}/protocol/openid-connect
+KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID_ENV:api-gateway-client}
+KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET_ENV}
 
 spring:
   application:
@@ -77,14 +77,14 @@ spring:
       client:
         provider:
           keycloak:
-            token-uri: ${PAYMENT_SERVICE_KEYCLOAK_BASE_URL}/token
-            client-id: ${PAYMENT_CLIENT_ID}
-            client-secret: ${PAYMENT_CLIENT_SECRET}
+            token-uri: ${KEYCLOAK_OPENID_URL}/token
+            client-id: ${KEYCLOAK_CLIENT_ID}
+            client-secret: ${KEYCLOAK_CLIENT_SECRET}
             authorization-grant-type: client_credentials
-            client-registration-id: ${PAYMENT_CLIENT_ID}
+            client-registration-id: ${KEYCLOAK_CLIENT_ID}
       resource-server:
         jwt:
-          issuer-uri: ${PAYMENT_SERVICE_KEYCLOAK_BASE_URL}/realms/${PAYMENT_SERVICE_REALM:${PAYMENT_CLIENT_ID}}
+          issuer-uri: ${KEYCLOAK_BASE_URL:http://localhost:9090}/realms/${KEYCLOAK_REALM:mb-realm}
           jwk-set-uri: ${spring.security.oauth2.resource-server.jwt.issuer-uri}/protocol/openid-connect/certs
 
 server:
@@ -105,10 +105,6 @@ feign:
 
     payment-client:
       url: ${GATEWAY_BASE_URL}
-      token-uri: ${PAYMENT_SERVICE_KEYCLOAK_BASE_URL}/token
-      client-id: ${PAYMENT_CLIENT_ID}
-      client-secret: ${PAYMENT_CLIENT_SECRET}
-      authorization-grant-type: client_credentials
 
     hcaptcha: # https://docs.hcaptcha.com/#integration-testing-test-keys
       url: ${HCAPTCHA_URL:https://hcaptcha.com}
@@ -119,15 +115,15 @@ feign:
       risk-score-threshold: ${HCAPTCHA_RISK_SCORE_THRESHOLD:0.8}
 
 keycloak:
-  client-id: ${PAYMENT_CLIENT_ID}
-  client-secret: ${PAYMENT_CLIENT_SECRET}
+  client-id: ${KEYCLOAK_CLIENT_ID}
+  client-secret: ${KEYCLOAK_CLIENT_SECRET}
   scope: profile
   authorization-grant-type: password
-  authorization-uri: ${PAYMENT_SERVICE_KEYCLOAK_BASE_URL}/auth
-  user-info-uri: ${PAYMENT_SERVICE_KEYCLOAK_BASE_URL}/userinfo
-  token-uri: ${PAYMENT_SERVICE_KEYCLOAK_BASE_URL}/token
-  logout-uri: ${PAYMENT_SERVICE_KEYCLOAK_BASE_URL}/logout
-  jwk-set-uri: ${PAYMENT_SERVICE_KEYCLOAK_BASE_URL}/certs
+  authorization-uri: ${KEYCLOAK_OPENID_URL}/auth
+  user-info-uri: ${KEYCLOAK_OPENID_URL}/userinfo
+  token-uri: ${KEYCLOAK_OPENID_URL}/token
+  logout-uri: ${KEYCLOAK_OPENID_URL}/logout
+  jwk-set-uri: ${KEYCLOAK_OPENID_URL}/certs
   certs-id: vdaec4Br3ZnRFtZN-pimK9v1eGd3gL2MHu8rQ6M5SiE
 
 eureka:

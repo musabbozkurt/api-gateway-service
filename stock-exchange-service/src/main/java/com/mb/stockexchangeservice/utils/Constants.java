@@ -1,0 +1,14 @@
+package com.mb.stockexchangeservice.utils;
+
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+/**
+ * Collected constants of general utility. All members of this class are immutable.
+ */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class Constants {
+
+    public static final String DEFAULT_ID_GENERATOR_NAME = "default_sequence_generator";
+    public static final String EVENT_TYPE_HEADER_KEY = "eventType";
+}

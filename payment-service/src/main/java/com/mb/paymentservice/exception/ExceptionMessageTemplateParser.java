@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -59,19 +58,18 @@ public final class ExceptionMessageTemplateParser {
 
     private Object extractValue(String placeholder, List<Argument> arguments) {
         String variable = this.getPlaceholderVariable(placeholder);
-        Optional<Argument> argument = arguments.stream()
-                .filter(a -> a.name().equals(variable))
-                .findFirst();
-        if (argument.isPresent()) {
-            return argument.map(this::argumentValue).get();
-        } else {
-            try {
-                int index = Integer.parseInt(variable);
-                return this.argumentValue(arguments.get(index));
-            } catch (Exception _) {
-                return null;
-            }
-        }
+        return arguments.stream()
+                .filter(argument -> argument.name().equals(variable))
+                .findFirst()
+                .map(this::argumentValue)
+                .orElseGet(() -> {
+                    try {
+                        int index = Integer.parseInt(variable);
+                        return this.argumentValue(arguments.get(index));
+                    } catch (Exception _) {
+                        return null;
+                    }
+                });
     }
 
     private String getPlaceholderVariable(String placeholder) {

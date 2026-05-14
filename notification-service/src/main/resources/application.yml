@@ -65,7 +65,7 @@ spring:
     oauth2:
       resource-server:
         jwt:
-          issuer-uri: ${KEYCLOAK_BASE_URL:http://localhost:9090}/realms/${NOTIFICATION_SERVICE_REALM:notification-service}
+          issuer-uri: ${KEYCLOAK_BASE_URL:http://localhost:9090}/realms/${KEYCLOAK_REALM:mb-realm}
           jwk-set-uri: ${spring.security.oauth2.resource-server.jwt.issuer-uri}/protocol/openid-connect/certs
 
 server:

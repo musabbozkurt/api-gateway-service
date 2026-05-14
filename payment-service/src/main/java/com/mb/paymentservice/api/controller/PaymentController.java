@@ -27,19 +27,19 @@ public class PaymentController {
     private final PaymentMapper paymentMapper;
 
     @PostMapping
-    @PreAuthorize("hasRole('client_user') || hasRole('client_admin')")
+    @PreAuthorize("hasRole('client_user') || hasRole('client_admin') || hasRole('default-roles-mb-realm')")
     public PaymentResponse createPayment(@RequestBody PaymentRequest paymentRequest) {
         return paymentMapper.map(paymentService.createPayment(paymentMapper.map(paymentRequest)));
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('client_admin')")
+    @PreAuthorize("hasRole('client_admin') || hasRole('default-roles-mb-realm')")
     public PaymentResponse getPaymentById(@PathVariable Long id) {
         return paymentMapper.map(paymentService.getPaymentById(id));
     }
 
     @GetMapping
-    @RolesAllowed({"ROLE_client_user", "ROLE_client_admin"})
+    @RolesAllowed({"client_user", "client_admin", "default-roles-mb-realm"})
     public List<PaymentResponse> getPaymentList() {
         return paymentMapper.map(paymentService.getPaymentList());
     }

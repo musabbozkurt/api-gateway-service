@@ -23,6 +23,8 @@ import java.util.Base64;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class EntityIdUtils {
 
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+
     private static final String SECRET_KEY = "YsrBlfW5zR5eaRQT";
     private static final String AES_ALGORITHM = "AES";
     private static final String AES_GCM_NO_PADDING = "AES/GCM/NoPadding";
@@ -34,7 +36,7 @@ public final class EntityIdUtils {
             Key key = generateKey();
             Cipher cipher = Cipher.getInstance(AES_GCM_NO_PADDING);
             byte[] iv = new byte[GCM_IV_LENGTH];
-            new SecureRandom().nextBytes(iv);
+            SECURE_RANDOM.nextBytes(iv);
             GCMParameterSpec parameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
             cipher.init(Cipher.ENCRYPT_MODE, key, parameterSpec);
             byte[] encryptedValue = cipher.doFinal(data.getBytes());
@@ -42,8 +44,8 @@ public final class EntityIdUtils {
             System.arraycopy(iv, 0, encryptedWithIv, 0, iv.length);
             System.arraycopy(encryptedValue, 0, encryptedWithIv, iv.length, encryptedValue.length);
             return Base64.getEncoder().encodeToString(encryptedWithIv);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException |
-                 IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException e) {
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException
+                 | BadPaddingException | InvalidAlgorithmParameterException e) {
             log.error("Error while encrypting: {}", ExceptionUtils.getStackTrace(e));
             throw new CustomRuntimeException("Error while encrypting: " + e.getMessage());
         }
@@ -88,9 +90,14 @@ public final class EntityIdUtils {
             cipher.init(Cipher.DECRYPT_MODE, key, parameterSpec);
             byte[] decryptedValue = cipher.doFinal(encrypted);
             return new String(decryptedValue);
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException |
-                 IllegalBlockSizeException | BadPaddingException | InvalidAlgorithmParameterException |
-                 IllegalArgumentException | ArrayIndexOutOfBoundsException e) {
+        } catch (NoSuchAlgorithmException
+                 | NoSuchPaddingException
+                 | InvalidKeyException
+                 | IllegalBlockSizeException
+                 | BadPaddingException
+                 | InvalidAlgorithmParameterException
+                 | IllegalArgumentException
+                 | ArrayIndexOutOfBoundsException e) {
             log.error("Error while decrypting: {}", ExceptionUtils.getStackTrace(e));
             throw new CustomRuntimeException("Error while decrypting: " + e.getMessage());
         }

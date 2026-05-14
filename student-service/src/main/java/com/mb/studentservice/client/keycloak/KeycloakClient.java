@@ -11,7 +11,7 @@ import java.util.List;
 @FeignClient(name = "keycloak-client", url = "${GATEWAY_BASE_URL}", configuration = {OAuthFeignConfig.class, KeycloakClientConfig.class})
 public interface KeycloakClient {
 
-    @GetMapping(value = "/payments")
+    @GetMapping(value = "/payment/payments")
     List<PaymentResponse> getPayments();
 
 }

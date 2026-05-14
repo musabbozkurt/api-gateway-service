@@ -28,8 +28,7 @@ public class OAuthFeignConfig {
     @Bean
     public RequestInterceptor requestInterceptor() {
         ClientRegistration clientRegistration = clientRegistrationRepository().findByRegistrationId(properties.getClientRegistrationId());
-        OAuthClientCredentialsFeignManager clientCredentialsFeignManager =
-                new OAuthClientCredentialsFeignManager(authorizedClientManager(), clientRegistration);
+        OAuthClientCredentialsFeignManager clientCredentialsFeignManager = new OAuthClientCredentialsFeignManager(authorizedClientManager(), clientRegistration);
         return requestTemplate -> requestTemplate.header("Authorization", "Bearer " + clientCredentialsFeignManager.getAccessToken());
     }
 
@@ -39,8 +38,7 @@ public class OAuthFeignConfig {
                 .clientCredentials()
                 .build();
 
-        AuthorizedClientServiceOAuth2AuthorizedClientManager authorizedClientManager =
-                new AuthorizedClientServiceOAuth2AuthorizedClientManager(clientRegistrationRepository(), oAuth2AuthorizedClientService());
+        AuthorizedClientServiceOAuth2AuthorizedClientManager authorizedClientManager = new AuthorizedClientServiceOAuth2AuthorizedClientManager(clientRegistrationRepository(), oAuth2AuthorizedClientService());
         authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
         return authorizedClientManager;
     }

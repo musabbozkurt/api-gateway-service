@@ -1,0 +1,113 @@
+server:
+  port: ${SERVER_PORT:8090}
+
+spring:
+  application:
+    name: inventory-management-service
+
+  config:
+    import: optional:file:.env[.properties]
+
+  datasource:
+    hikari:
+      connection-timeout: 10000
+      maximum-pool-size: ${HIKARI_MAXIMUM_POOL_SIZE:10}
+      minimum-idle: 1
+      idle-timeout: 10000
+    type: com.zaxxer.hikari.HikariDataSource
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/${POSTGRES_DB:postgres}?currentSchema=inventory_management_service
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  flyway:
+    enabled: true
+    baseline-version: 0
+    baseline-on-migrate: true
+    table: schema_version
+    validate-on-migrate: false
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password:
+      jedis:
+        pool:
+          max-active: 7
+          max-idle: 7
+          min-idle: 2
+          max-wait: -1ms
+
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      indent-output: true
+
+  threads:
+    virtual:
+      enabled: true
+
+  docker:
+    compose:
+      enabled: false
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, loggers, prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    metrics:
+      export:
+        url: ${OTEL_EXPORTER_OTLP_METRICS_URL:http://localhost:4318/v1/metrics}
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: ${OTEL_EXPORTER_OTLP_TRACES_URL:http://localhost:4318/v1/traces}
+    logging:
+      export:
+        otlp:
+          endpoint: ${OTEL_EXPORTER_OTLP_LOGS_URL:http://localhost:4318/v1/logs}
+
+springdoc:
+  api-docs:
+    path: /inventory/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL:http://localhost:8761/eureka}
+
+# traceID and spanId are predefined MDC keys - we want the logs to include them
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{traceId:-},%X{spanId:-}]"
+
+testing:
+  app:
+    jwt-secret: testingSecretKeyTestingSecretKeyTestingSecretKeyTestingSecretKeyTestingSecretKeyTestingSecretKey
+    jwt-expiration-ms: 600000 # token will expire in 10 minutes

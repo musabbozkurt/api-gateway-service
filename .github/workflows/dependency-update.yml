@@ -29,11 +29,14 @@ permissions:
 env:
   SERVICE_DIRS: >-
     api-gateway
+    brokerage-provider
     gitlab-service
+    inventory-management-service
     kafka-debezium-service
     notification-service
     openai-service
     payment-service
+    stock-exchange-service
     service-registry
     spring-config-server
     student-service

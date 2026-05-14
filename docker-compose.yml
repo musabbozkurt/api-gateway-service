@@ -13,7 +13,11 @@ services:
         condition: service_started
       grafana-lgtm:
         condition: service_started
+      inventory-management-service:
+        condition: service_started
       kafka-debezium-service:
+        condition: service_started
+      keycloak:
         condition: service_started
       notification-service:
         condition: service_started
@@ -31,12 +35,17 @@ services:
         condition: service_healthy
       student-service:
         condition: service_started
+      stock-exchange-service:
+        condition: service_started
       swagger-application:
         condition: service_started
       zipkin:
         condition: service_started
     environment:
+      CLIENT_ID: ${GATEWAY_CLIENT_ID:-api-gateway-client}
+      CLIENT_SECRET: ${GATEWAY_CLIENT_SECRET:-m5CxL5t54ACk17mDjp0Zje0jBBRsXJuM}
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
+      INTROSPECTION_URI: http://keycloak:9090/realms/${KEYCLOAK_REALM:-mb-realm}/protocol/openid-connect/token/introspect
       OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
       OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
       OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
@@ -46,6 +55,7 @@ services:
       - ${SERVICE_START_PROFILE}
     networks:
       - mb-network
+    restart: on-failure
 
   student-service:
     build:
@@ -61,7 +71,7 @@ services:
       keycloak:
         condition: service_started
       postgres:
-        condition: service_started
+        condition: service_healthy
       rabbitmq:
         condition: service_started
       service-registry:
@@ -70,6 +80,9 @@ services:
         condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
+      GATEWAY_BASE_URL_ENV: http://api-gateway:8080
+      KEYCLOAK_BASE_URL: http://keycloak:9090
+      KEYCLOAK_CLIENT_ID_ENV: api-gateway-client
       OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
       OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
       OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
@@ -79,6 +92,7 @@ services:
       - ${SERVICE_START_PROFILE}
     networks:
       - mb-network
+    restart: on-failure
 
   swagger-application:
     deploy:
@@ -113,6 +127,7 @@ services:
       - ${SERVICE_START_PROFILE}
     networks:
       - mb-network
+    restart: on-failure
 
   payment-service:
     build:
@@ -126,7 +141,7 @@ services:
       keycloak:
         condition: service_started
       postgres:
-        condition: service_started
+        condition: service_healthy
       rabbitmq:
         condition: service_started
       service-registry:
@@ -137,6 +152,7 @@ services:
       DB_HOST: postgres
       DB_PORT: 5432
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
+      KEYCLOAK_BASE_URL_ENV: http://keycloak:9090
       OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
       OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
       OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
@@ -144,6 +160,7 @@ services:
       - ${SERVICE_START_PROFILE}
     networks:
       - mb-network
+    restart: on-failure
 
   openai-service:
     build:
@@ -167,6 +184,7 @@ services:
       - ${SERVICE_START_PROFILE}
     networks:
       - mb-network
+    restart: on-failure
 
   notification-service:
     build:
@@ -184,7 +202,7 @@ services:
       mailpit:
         condition: service_started
       postgres:
-        condition: service_started
+        condition: service_healthy
       service-registry:
         condition: service_started
       spring-config-server:
@@ -205,6 +223,7 @@ services:
       - ${SERVICE_START_PROFILE}
     networks:
       - mb-network
+    restart: on-failure
 
   service-registry:
     build:
@@ -223,6 +242,7 @@ services:
       - ${SERVICE_START_PROFILE}
     networks:
       - mb-network
+    restart: on-failure
 
   spring-config-server:
     build:
@@ -252,10 +272,11 @@ services:
       - ${SERVICE_START_PROFILE}
     networks:
       - mb-network
+    restart: on-failure
 
   rabbitmq:
     image: rabbitmq:4.2.4
-    restart: always
+    restart: on-failure
     container_name: test-rabbitmq
     ports:
       - "5673:5672" # default ports 5672:5672
@@ -289,6 +310,7 @@ services:
       CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'                                                                        # Pre-generated base64-encoded UUID that uniquely identifies this KRaft cluster; required on first startup
     networks:
       - mb-network
+    restart: on-failure
 
   kafka-ui:
     image: provectuslabs/kafka-ui:v0.7.2
@@ -304,10 +326,11 @@ services:
       KAFKA_CLUSTERS_1_BOOTSTRAPSERVERS: debezium-kafka1:29092,debezium-kafka2:29092,debezium-kafka3:29092        # Debezium 3-node Kafka cluster
     networks:
       - mb-network
+    restart: on-failure
 
   postgres:
     image: postgres:18.3
-    restart: always
+    restart: on-failure
     container_name: postgres-db
     ports:
       - "5433:5432" # default ports 5432:5432
@@ -315,6 +338,11 @@ services:
       POSTGRES_DB: ${POSTGRESQL_DB}
       POSTGRES_USER: ${POSTGRESQL_USER}
       POSTGRES_PASSWORD: ${POSTGRESQL_PASS}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRESQL_USER} -d ${POSTGRESQL_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     networks:
       - mb-network
     volumes:
@@ -345,9 +373,10 @@ services:
       KC_DB_PASSWORD: ${POSTGRESQL_PASS}
     ports:
       - "127.0.0.1:9090:9090"
-    restart: always
+    restart: on-failure
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:
@@ -361,13 +390,13 @@ services:
     volumes:
       - redis-data:/data
     command: redis-server --appendonly yes
-    restart: unless-stopped
+    restart: on-failure
     networks:
       - mb-network
 
   redis-insight-service:
     image: redis/redisinsight:latest
-    restart: always
+    restart: on-failure
     container_name: redis-insight-service
     ports:
       - "5540:5540"
@@ -396,6 +425,7 @@ services:
     # command: --logging.level.zipkin2=DEBUG
     networks:
       - mb-network
+    restart: on-failure
 
   grafana-lgtm:
     image: 'grafana/otel-lgtm:0.26.0'
@@ -407,11 +437,24 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     networks:
       - mb-network
+    restart: on-failure
+
+  prometheus:
+    image: "prom/prometheus"
+    restart: on-failure
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./brokerage-provider/src/main/resources/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command: --web.enable-lifecycle --config.file=/etc/prometheus/prometheus.yml
+    container_name: prometheus
+    networks:
+      - mb-network
 
   mailpit:
     image: axllent/mailpit:v1.29.2
     container_name: mailpit
-    restart: always
+    restart: on-failure
     ports:
       - "1025:1025"   # SMTP server
       - "8025:8025"   # Web UI (http://localhost:8025)
@@ -454,6 +497,129 @@ services:
       - ${SERVICE_START_PROFILE}
     networks:
       - mb-network
+    restart: on-failure
+
+  # ========================================================================================
+  # brokerage-provider
+  # ========================================================================================
+
+  brokerage-provider:
+    build:
+      context: ./brokerage-provider
+      dockerfile: Dockerfile
+    ports:
+      - "8088:8088"
+    depends_on:
+      grafana-lgtm:
+        condition: service_started
+      kafka:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      service-registry:
+        condition: service_started
+      spring-config-server:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      POSTGRES_DB: ${POSTGRESQL_DB}
+      POSTGRES_USER: ${POSTGRESQL_USER}
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASS}
+      EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
+      KAFKA_CONSUMER_BOOTSTRAP_SERVERS: kafka:29092
+      KAFKA_PRODUCER_BOOTSTRAP_SERVERS: kafka:29092
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
+      OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
+      OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
+    profiles:
+      - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
+    restart: on-failure
+
+  # ========================================================================================
+  # stock-exchange-service
+  # ========================================================================================
+
+  stock-exchange-service:
+    build:
+      context: ./stock-exchange-service
+      dockerfile: Dockerfile
+    ports:
+      - "8089:8089"
+    depends_on:
+      grafana-lgtm:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      redis-service:
+        condition: service_started
+      service-registry:
+        condition: service_started
+      spring-config-server:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      POSTGRES_DB: ${POSTGRESQL_DB}
+      POSTGRES_USER: ${POSTGRESQL_USER}
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASS}
+      EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
+      REDIS_HOST: redis-service
+      REDIS_PORT: 6379
+      KAFKA_BROKERS: kafka:29092
+      KAFKA_CONSUMER_BOOTSTRAP_SERVERS: kafka:29092
+      KAFKA_PRODUCER_BOOTSTRAP_SERVERS: kafka:29092
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
+      OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
+      OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
+    profiles:
+      - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
+    restart: on-failure
+
+  # ========================================================================================
+  # inventory-management-service
+  # ========================================================================================
+
+  inventory-management-service:
+    build:
+      context: ./inventory-management-service
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8090"
+    depends_on:
+      grafana-lgtm:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      redis-service:
+        condition: service_started
+      service-registry:
+        condition: service_started
+      spring-config-server:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      POSTGRES_DB: ${POSTGRESQL_DB}
+      POSTGRES_USER: ${POSTGRESQL_USER}
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASS}
+      EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
+      REDIS_HOST: redis-service
+      REDIS_PORT: 6379
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
+      OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
+      OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
+    profiles:
+      - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
+    restart: on-failure
 
   # ========================================================================================
   # kafka-debezium-service (CDC with Debezium, Kafka cluster, PostgreSQL, and Oracle)
@@ -469,6 +635,11 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     command:
       - "postgres"
       - "-c"
@@ -629,7 +800,7 @@ services:
       debezium-kafka3:
         condition: service_started
       debezium-postgres:
-        condition: service_started
+        condition: service_healthy
       oracle-db:
         condition: service_started
     profiles:
@@ -686,6 +857,7 @@ services:
       - ${SERVICE_START_PROFILE}
     networks:
       - mb-network
+    restart: on-failure
 
 volumes:
   redis-data:

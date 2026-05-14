@@ -32,13 +32,16 @@
 
    ```
     * api-gateway
+    * brokerage-provider
     * gitlab-service
+    * inventory-management-service
     * kafka-debezium-service
     * notification-service
     * openai-service
     * payment-service
     * service-registry
     * spring-config-server
+    * stock-exchange-service
     * student-service
     * swagger-application
    ```
@@ -67,6 +70,9 @@
     * Multi-application Firebase push notification support in notification-service
     * gitlab-service repo migration is completed for bulk Gitlab operations via Feign Client
     * kafka-debezium-service repo migration is completed for CDC with Debezium, Kafka cluster, PostgreSQL, and Oracle
+    * brokerage-provider repo migration is completed
+    * stock-exchange-service repo migration is completed
+    * inventory-management-service repo migration is completed
    ```
 
 ---
@@ -132,12 +138,12 @@
 ####
 
 3. Log in to http://localhost:9090/admin with `username`: `admin` and `password`: `admin`
-    1. `Create realm` --> Import [payment-service-realm-export.json](docs/keycloak/payment-service-realm-export.json)
-    2. `Clients` --> `payment-service` --> `Credentials` --> `Regenerate` copy the value and add it as
+    1. `Create realm` --> Import [mb-realm-export.json](docs/keycloak/mb-realm-export.json)
+    2. `Clients` --> `api-gateway-client` --> `Credentials` --> `Regenerate` copy the value and add it as
        `PAYMENT_CLIENT_SECRET_ENV` value in the [.env](.env)
-    3. `Users` --> `Add user` --> `Username` --> `payment-service-user`
-    4. `Users` --> `payment-service-user` --> `Credentials` --> `Set password` to `test` and turn off `Temporary` toggle
-    5. `Users` --> `payment-service-user` --> `Role Mapping` --> `Assign role` add `admin` role
+    3. `Users` --> `Add user` --> `Username` --> `developer`
+    4. `Users` --> `developer` --> `Credentials` --> `Set password` to `test` and turn off `Temporary` toggle
+    5. `Users` --> `developer` --> `Role Mapping` --> `Assign role` add `admin` role
     6. Restart `student-service` to fetch `PAYMENT_CLIENT_SECRET`
 
 ####
@@ -147,9 +153,9 @@
     * Swagger: http://localhost:8080/swagger-ui.html
         * Open `Swagger` --> select `Payment Service` definition --> Click `Authorize`
             1. Enter the following credentials into the pop-up window
-                1. `username`: `payment-service-user`
+                1. `username`: `developer`
                 2. `password`: `test`
-                3. `client_id`: `payment-service`
+                3. `client_id`: `api-gateway-client`
                 4. `client_secret`: `PAYMENT_CLIENT_SECRET_ENV` value in the [.env](.env)
             2. ![img.png](img.png)
             3. Click `Authorize` to get token
@@ -162,6 +168,7 @@
     * RedisInsight: http://localhost:5540/
     * Zipkin: http://localhost:9411/
     * Grafana: http://localhost:3001/ with `username`: `admin` and `password`: `admin`
+    * Prometheus: http://localhost:9091/graph
     * Kafka UI: http://localhost:9999/
     * spring-config-server
         * Health: http://localhost:8888/actuator/health

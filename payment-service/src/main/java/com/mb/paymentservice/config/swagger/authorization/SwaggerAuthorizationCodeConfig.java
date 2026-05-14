@@ -42,7 +42,7 @@ public class SwaggerAuthorizationCodeConfig {
     }
 
     private OAuthFlow createAuthorizationCodeFlow(KeycloakProperties properties) {
-        var protocolUrl = String.format(OPENID_CONNECT_URL_FORMAT, properties.getAuthServerUrl(), properties.getRealm());
+        var protocolUrl = String.format(OPENID_CONNECT_URL_FORMAT, properties.getExternalUrl(), properties.getRealm());
 
         return new OAuthFlow()
                 .authorizationUrl(protocolUrl)
