@@ -33,7 +33,7 @@ import java.time.Duration;
  * and enforces opaque token introspection for all other routes. Uses a path-based
  * {@link ReactiveAuthenticationManagerResolver} to delegate token validation to either
  * Keycloak (for most services) or the stock-exchange-service's own introspection endpoint
- * (for stock-exchange routes with their own JWT auth).
+ * (for stock-exchange and inventory-management routes with their own JWT auth).
  * <p>
  * The Keycloak introspection {@link WebClient} is built with Netty connection pooling,
  * configurable timeouts, and automatic retry on transient
@@ -67,9 +67,6 @@ public class SecurityConfig {
     @Value("${stock-exchange-service.introspection-uri}")
     private String stockExchangeIntrospectionUri;
 
-    @Value("${stock-exchange-service.path-prefix:/stock-exchange}")
-    private String stockExchangePathPrefix;
-
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
@@ -91,7 +88,7 @@ public class SecurityConfig {
 
         return exchange -> {
             String path = exchange.getRequest().getURI().getPath();
-            if (path.startsWith(stockExchangePathPrefix + "/")) {
+            if (gatewaySecurityProperties.isStockExchangeAuthPath(path)) {
                 return Mono.just(stockExchangeAuthManager);
             }
             return Mono.just(keycloakAuthManager);
@@ -124,8 +121,9 @@ public class SecurityConfig {
 
     /**
      * Creates a {@link LoadBalanced} {@link WebClient.Builder} that resolves {@code lb://} URIs
-     * via Eureka service discovery. Used by the stock-exchange token introspector to call
-     * {@code lb://stock-exchange-service/api/v1/auth/introspect} without hardcoding host/port.
+     * via Eureka service discovery. Used by service-specific token introspectors to call
+     * downstream introspection endpoints (e.g., {@code lb://stock-exchange-service/...},
+     * {@code lb://inventory-management-service/...}) without hardcoding host/port.
      */
     @Bean
     @LoadBalanced

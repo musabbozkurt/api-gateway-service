@@ -34,12 +34,14 @@
     * api-gateway
     * brokerage-provider
     * gitlab-service
+    * inventory-management-service
     * kafka-debezium-service
     * notification-service
     * openai-service
     * payment-service
     * service-registry
     * spring-config-server
+    * stock-exchange-service
     * student-service
     * swagger-application
    ```
@@ -69,6 +71,8 @@
     * gitlab-service repo migration is completed for bulk Gitlab operations via Feign Client
     * kafka-debezium-service repo migration is completed for CDC with Debezium, Kafka cluster, PostgreSQL, and Oracle
     * brokerage-provider repo migration is completed
+    * stock-exchange-service repo migration is completed
+    * inventory-management-service repo migration is completed
    ```
 
 ---

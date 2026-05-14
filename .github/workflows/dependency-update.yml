@@ -31,6 +31,7 @@ env:
     api-gateway
     brokerage-provider
     gitlab-service
+    inventory-management-service
     kafka-debezium-service
     notification-service
     openai-service

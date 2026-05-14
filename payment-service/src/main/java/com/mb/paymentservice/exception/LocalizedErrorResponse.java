@@ -22,7 +22,7 @@ public class LocalizedErrorResponse extends ErrorResponse {
 
     @JsonUnwrapped
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private ErrorDetail errorDetail;
+    private transient ErrorDetail errorDetail;
 
     public LocalizedErrorResponse(String errorCode, String message) {
         super(errorCode, Objects.nonNull(getMessage(errorCode)) ? getMessage(errorCode) : message);
@@ -37,7 +37,7 @@ public class LocalizedErrorResponse extends ErrorResponse {
         messageSourceAccessor();
         try {
             return messages.getMessage(String.format(PREFIX, errorCode));
-        } catch (Exception ex) {
+        } catch (Exception _) {
             log.warn("No error message defined for the errorCode: {}", errorCode);
             return null;
         }

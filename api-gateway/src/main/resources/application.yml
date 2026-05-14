@@ -1,6 +1,7 @@
 BASE_URL: http://localhost:8080
 BROKERAGE_PROVIDER_BASE_URL: lb://brokerage-provider
 GITLAB_SERVICE_BASE_URL: lb://gitlab-service
+INVENTORY_MANAGEMENT_SERVICE_BASE_URL: lb://inventory-management-service
 KAFKA_DEBEZIUM_SERVICE_BASE_URL: lb://kafka-debezium-service
 NOTIFICATION_SERVICE_BASE_URL: lb://notification-service
 OPENAI_SERVICE_BASE_URL: lb://openai-service
@@ -57,6 +58,10 @@ spring:
               predicates:
                 - Path=/gitlab/**
               uri: ${GITLAB_SERVICE_BASE_URL}
+            - id: inventory-management-service
+              predicates:
+                - Path=/inventory/**
+              uri: ${INVENTORY_MANAGEMENT_SERVICE_BASE_URL}
             - id: kafka-debezium-service
               predicates:
                 - Path=/kafka-debezium/**
@@ -170,6 +175,10 @@ springdoc:
         name: Gitlab Service
         uri: ${GITLAB_SERVICE_BASE_URL}
         server-url: ${BASE_URL}/gitlab
+      - url: /inventory/api-docs
+        name: Inventory Management Service
+        uri: ${INVENTORY_MANAGEMENT_SERVICE_BASE_URL}
+        server-url: ${BASE_URL}/inventory
       - url: /kafka-debezium/api-docs
         name: Kafka Debezium Service
         uri: ${KAFKA_DEBEZIUM_SERVICE_BASE_URL}
@@ -228,7 +237,6 @@ secure-service:
 
 stock-exchange-service:
   introspection-uri: ${STOCK_EXCHANGE_INTROSPECTION_URI:lb://stock-exchange-service/api/v1/auth/introspect}
-  path-prefix: /stock-exchange
 
 gateway-service:
   client-id: ${CLIENT_ID:api-gateway-client}
@@ -247,6 +255,10 @@ gateway-service:
       - /webjars/**
       - /brokerage-provider/api-docs
       - /gitlab/api-docs
+      - /inventory/api-docs
+      - /inventory/swagger-ui/** # Inventory-management-service Swagger UI
+      - /inventory/swagger-ui.html
+      - /inventory/actuator/**
       - /kafka-debezium/api-docs
       - /notification/api-docs
       - /openai/api-docs
@@ -260,3 +272,6 @@ gateway-service:
       - /stock-exchange/actuator/**
       - /swagger/api-docs
       - /** # This allows all paths to be accessed without authentication, it will be removed in production
+    stock-exchange-auth-path-prefixes:
+      - /inventory/
+      - /stock-exchange/

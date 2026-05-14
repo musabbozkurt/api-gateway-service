@@ -13,6 +13,8 @@ services:
         condition: service_started
       grafana-lgtm:
         condition: service_started
+      inventory-management-service:
+        condition: service_started
       kafka-debezium-service:
         condition: service_started
       keycloak:
@@ -546,6 +548,50 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8089:8089"
+    depends_on:
+      grafana-lgtm:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      redis-service:
+        condition: service_started
+      service-registry:
+        condition: service_started
+      spring-config-server:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      POSTGRES_DB: ${POSTGRESQL_DB}
+      POSTGRES_USER: ${POSTGRESQL_USER}
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASS}
+      EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
+      REDIS_HOST: redis-service
+      REDIS_PORT: 6379
+      KAFKA_BROKERS: kafka:29092
+      KAFKA_CONSUMER_BOOTSTRAP_SERVERS: kafka:29092
+      KAFKA_PRODUCER_BOOTSTRAP_SERVERS: kafka:29092
+      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
+      OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
+      OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
+    profiles:
+      - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
+    restart: on-failure
+
+  # ========================================================================================
+  # inventory-management-service
+  # ========================================================================================
+
+  inventory-management-service:
+    build:
+      context: ./inventory-management-service
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8090"
     depends_on:
       grafana-lgtm:
         condition: service_started

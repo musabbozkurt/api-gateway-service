@@ -8,7 +8,7 @@ public class MathUtils {
     public boolean isInteger(String s) {
         try {
             Integer.parseInt(s);
-        } catch (NumberFormatException e) {
+        } catch (NumberFormatException _) {
             return false;
         }
         return true;

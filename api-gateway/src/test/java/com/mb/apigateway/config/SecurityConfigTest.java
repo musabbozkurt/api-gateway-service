@@ -126,6 +126,10 @@ class SecurityConfigTest {
             registry.add("spring.cloud.gateway.server.webflux.routes[3].id", () -> "stock-exchange-service");
             registry.add("spring.cloud.gateway.server.webflux.routes[3].uri", () -> mockBackendUrl);
             registry.add("spring.cloud.gateway.server.webflux.routes[3].predicates[0]", () -> "Path=/stock-exchange/**");
+
+            registry.add("spring.cloud.gateway.server.webflux.routes[4].id", () -> "inventory-management-service");
+            registry.add("spring.cloud.gateway.server.webflux.routes[4].uri", () -> mockBackendUrl);
+            registry.add("spring.cloud.gateway.server.webflux.routes[4].predicates[0]", () -> "Path=/inventory/**");
         }
 
         @Test
@@ -739,7 +743,6 @@ class SecurityConfigTest {
             ReflectionTestUtils.setField(securityConfig, "responseTimeout", Duration.ofSeconds(5));
             ReflectionTestUtils.setField(securityConfig, "maxIdleTime", Duration.ofSeconds(30));
             ReflectionTestUtils.setField(securityConfig, "stockExchangeIntrospectionUri", mockSsoServer.url("/api/v1/auth/introspect").toString());
-            ReflectionTestUtils.setField(securityConfig, "stockExchangePathPrefix", "/stock-exchange");
         }
 
         @AfterEach
@@ -1064,7 +1067,6 @@ class SecurityConfigTest {
             ReflectionTestUtils.setField(securityConfig, "responseTimeout", Duration.ofSeconds(5));
             ReflectionTestUtils.setField(securityConfig, "maxIdleTime", Duration.ofSeconds(30));
             ReflectionTestUtils.setField(securityConfig, "stockExchangeIntrospectionUri", "http://localhost/api/v1/auth/introspect");
-            ReflectionTestUtils.setField(securityConfig, "stockExchangePathPrefix", "/stock-exchange");
 
             // Act
             ReactiveOpaqueTokenIntrospector introspector = securityConfig.stockExchangeTokenIntrospector();
@@ -1081,7 +1083,11 @@ class SecurityConfigTest {
 
         @BeforeEach
         void setUp() {
-            securityConfig = new SecurityConfig(new GatewaySecurityProperties());
+            // Properties are set manually because this is a pure unit test without Spring context,
+            // so application.yml values are not loaded. Mirrors stock-exchange-auth-path-prefixes from test YAML.
+            GatewaySecurityProperties properties = new GatewaySecurityProperties();
+            properties.setStockExchangeAuthPathPrefixes(List.of("/stock-exchange/", "/inventory/"));
+            securityConfig = new SecurityConfig(properties);
             ReflectionTestUtils.setField(securityConfig, "introspectionUri", "http://localhost/introspect");
             ReflectionTestUtils.setField(securityConfig, "clientId", "test-client-id");
             ReflectionTestUtils.setField(securityConfig, "clientSecret", "test-client-secret");
@@ -1089,7 +1095,6 @@ class SecurityConfigTest {
             ReflectionTestUtils.setField(securityConfig, "responseTimeout", Duration.ofSeconds(5));
             ReflectionTestUtils.setField(securityConfig, "maxIdleTime", Duration.ofSeconds(30));
             ReflectionTestUtils.setField(securityConfig, "stockExchangeIntrospectionUri", "http://localhost/api/v1/auth/introspect");
-            ReflectionTestUtils.setField(securityConfig, "stockExchangePathPrefix", "/stock-exchange");
         }
 
         @Test

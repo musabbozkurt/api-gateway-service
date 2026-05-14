@@ -8,8 +8,10 @@ limiting, request/response logging, and aggregated Swagger documentation.
 
 ## Key Features
 
-- **Dynamic Routing** — Routes requests to `student-service`, `payment-service`, `openai-service`,
-  `notification-service`, and `swagger-application` via Eureka service discovery (`lb://` URIs)
+- **Dynamic Routing** — Routes requests to downstream services via Eureka service discovery (`lb://` URIs)
+- **Path-Based Authentication** — Configurable `stock-exchange-auth-path-prefixes` routes token validation to
+  stock-exchange-service's introspection endpoint for `/stock-exchange/` and `/inventory/` paths; all other paths use
+  Keycloak introspection
 - **Configurable Security** — Permitted paths externalized to `application.yml` via
   `gateway-service.security.permitted-paths` (no code changes needed to allow new endpoints)
 - **Rate Limiting** — Redis-backed `RequestRateLimiter` filter (40 requests/sec replenish, 80 burst capacity)
@@ -35,30 +37,37 @@ limiting, request/response logging, and aggregated Swagger documentation.
 
 ## Configuration
 
-| Property                                                | Default                         | Description                                        |
-|---------------------------------------------------------|---------------------------------|----------------------------------------------------|
-| `server.port`                                           | `8080`                          | Gateway port                                       |
-| `spring.data.redis.host`                                | `localhost`                     | Redis host (env: `REDIS_HOST`)                     |
-| `spring.data.redis.port`                                | `6379`                          | Redis port (env: `REDIS_PORT`)                     |
-| `gateway-service.security.permitted-paths`              | *(see application.yml)*         | Paths accessible without authentication            |
-| `gateway-service.client-id`                             | `api-gateway-client`            | OAuth2 client ID (env: `CLIENT_ID`)                |
-| `gateway-service.client-secret`                         | `gateway-secret`                | OAuth2 client secret (env: `CLIENT_SECRET`)        |
-| `secure-service.introspection-uri`                      | `localhost:8081/.../introspect` | Token introspection URI (env: `INTROSPECTION_URI`) |
-| `google.recaptcha.*`                                    | Configured via `.env`           | reCAPTCHA site/secret keys                         |
-| `eureka.client.*`                                       | `localhost:8761/eureka`         | Eureka service registry                            |
-| `management.otlp.metrics.export.url`                    | `localhost:4318/v1/metrics`     | OTLP metrics endpoint                              |
-| `management.opentelemetry.tracing.export.otlp.endpoint` | `localhost:4318/v1/traces`      | OTLP traces endpoint                               |
-| `management.opentelemetry.logging.export.otlp.endpoint` | `localhost:4318/v1/logs`        | OTLP logs endpoint                                 |
+| Property                                                     | Default                                              | Description                                                 |
+|--------------------------------------------------------------|------------------------------------------------------|-------------------------------------------------------------|
+| `server.port`                                                | `8080`                                               | Gateway port                                                |
+| `spring.data.redis.host`                                     | `localhost`                                          | Redis host (env: `REDIS_HOST`)                              |
+| `spring.data.redis.port`                                     | `6379`                                               | Redis port (env: `REDIS_PORT`)                              |
+| `gateway-service.security.permitted-paths`                   | *(see application.yml)*                              | Paths accessible without authentication                     |
+| `gateway-service.security.stock-exchange-auth-path-prefixes` | `/stock-exchange/`, `/inventory/`                    | Paths routed to stock-exchange-service token introspection  |
+| `gateway-service.client-id`                                  | `api-gateway-client`                                 | OAuth2 client ID (env: `CLIENT_ID`)                         |
+| `gateway-service.client-secret`                              | `gateway-secret`                                     | OAuth2 client secret (env: `CLIENT_SECRET`)                 |
+| `secure-service.introspection-uri`                           | `localhost:8081/.../introspect`                      | Keycloak token introspection URI (env: `INTROSPECTION_URI`) |
+| `stock-exchange-service.introspection-uri`                   | `lb://stock-exchange-service/api/v1/auth/introspect` | Stock-exchange token introspection URI                      |
+| `google.recaptcha.*`                                         | Configured via `.env`                                | reCAPTCHA site/secret keys                                  |
+| `eureka.client.*`                                            | `localhost:8761/eureka`                              | Eureka service registry                                     |
+| `management.otlp.metrics.export.url`                         | `localhost:4318/v1/metrics`                          | OTLP metrics endpoint                                       |
+| `management.opentelemetry.tracing.export.otlp.endpoint`      | `localhost:4318/v1/traces`                           | OTLP traces endpoint                                        |
+| `management.opentelemetry.logging.export.otlp.endpoint`      | `localhost:4318/v1/logs`                             | OTLP logs endpoint                                          |
 
 ## Routes
 
-| Route                  | Path Prefix        | Target Service              |
-|------------------------|--------------------|-----------------------------|
-| `student-service`      | `/student/**`      | `lb://student-service`      |
-| `swagger-application`  | `/swagger/**`      | `lb://swagger-application`  |
-| `payment-service`      | `/payment/**`      | `lb://payment-service`      |
-| `openai-service`       | `/openai/**`       | `lb://openai-service`       |
-| `notification-service` | `/notification/**` | `lb://notification-service` |
+| Route                          | Path Prefix              | Target Service                      |
+|--------------------------------|--------------------------|-------------------------------------|
+| `brokerage-provider`           | `/brokerage-provider/**` | `lb://brokerage-provider`           |
+| `gitlab-service`               | `/gitlab/**`             | `lb://gitlab-service`               |
+| `inventory-management-service` | `/inventory/**`          | `lb://inventory-management-service` |
+| `kafka-debezium-service`       | `/kafka-debezium/**`     | `lb://kafka-debezium-service`       |
+| `notification-service`         | `/notification/**`       | `lb://notification-service`         |
+| `openai-service`               | `/openai/**`             | `lb://openai-service`               |
+| `payment-service`              | `/payment/**`            | `lb://payment-service`              |
+| `student-service`              | `/student/**`            | `lb://student-service`              |
+| `stock-exchange-service`       | `/stock-exchange/**`     | `lb://stock-exchange-service`       |
+| `swagger-application`          | `/swagger/**`            | `lb://swagger-application`          |
 
 ## Running
 

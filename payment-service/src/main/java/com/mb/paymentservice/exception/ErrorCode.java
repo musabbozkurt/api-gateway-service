@@ -29,8 +29,6 @@ public enum ErrorCode implements Serializable, IErrorCode {
 
     private final HttpStatus httpStatus;
 
-    private String message;
-
     ErrorCode(HttpStatus httpStatus) {
         this.httpStatus = httpStatus;
     }

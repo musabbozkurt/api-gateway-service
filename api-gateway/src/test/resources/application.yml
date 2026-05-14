@@ -40,7 +40,6 @@ secure-service:
 
 stock-exchange-service:
   introspection-uri: http://localhost:8080/api/v1/auth/introspect
-  path-prefix: /stock-exchange
 
 gateway-service:
   client-id: test-client-id
@@ -61,8 +60,13 @@ gateway-service:
       - /payment/api-docs
       - /student/api-docs
       - /notification/api-docs
+      - /stock-exchange/api-docs
+      - /inventory/api-docs
       - /swagger/api-docs
       - /** # This allows all paths to be accessed without authentication, it will be removed in production
+    stock-exchange-auth-path-prefixes:
+      - /inventory/
+      - /stock-exchange/
 
 management:
   health:
