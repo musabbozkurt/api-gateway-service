@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public final class Constants {
 
     public static final String DEFAULT_ID_GENERATOR_NAME = "default_sequence_generator";
+    public static final String EVENT_TYPE_HEADER_KEY = "eventType";
 }

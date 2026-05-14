@@ -161,6 +161,39 @@ values ((select nextval('stock_exchange_service.default_sequence'::regclass)), '
 insert into stock_exchange_service.roles (id, name, created_date_time, default_role, deleted)
 values ((select nextval('stock_exchange_service.default_sequence'::regclass)), 'REMOVE_STOCK', now(), true, false);
 
+insert into stock_exchange_service.roles (id, name, created_date_time, default_role, deleted)
+values ((select nextval('stock_exchange_service.default_sequence'::regclass)), 'ADMIN', now(), false, false);
+
+insert into stock_exchange_service.roles (id, name, created_date_time, default_role, deleted)
+values ((select nextval('stock_exchange_service.default_sequence'::regclass)), 'CREATE_PRODUCT', now(), true, false);
+
+insert into stock_exchange_service.roles (id, name, created_date_time, default_role, deleted)
+values ((select nextval('stock_exchange_service.default_sequence'::regclass)), 'UPDATE_PRODUCT', now(), true, false);
+
+insert into stock_exchange_service.roles (id, name, created_date_time, default_role, deleted)
+values ((select nextval('stock_exchange_service.default_sequence'::regclass)), 'GET_PRODUCT', now(), true, false);
+
+insert into stock_exchange_service.roles (id, name, created_date_time, default_role, deleted)
+values ((select nextval('stock_exchange_service.default_sequence'::regclass)), 'DELETE_PRODUCT', now(), true, false);
+
+insert into stock_exchange_service.roles (id, name, created_date_time, default_role, deleted)
+values ((select nextval('stock_exchange_service.default_sequence'::regclass)), 'ADD_PRODUCT', now(), true, false);
+
+insert into stock_exchange_service.roles (id, name, created_date_time, default_role, deleted)
+values ((select nextval('stock_exchange_service.default_sequence'::regclass)), 'REMOVE_PRODUCT', now(), true, false);
+
+insert into stock_exchange_service.roles (id, name, created_date_time, default_role, deleted)
+values ((select nextval('stock_exchange_service.default_sequence'::regclass)), 'GET_CATEGORY', now(), true, false);
+
+insert into stock_exchange_service.roles (id, name, created_date_time, default_role, deleted)
+values ((select nextval('stock_exchange_service.default_sequence'::regclass)), 'CREATE_CATEGORY', now(), true, false);
+
+insert into stock_exchange_service.roles (id, name, created_date_time, default_role, deleted)
+values ((select nextval('stock_exchange_service.default_sequence'::regclass)), 'UPDATE_CATEGORY', now(), true, false);
+
+insert into stock_exchange_service.roles (id, name, created_date_time, default_role, deleted)
+values ((select nextval('stock_exchange_service.default_sequence'::regclass)), 'DELETE_CATEGORY', now(), true, false);
+
 insert into stock_exchange_service.authorities (user_id, role_id, username, authority)
 values ((select id from stock_exchange_service.users where username = 'admin_user'),
         (select id from stock_exchange_service.roles where name = 'CREATE_STOCK'),
@@ -195,3 +228,47 @@ insert into stock_exchange_service.authorities (user_id, role_id, username, auth
 values ((select id from stock_exchange_service.users where username = 'admin_user'),
         (select id from stock_exchange_service.roles where name = 'REMOVE_STOCK'),
         'admin_user', 'REMOVE_STOCK');
+
+insert into stock_exchange_service.authorities (user_id, role_id, username, authority)
+values ((select id from stock_exchange_service.users where username = 'admin_user'),
+        (select id from stock_exchange_service.roles where name = 'ADMIN'), 'admin_user', 'ADMIN');
+
+insert into stock_exchange_service.authorities (user_id, role_id, username, authority)
+values ((select id from stock_exchange_service.users where username = 'admin_user'),
+        (select id from stock_exchange_service.roles where name = 'CREATE_PRODUCT'), 'admin_user', 'CREATE_PRODUCT');
+
+insert into stock_exchange_service.authorities (user_id, role_id, username, authority)
+values ((select id from stock_exchange_service.users where username = 'admin_user'),
+        (select id from stock_exchange_service.roles where name = 'UPDATE_PRODUCT'), 'admin_user', 'UPDATE_PRODUCT');
+
+insert into stock_exchange_service.authorities (user_id, role_id, username, authority)
+values ((select id from stock_exchange_service.users where username = 'admin_user'),
+        (select id from stock_exchange_service.roles where name = 'GET_PRODUCT'), 'admin_user', 'GET_PRODUCT');
+
+insert into stock_exchange_service.authorities (user_id, role_id, username, authority)
+values ((select id from stock_exchange_service.users where username = 'admin_user'),
+        (select id from stock_exchange_service.roles where name = 'DELETE_PRODUCT'), 'admin_user', 'DELETE_PRODUCT');
+
+insert into stock_exchange_service.authorities (user_id, role_id, username, authority)
+values ((select id from stock_exchange_service.users where username = 'admin_user'),
+        (select id from stock_exchange_service.roles where name = 'ADD_PRODUCT'), 'admin_user', 'ADD_PRODUCT');
+
+insert into stock_exchange_service.authorities (user_id, role_id, username, authority)
+values ((select id from stock_exchange_service.users where username = 'admin_user'),
+        (select id from stock_exchange_service.roles where name = 'REMOVE_PRODUCT'), 'admin_user', 'REMOVE_PRODUCT');
+
+insert into stock_exchange_service.authorities (user_id, role_id, username, authority)
+values ((select id from stock_exchange_service.users where username = 'admin_user'),
+        (select id from stock_exchange_service.roles where name = 'GET_CATEGORY'), 'admin_user', 'GET_CATEGORY');
+
+insert into stock_exchange_service.authorities (user_id, role_id, username, authority)
+values ((select id from stock_exchange_service.users where username = 'admin_user'),
+        (select id from stock_exchange_service.roles where name = 'CREATE_CATEGORY'), 'admin_user', 'CREATE_CATEGORY');
+
+insert into stock_exchange_service.authorities (user_id, role_id, username, authority)
+values ((select id from stock_exchange_service.users where username = 'admin_user'),
+        (select id from stock_exchange_service.roles where name = 'UPDATE_CATEGORY'), 'admin_user', 'UPDATE_CATEGORY');
+
+insert into stock_exchange_service.authorities (user_id, role_id, username, authority)
+values ((select id from stock_exchange_service.users where username = 'admin_user'),
+        (select id from stock_exchange_service.roles where name = 'DELETE_CATEGORY'), 'admin_user', 'DELETE_CATEGORY');

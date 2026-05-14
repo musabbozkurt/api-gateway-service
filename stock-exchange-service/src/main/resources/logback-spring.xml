@@ -14,6 +14,7 @@
     <logger name="org.springframework.web" level="INFO"/>
     <logger name="org.springframework.data" level="INFO"/>
     <logger name="org.hibernate.SQL" level="INFO"/>
+    <logger name="org.apache.kafka" level="ERROR"/>
     <logger name="com.mb.stockexchangeservice" level="INFO"/>
 
     <root level="INFO">

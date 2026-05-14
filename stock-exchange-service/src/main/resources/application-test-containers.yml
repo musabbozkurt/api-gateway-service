@@ -5,6 +5,14 @@ spring:
     password: ${POSTGRES_PASSWORD:postgres}
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
 
+  cloud:
+    stream:
+      kafka:
+        binder:
+          auto-create-topics: false
+    function:
+      definition: ""
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true

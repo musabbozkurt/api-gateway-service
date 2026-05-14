@@ -6,6 +6,9 @@ import com.mb.stockexchangeservice.data.repository.UserRepository;
 import com.mb.stockexchangeservice.exception.BaseException;
 import com.mb.stockexchangeservice.exception.StockExchangeServiceErrorCode;
 import com.mb.stockexchangeservice.mapper.UserMapper;
+import com.mb.stockexchangeservice.queue.QueueChannels;
+import com.mb.stockexchangeservice.queue.event.UserCreatedEvent;
+import com.mb.stockexchangeservice.queue.producer.EventProducer;
 import com.mb.stockexchangeservice.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -23,6 +27,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EventProducer eventProducer;
 
     @Override
     public Page<User> getAllUsers(Pageable pageable) {
@@ -30,10 +35,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public User createUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRoles(roleRepository.findAllByDefaultRoleIsTrue());
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        UserCreatedEvent event = UserCreatedEvent.builder()
+                .user(savedUser)
+                .build();
+        eventProducer.publishEvent(QueueChannels.USER_CREATED_EVENT_PRODUCER, event);
+        log.info("Published UserCreatedEvent for user: {}", savedUser.getUsername());
+
+        return savedUser;
     }
 
     @Override

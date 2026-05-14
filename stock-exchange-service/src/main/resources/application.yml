@@ -54,6 +54,42 @@ spring:
     compose:
       enabled: false
 
+  cloud:
+    function:
+      definition: internalEventProducer;internalEventConsumer;userCreatedEvent;
+    stream:
+      bindings:
+        internalEventProducer-in-0:
+          destination: internal-event-destination
+        internalEventProducer-out-0:
+          destination: internal-event-processed-destination
+        internalEventConsumer-in-0:
+          destination: internal-event-processed-destination
+        userCreatedEvent-in-0:
+          destination: user-created-event-destination
+        userCreatedEvent-out-0:
+          destination: user-created-event-destination
+      kafka:
+        binder:
+          brokers: ${KAFKA_BROKERS:localhost:9092}
+
+  kafka:
+    consumer:
+      bootstrap-servers: ${KAFKA_CONSUMER_BOOTSTRAP_SERVERS:localhost:9092}
+      group-id: mb
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: '*'
+    producer:
+      bootstrap-servers: ${KAFKA_PRODUCER_BOOTSTRAP_SERVERS:localhost:9092}
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
 management:
   endpoints:
     web:
