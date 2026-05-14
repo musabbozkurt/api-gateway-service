@@ -10,9 +10,11 @@ import com.mb.inventorymanagementservice.exception.InventoryManagementServiceErr
 import com.mb.inventorymanagementservice.utils.JwtUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
@@ -38,6 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @AutoConfigureTestRestTemplate
 @ActiveProfiles("test-containers")
+@TestMethodOrder(OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TestRedisConfiguration.class)
 class CategoryControllerIntegrationTests extends BaseUnitTest {
