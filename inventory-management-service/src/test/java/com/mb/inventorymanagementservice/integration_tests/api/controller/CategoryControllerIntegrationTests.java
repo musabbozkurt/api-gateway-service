@@ -163,7 +163,8 @@ class CategoryControllerIntegrationTests extends BaseUnitTest {
     @Test
     @Order(value = 9)
     void testAddProductToCategory() {
-        ResponseEntity<ApiCategoryResponse> response = testRestTemplate.exchange("/categories/Book Category/Art", HttpMethod.PUT, null, ApiCategoryResponse.class);
+        // Use "Novel" instead of "Art" because "Art" (id=6) may be soft-deleted by ProductControllerIntegrationTests
+        ResponseEntity<ApiCategoryResponse> response = testRestTemplate.exchange("/categories/Book Category/Novel", HttpMethod.PUT, null, ApiCategoryResponse.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -172,7 +173,8 @@ class CategoryControllerIntegrationTests extends BaseUnitTest {
     @Test
     @Order(value = 10)
     void testAddProductToCategory_ShouldFail_WhenProductIsNotFound() {
-        ResponseEntity<ErrorResponse> response = testRestTemplate.exchange("/categories/Beauty Category/Perfumes", HttpMethod.PUT, null, ErrorResponse.class);
+        // Use "Electronics Category" instead of "Beauty Category" because "Beauty Category" is deleted in Order 7
+        ResponseEntity<ErrorResponse> response = testRestTemplate.exchange("/categories/Electronics Category/Perfumes", HttpMethod.PUT, null, ErrorResponse.class);
 
         Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -182,7 +184,8 @@ class CategoryControllerIntegrationTests extends BaseUnitTest {
     @Test
     @Order(value = 11)
     void testGetProductsByCategory() {
-        ResponseEntity<List<ApiProductResponse>> response = testRestTemplate.exchange("/categories/Beauty Category/products", HttpMethod.GET, null, new ParameterizedTypeReference<>() {
+        // Use "Electronics Category" instead of "Beauty Category" because "Beauty Category" is deleted in Order 7
+        ResponseEntity<List<ApiProductResponse>> response = testRestTemplate.exchange("/categories/Electronics Category/products", HttpMethod.GET, null, new ParameterizedTypeReference<>() {
         });
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -202,7 +205,8 @@ class CategoryControllerIntegrationTests extends BaseUnitTest {
     @Test
     @Order(value = 13)
     void testDeleteProductFromCategory() {
-        ResponseEntity<ApiCategoryResponse> response = testRestTemplate.exchange("/categories/Book Category/Art", HttpMethod.DELETE, null, ApiCategoryResponse.class);
+        // Use "Novel" to match what was added in Order 9
+        ResponseEntity<ApiCategoryResponse> response = testRestTemplate.exchange("/categories/Book Category/Novel", HttpMethod.DELETE, null, ApiCategoryResponse.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
@@ -221,7 +225,8 @@ class CategoryControllerIntegrationTests extends BaseUnitTest {
     @Test
     @Order(value = 15)
     void testDeleteProductFromCategory_ShouldFail_WhenProductIsNotFound() {
-        ResponseEntity<ErrorResponse> response = testRestTemplate.exchange("/categories/Beauty Category/Perfumes", HttpMethod.DELETE, null, ErrorResponse.class);
+        // Use "Electronics Category" instead of "Beauty Category" because "Beauty Category" is deleted in Order 7
+        ResponseEntity<ErrorResponse> response = testRestTemplate.exchange("/categories/Electronics Category/Perfumes", HttpMethod.DELETE, null, ErrorResponse.class);
 
         Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());

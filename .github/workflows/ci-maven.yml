@@ -16,7 +16,62 @@ on:
     branches: [ "main" ]
 
 jobs:
+  detect_changes:
+    runs-on: ubuntu-latest
+    # Skip change detection for workflow_dispatch (manual triggers always build all)
+    if: github.event_name != 'workflow_dispatch'
+    permissions:
+      pull-requests: read
+    outputs:
+      api-gateway: ${{ steps.filter.outputs.api-gateway }}
+      notification-service: ${{ steps.filter.outputs.notification-service }}
+      openai-service: ${{ steps.filter.outputs.openai-service }}
+      payment-service: ${{ steps.filter.outputs.payment-service }}
+      service-registry: ${{ steps.filter.outputs.service-registry }}
+      student-service: ${{ steps.filter.outputs.student-service }}
+      spring-config-server: ${{ steps.filter.outputs.spring-config-server }}
+      swagger-application: ${{ steps.filter.outputs.swagger-application }}
+      gitlab-service: ${{ steps.filter.outputs.gitlab-service }}
+      kafka-debezium-service: ${{ steps.filter.outputs.kafka-debezium-service }}
+      brokerage-provider: ${{ steps.filter.outputs.brokerage-provider }}
+      stock-exchange-service: ${{ steps.filter.outputs.stock-exchange-service }}
+      inventory-management-service: ${{ steps.filter.outputs.inventory-management-service }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            api-gateway:
+              - 'api-gateway/**'
+            notification-service:
+              - 'notification-service/**'
+            openai-service:
+              - 'openai-service/**'
+            payment-service:
+              - 'payment-service/**'
+            service-registry:
+              - 'service-registry/**'
+            student-service:
+              - 'student-service/**'
+            spring-config-server:
+              - 'spring-config-server/**'
+            swagger-application:
+              - 'swagger-application/**'
+            gitlab-service:
+              - 'gitlab-service/**'
+            kafka-debezium-service:
+              - 'kafka-debezium-service/**'
+            brokerage-provider:
+              - 'brokerage-provider/**'
+            stock-exchange-service:
+              - 'stock-exchange-service/**'
+            inventory-management-service:
+              - 'inventory-management-service/**'
+
   build_api_gateway:
+    needs: detect_changes
+    if: always() && (needs.detect_changes.outputs.api-gateway == 'true' || needs.detect_changes.result == 'skipped')
     runs-on: ubuntu-latest
     # https://stackoverflow.com/a/70448851
     permissions: write-all
@@ -67,6 +122,8 @@ jobs:
           echo "Health URL: $HEALTH_URL"
 
   build_notification_service:
+    needs: detect_changes
+    if: always() && (needs.detect_changes.outputs.notification-service == 'true' || needs.detect_changes.result == 'skipped')
     runs-on: ubuntu-latest
     # https://stackoverflow.com/a/70448851
     permissions: write-all
@@ -84,6 +141,8 @@ jobs:
         run: mvn -B package --file notification-service/pom.xml
 
   build_openai_service:
+    needs: detect_changes
+    if: always() && (needs.detect_changes.outputs.openai-service == 'true' || needs.detect_changes.result == 'skipped')
     runs-on: ubuntu-latest
     # https://stackoverflow.com/a/70448851
     permissions: write-all
@@ -101,6 +160,8 @@ jobs:
         run: mvn -B package --file openai-service/pom.xml
 
   build_payment_service:
+    needs: detect_changes
+    if: always() && (needs.detect_changes.outputs.payment-service == 'true' || needs.detect_changes.result == 'skipped')
     runs-on: ubuntu-latest
     # https://stackoverflow.com/a/70448851
     permissions: write-all
@@ -118,6 +179,8 @@ jobs:
         run: mvn -B package --file payment-service/pom.xml
 
   build_service_registry:
+    needs: detect_changes
+    if: always() && (needs.detect_changes.outputs.service-registry == 'true' || needs.detect_changes.result == 'skipped')
     runs-on: ubuntu-latest
     # https://stackoverflow.com/a/70448851
     permissions: write-all
@@ -135,6 +198,8 @@ jobs:
         run: mvn -B package --file service-registry/pom.xml
 
   build_student_service:
+    needs: detect_changes
+    if: always() && (needs.detect_changes.outputs.student-service == 'true' || needs.detect_changes.result == 'skipped')
     runs-on: ubuntu-latest
     # https://stackoverflow.com/a/70448851
     permissions: write-all
@@ -152,6 +217,8 @@ jobs:
         run: mvn -B package --file student-service/pom.xml
 
   build_spring_config_server:
+    needs: detect_changes
+    if: always() && (needs.detect_changes.outputs.spring-config-server == 'true' || needs.detect_changes.result == 'skipped')
     runs-on: ubuntu-latest
     # https://stackoverflow.com/a/70448851
     permissions: write-all
@@ -169,6 +236,8 @@ jobs:
         run: mvn -B package --file spring-config-server/pom.xml
 
   build_swagger_application:
+    needs: detect_changes
+    if: always() && (needs.detect_changes.outputs.swagger-application == 'true' || needs.detect_changes.result == 'skipped')
     runs-on: ubuntu-latest
     # https://stackoverflow.com/a/70448851
     permissions: write-all
@@ -186,6 +255,8 @@ jobs:
         run: mvn -B package --file swagger-application/pom.xml
 
   build_gitlab_service:
+    needs: detect_changes
+    if: always() && (needs.detect_changes.outputs.gitlab-service == 'true' || needs.detect_changes.result == 'skipped')
     runs-on: ubuntu-latest
     permissions: write-all
 
@@ -213,6 +284,8 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
   build_kafka_debezium_service:
+    needs: detect_changes
+    if: always() && (needs.detect_changes.outputs.kafka-debezium-service == 'true' || needs.detect_changes.result == 'skipped')
     runs-on: ubuntu-latest
     permissions: write-all
 
@@ -240,6 +313,8 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
   build_brokerage_provider:
+    needs: detect_changes
+    if: always() && (needs.detect_changes.outputs.brokerage-provider == 'true' || needs.detect_changes.result == 'skipped')
     runs-on: ubuntu-latest
     permissions: write-all
 
@@ -256,6 +331,8 @@ jobs:
         run: mvn -B package --file brokerage-provider/pom.xml
 
   build_stock_exchange_service:
+    needs: detect_changes
+    if: always() && (needs.detect_changes.outputs.stock-exchange-service == 'true' || needs.detect_changes.result == 'skipped')
     runs-on: ubuntu-latest
     permissions: write-all
 
@@ -272,6 +349,8 @@ jobs:
         run: mvn -B package --file stock-exchange-service/pom.xml
 
   build_inventory_management_service:
+    needs: detect_changes
+    if: always() && (needs.detect_changes.outputs.inventory-management-service == 'true' || needs.detect_changes.result == 'skipped')
     runs-on: ubuntu-latest
     permissions: write-all
 
