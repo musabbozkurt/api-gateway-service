@@ -158,8 +158,13 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <!-- Java 25's security model issues a warning when libraries try to access native code without explicit permission-->
-                    <jvmArguments>--enable-native-access=ALL-UNNAMED</jvmArguments>
+                    <!--
+                        enable-native-access=ALL-UNNAMED: Java 25's security model issues a warning when libraries access native code without explicit permission.
+                        sun-misc-unsafe-memory-access=allow: Suppresses terminally deprecated sun.misc.Unsafe warnings from protobuf-java (UnsafeUtil) on Java 25.
+                    -->
+                    <jvmArguments>
+                        --enable-native-access=ALL-UNNAMED --sun-misc-unsafe-memory-access=allow
+                    </jvmArguments>
                 </configuration>
             </plugin>
 

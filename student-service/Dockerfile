@@ -43,4 +43,6 @@ COPY --from=build /mbjavaruntime $JAVA_HOME
 COPY --from=build /app/student-service/target/*.jar app.jar
 
 # Command to run the application
-ENTRYPOINT ["java", "--enable-native-access=ALL-UNNAMED", "-jar", "app.jar"]
+# --enable-native-access=ALL-UNNAMED: allows libraries to access native code without warnings on Java 25
+# --sun-misc-unsafe-memory-access=allow: suppresses sun.misc.Unsafe deprecation warnings from protobuf-java (UnsafeUtil)
+ENTRYPOINT ["java", "--enable-native-access=ALL-UNNAMED", "--sun-misc-unsafe-memory-access=allow", "-jar", "app.jar"]
