@@ -22,7 +22,7 @@
         <springdoc-openapi-starter-webflux-ui.version>3.0.3</springdoc-openapi-starter-webflux-ui.version>
         <org.projectlombok.version>1.18.46</org.projectlombok.version>
         <mockserver-client-java.version>5.15.0</mockserver-client-java.version>
-        <opentelemetry-logback-appender-1.0.version>2.25.0-alpha</opentelemetry-logback-appender-1.0.version>
+        <opentelemetry-logback-appender-1.0.version>2.27.0-alpha</opentelemetry-logback-appender-1.0.version>
         <protobuf.version>4.34.1</protobuf.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
         <!-- Aligns okio version across okhttp 4.x (from mockwebserver) and okhttp 5.x (from opentelemetry-exporter-sender-okhttp).
@@ -183,6 +183,16 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- OpenTelemetry Instrumentation BOM: aligns API, SDK, and instrumentation versions
+                 to prevent NoSuchMethodError (e.g., LogRecordBuilder.setException) in CI clean builds -->
+            <dependency>
+                <groupId>io.opentelemetry.instrumentation</groupId>
+                <artifactId>opentelemetry-instrumentation-bom-alpha</artifactId>
+                <version>${opentelemetry-logback-appender-1.0.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <!-- Force a single okio version to resolve the conflict between okhttp 4.12.0 (test, pulls okio 3.6.0) and okhttp 5.2.1 (runtime, needs okio 3.9+) -->
             <dependency>
                 <groupId>com.squareup.okio</groupId>
