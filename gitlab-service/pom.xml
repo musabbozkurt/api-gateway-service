@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.0-RC1</version>
+        <version>4.0.6</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -19,7 +19,7 @@
         <java.version>25</java.version>
         <spring-cloud.version>2025.1.1</spring-cloud.version>
         <opentelemetry-logback-appender-1.0.version>2.27.0-alpha</opentelemetry-logback-appender-1.0.version>
-        <protobuf.version>4.35.0-RC2</protobuf.version>
+        <protobuf.version>4.34.1</protobuf.version>
         <dockerfile-maven-plugin.version>1.4.13</dockerfile-maven-plugin.version>
         <registry>${env.CI_REGISTRY}/${env.CI_REGION}/${project.artifactId}</registry>
     </properties>

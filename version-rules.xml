@@ -2,17 +2,42 @@
 <ruleset comparisonMethod="maven"
          xmlns="http://mojo.codehaus.org/versions-maven-plugin/rule/2.0.0">
 
-    <!-- Global: ignore alpha, beta, milestone, release-candidate, and snapshot versions -->
+    <!--
+        Global: ignore pre-release versions (case-insensitive).
+        This prevents stable dependencies from being upgraded to pre-release versions.
+        Dependencies that intentionally use pre-release qualifiers must be excluded via the per-artifact rules below.
+    -->
     <ignoreVersions>
-        <ignoreVersion type="regex">.*[-.]alpha[-.]?\d*</ignoreVersion>
-        <ignoreVersion type="regex">.*[-.]beta[-.]?\d*</ignoreVersion>
-        <ignoreVersion type="regex">.*[-.]Alpha[-.]?\d*</ignoreVersion>
-        <ignoreVersion type="regex">.*[-.]Beta[-.]?\d*</ignoreVersion>
-        <ignoreVersion type="regex">.*[-.]RC[-.]?\d*</ignoreVersion>
-        <ignoreVersion type="regex">.*[-.]rc[-.]?\d*</ignoreVersion>
-        <ignoreVersion type="regex">.*[-.]CR[-.]?\d*</ignoreVersion>
-        <ignoreVersion type="regex">.*[-.]M\d+</ignoreVersion>
-        <ignoreVersion type="regex">.*-SNAPSHOT</ignoreVersion>
-        <ignoreVersion type="regex">.*[-.]milestone[-.]?\d*</ignoreVersion>
+        <ignoreVersion type="regex">(?i).*[-.]alpha[-.]?\d*</ignoreVersion>
+        <ignoreVersion type="regex">(?i).*[-.]beta[-.]?\d*</ignoreVersion>
+        <ignoreVersion type="regex">(?i).*[-.]rc[-.]?\d*</ignoreVersion>
+        <ignoreVersion type="regex">(?i).*[-.]cr[-.]?\d*</ignoreVersion>
+        <ignoreVersion type="regex">(?i).*[-.]m\d+</ignoreVersion>
+        <ignoreVersion type="regex">(?i).*-snapshot</ignoreVersion>
+        <ignoreVersion type="regex">(?i).*[-.]milestone[-.]?\d*</ignoreVersion>
     </ignoreVersions>
+
+    <rules>
+        <!--
+            OpenTelemetry instrumentation: uses -alpha as a standard release qualifier (e.g., 2.27.0-alpha).
+            Override global rules to allow alpha-to-alpha upgrades while still blocking snapshot/beta/RC.
+        -->
+        <rule groupId="io.opentelemetry.instrumentation">
+            <ignoreVersions>
+                <ignoreVersion type="regex">(?i).*[-.]beta[-.]?\d*</ignoreVersion>
+                <ignoreVersion type="regex">(?i).*[-.]rc[-.]?\d*</ignoreVersion>
+                <ignoreVersion type="regex">(?i).*[-.]cr[-.]?\d*</ignoreVersion>
+                <ignoreVersion type="regex">(?i).*[-.]m\d+</ignoreVersion>
+                <ignoreVersion type="regex">(?i).*-snapshot</ignoreVersion>
+                <ignoreVersion type="regex">(?i).*[-.]milestone[-.]?\d*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+
+        <!-- graphql-java: ignore timestamp-based versions (e.g., 2024-01-01T...) -->
+        <rule groupId="com.graphql-java" artifactId="graphql-java-extended-scalars">
+            <ignoreVersions>
+                <ignoreVersion type="regex">\d{4}-\d{2}-\d{2}T.*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
+    </rules>
 </ruleset>
