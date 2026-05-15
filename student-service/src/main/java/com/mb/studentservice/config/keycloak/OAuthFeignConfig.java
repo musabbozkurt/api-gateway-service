@@ -4,7 +4,6 @@ import com.mb.studentservice.config.OAuthProperties;
 import feign.RequestInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
@@ -19,7 +18,12 @@ import java.util.List;
 
 import static org.springframework.security.oauth2.core.AuthorizationGrantType.CLIENT_CREDENTIALS;
 
-@Configuration
+/**
+ * Feign configuration for OAuth2 client credentials flow (Keycloak).
+ * NOT annotated with @Configuration to prevent the RequestInterceptor from being applied globally
+ * to all Feign clients (e.g., HCaptchaClient should not hit Keycloak for token).
+ * Only applied to clients that explicitly reference this class via configuration attribute.
+ */
 @RequiredArgsConstructor
 public class OAuthFeignConfig {
 

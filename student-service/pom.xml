@@ -19,7 +19,7 @@
         <java.version>25</java.version>
         <org.projectlombok.version>1.18.46</org.projectlombok.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
-        <opentelemetry-logback-appender-1.0.version>2.25.0-alpha</opentelemetry-logback-appender-1.0.version>
+        <opentelemetry-logback-appender-1.0.version>2.27.0-alpha</opentelemetry-logback-appender-1.0.version>
         <protobuf.version>4.34.1</protobuf.version>
         <spring-cloud.version>2025.1.1</spring-cloud.version>
     </properties>
@@ -142,6 +142,16 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- OpenTelemetry Instrumentation BOM: aligns API, SDK, and instrumentation versions
+                 to prevent NoSuchMethodError (e.g., LogRecordBuilder.setException) in CI clean builds -->
+            <dependency>
+                <groupId>io.opentelemetry.instrumentation</groupId>
+                <artifactId>opentelemetry-instrumentation-bom-alpha</artifactId>
+                <version>${opentelemetry-logback-appender-1.0.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
@@ -158,8 +168,13 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <!-- Java 25's security model issues a warning when libraries try to access native code without explicit permission-->
-                    <jvmArguments>--enable-native-access=ALL-UNNAMED</jvmArguments>
+                    <!--
+                        enable-native-access=ALL-UNNAMED: Java 25's security model issues a warning when libraries access native code without explicit permission.
+                        sun-misc-unsafe-memory-access=allow: Suppresses terminally deprecated sun.misc.Unsafe warnings from protobuf-java (UnsafeUtil) on Java 25.
+                    -->
+                    <jvmArguments>
+                        --enable-native-access=ALL-UNNAMED --sun-misc-unsafe-memory-access=allow
+                    </jvmArguments>
                 </configuration>
             </plugin>
 
