@@ -32,12 +32,5 @@
                 <ignoreVersion type="regex">(?i).*[-.]milestone[-.]?\d*</ignoreVersion>
             </ignoreVersions>
         </rule>
-
-        <!-- graphql-java: ignore timestamp-based versions (e.g., 2024-01-01T...) -->
-        <rule groupId="com.graphql-java" artifactId="graphql-java-extended-scalars">
-            <ignoreVersions>
-                <ignoreVersion type="regex">\d{4}-\d{2}-\d{2}T.*</ignoreVersion>
-            </ignoreVersions>
-        </rule>
     </rules>
 </ruleset>
