@@ -32,7 +32,7 @@
         <java.version>25</java.version>
         <hypersistence-utils-hibernate.version>3.15.2</hypersistence-utils-hibernate.version>
         <jjwt.version>0.13.0</jjwt.version>
-        <org.mapstruct.version>1.6.3</org.mapstruct.version>
+        <org.mapstruct.version>1.7.0.Beta1</org.mapstruct.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
         <opentelemetry-logback-appender-1.0.version>2.27.0-alpha</opentelemetry-logback-appender-1.0.version>
         <protobuf.version>4.34.1</protobuf.version>
@@ -427,6 +427,14 @@
                     <layout>JAR</layout>
                     <!-- Java 25's security model issues a warning when libraries try to access native code without explicit permission-->
                     <jvmArguments>--enable-native-access=ALL-UNNAMED</jvmArguments>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <configuration>
+                    <rulesUri>file://${project.basedir}/../version-rules.xml</rulesUri>
                 </configuration>
             </plugin>
         </plugins>

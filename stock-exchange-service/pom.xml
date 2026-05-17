@@ -32,7 +32,7 @@
         <java.version>25</java.version>
         <jjwt.version>0.13.0</jjwt.version>
         <embedded-redis.version>1.4.3</embedded-redis.version>
-        <org.mapstruct.version>1.6.3</org.mapstruct.version>
+        <org.mapstruct.version>1.7.0.Beta1</org.mapstruct.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
         <jboss-logging.version>3.6.3.Final</jboss-logging.version>
         <opentelemetry-logback-appender-1.0.version>2.27.0-alpha</opentelemetry-logback-appender-1.0.version>
@@ -322,6 +322,14 @@
                         <VERSION>${env.BRANCH_NAME}</VERSION>
                         <MODULENAME>${project.artifactId}</MODULENAME>
                     </buildArgs>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <configuration>
+                    <rulesUri>file://${project.basedir}/../version-rules.xml</rulesUri>
                 </configuration>
             </plugin>
         </plugins>
