@@ -15,7 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Value(value = "${springdoc.api-docs.path}")
+    @Value(value = "${springdoc.api-docs.path:/v3/api-docs}")
     private String apiDocsPath;
 
     @Bean
@@ -36,9 +36,8 @@ public class SecurityConfig {
                         .permitAll()
                         .anyRequest()
                         .authenticated())
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> {
-                        }))
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(_ -> {
+                }))
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();

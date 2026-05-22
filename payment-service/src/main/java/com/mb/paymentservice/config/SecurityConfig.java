@@ -22,7 +22,7 @@ public class SecurityConfig {
 
     private final JwtAuthConverter jwtAuthConverter;
 
-    @Value(value = "${springdoc.api-docs.path}")
+    @Value(value = "${springdoc.api-docs.path:/v3/api-docs}")
     private String apiDocsPath;
 
     @Value("${spring.security.oauth2.resource-server.jwt.issuer-uri}")
