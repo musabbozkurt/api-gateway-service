@@ -1,8 +1,10 @@
 package com.mb.notificationservice.config;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,9 +12,13 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.converter.ByteArrayJacksonJsonMessageConverter;
+import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
 import org.springframework.util.backoff.FixedBackOff;
 
 import java.net.SocketTimeoutException;
@@ -69,6 +75,7 @@ public class KafkaConfig {
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.BATCH);
         factory.setCommonErrorHandler(kafkaErrorHandler());
         factory.setRecordMessageConverter(new ByteArrayJacksonJsonMessageConverter());
+        factory.getContainerProperties().setObservationEnabled(true);
 
         return factory;
     }
@@ -98,6 +105,7 @@ public class KafkaConfig {
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
         factory.setCommonErrorHandler(kafkaErrorHandler());
         factory.setRecordMessageConverter(new ByteArrayJacksonJsonMessageConverter());
+        factory.getContainerProperties().setObservationEnabled(true);
 
         return factory;
     }
@@ -113,8 +121,28 @@ public class KafkaConfig {
         factory.getContainerProperties().setIdleBetweenPolls(idleBetweenPolls);
         factory.setConcurrency(concurrency);
         factory.setBatchListener(false);
+        factory.getContainerProperties().setObservationEnabled(true);
 
         return factory;
+    }
+
+    @Bean
+    public ProducerFactory<String, Object> producerFactory() {
+        Map<String, Object> config = new HashMap<>();
+
+        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
+
+        return new DefaultKafkaProducerFactory<>(config);
+    }
+
+    @Bean
+    @SuppressWarnings("java:S1452")
+    public KafkaTemplate<String, ?> kafkaTemplate() {
+        KafkaTemplate<String, ?> template = new KafkaTemplate<>(producerFactory());
+        template.setObservationEnabled(true);
+        return template;
     }
 
     @Bean
