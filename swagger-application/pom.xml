@@ -25,7 +25,7 @@
         <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
         <org.projectlombok.version>1.18.46</org.projectlombok.version>
         <opentelemetry-logback-appender-1.0.version>2.27.0-alpha</opentelemetry-logback-appender-1.0.version>
-        <protobuf.version>4.34.1</protobuf.version>
+        <protobuf.version>4.35.0</protobuf.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
         <moneta.version>1.4.5</moneta.version>
         <spring-cloud.version>2025.1.1</spring-cloud.version>
