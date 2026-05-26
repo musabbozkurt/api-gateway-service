@@ -131,6 +131,15 @@ class RateLimiterIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        // Ensure Redis is reachable and warm up the Lettuce connection pool.
+        // The rate limiter fails-open (allows all) when Redis is unreachable.
+        await().atMost(5, TimeUnit.SECONDS)
+                .pollInterval(200, TimeUnit.MILLISECONDS)
+                .untilAsserted(() -> assertThat(reactiveRedisTemplate.getConnectionFactory()
+                        .getReactiveConnection()
+                        .ping()
+                        .block()).isEqualTo("PONG"));
+
         // Flush Redis so each test starts with a full token bucket (burstCapacity = 80)
         reactiveRedisTemplate.getConnectionFactory()
                 .getReactiveConnection()
@@ -170,6 +179,7 @@ class RateLimiterIntegrationTest {
     void rateLimiter_ShouldAllowInitialRequestsAndThenLimit_WhenSendingMultipleRequests() {
         // Arrange
         WebTestClient client = buildClient();
+        warmUpRateLimiter(client);
         AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger rejectedCount = new AtomicInteger(0);
         AtomicInteger errorCount = new AtomicInteger(0);
@@ -216,6 +226,7 @@ class RateLimiterIntegrationTest {
     void rateLimiter_ShouldReturn429_WhenBurstCapacityIsExhausted() {
         // Arrange
         WebTestClient client = buildClient();
+        warmUpRateLimiter(client);
 
         // Act — exhaust burst capacity + replenished tokens (burstCapacity=80, replenishRate=40/sec)
         IntStream.range(0, 150).forEach(_ -> sendAuthenticatedRequest(client, "/students/test"));
@@ -310,6 +321,24 @@ class RateLimiterIntegrationTest {
     }
 
     // --- Helper methods ---
+
+    /**
+     * Sends a single request and waits until the rate limiter is actively connected to Redis.
+     * Without this, the rate limiter may fail-open (allow all) on first requests if the
+     * Lettuce connection pool hasn't been established yet.
+     */
+    private void warmUpRateLimiter(WebTestClient client) {
+        await().atMost(5, TimeUnit.SECONDS)
+                .pollInterval(200, TimeUnit.MILLISECONDS)
+                .until(() -> {
+                    sendAuthenticatedRequest(client, "/students/warmup");
+                    // After warmup, verify rate limiter is working by checking Redis has rate-limit keys
+                    Long keyCount = reactiveRedisTemplate.keys("request_rate_limiter.*")
+                            .count()
+                            .block(Duration.ofSeconds(2));
+                    return keyCount != null && keyCount > 0;
+                });
+    }
 
     private WebTestClient buildClient() {
         return WebTestClient.bindToServer()
