@@ -55,7 +55,14 @@ import static org.mockito.Mockito.when;
  */
 @Slf4j
 @Testcontainers(disabledWithoutDocker = true)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+        properties = {
+                "eureka.client.enabled=false",
+                "spring.docker.compose.enabled=false",
+                "spring.cloud.discovery.enabled=false"
+        },
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+)
 class RateLimiterIntegrationTest {
 
     @Container
@@ -117,11 +124,14 @@ class RateLimiterIntegrationTest {
 
         // Fully override gateway config (routes + default-filters) to isolate the test
         // from application.yml, which references unresolved service URLs.
+        // Use LOW rate limits so that rate limiting triggers within a few requests,
+        // minimizing the window for Redis connection instability to cause fail-open.
         registry.add("spring.cloud.gateway.server.webflux.default-filters[0]", () -> "StripPrefix=1");
         registry.add("spring.cloud.gateway.server.webflux.default-filters[1].name", () -> "RequestRateLimiter");
-        registry.add("spring.cloud.gateway.server.webflux.default-filters[1].args.redis-rate-limiter.replenishRate", () -> "40");
-        registry.add("spring.cloud.gateway.server.webflux.default-filters[1].args.redis-rate-limiter.burstCapacity", () -> "80");
+        registry.add("spring.cloud.gateway.server.webflux.default-filters[1].args.redis-rate-limiter.replenishRate", () -> "5");
+        registry.add("spring.cloud.gateway.server.webflux.default-filters[1].args.redis-rate-limiter.burstCapacity", () -> "10");
         registry.add("spring.cloud.gateway.server.webflux.default-filters[1].args.redis-rate-limiter.requestedTokens", () -> "1");
+        registry.add("spring.cloud.gateway.server.webflux.default-filters[1].args.deny-empty-key", () -> "true");
 
         // Configure the route
         registry.add("spring.cloud.gateway.server.webflux.routes[0].id", () -> "students-service");
@@ -184,8 +194,8 @@ class RateLimiterIntegrationTest {
         AtomicInteger rejectedCount = new AtomicInteger(0);
         AtomicInteger errorCount = new AtomicInteger(0);
 
-        // Act
-        IntStream.range(0, 200).forEach(_ -> {
+        // Act — burstCapacity=10, so sending 25 requests should trigger rate limiting
+        IntStream.range(0, 25).forEach(_ -> {
             try {
                 HttpStatusCode status = sendAuthenticatedRequest(client, "/students/test");
                 if (status.equals(HttpStatus.OK)) {
@@ -228,8 +238,8 @@ class RateLimiterIntegrationTest {
         WebTestClient client = buildClient();
         warmUpRateLimiter(client);
 
-        // Act — exhaust burst capacity + replenished tokens (burstCapacity=80, replenishRate=40/sec)
-        IntStream.range(0, 150).forEach(_ -> sendAuthenticatedRequest(client, "/students/test"));
+        // Act — exhaust burst capacity (burstCapacity=10, replenishRate=5/sec)
+        IntStream.range(0, 15).forEach(_ -> sendAuthenticatedRequest(client, "/students/test"));
 
         AtomicInteger rejectedCount = new AtomicInteger(0);
         IntStream.range(0, 10).forEach(_ -> {
@@ -247,11 +257,12 @@ class RateLimiterIntegrationTest {
     void rateLimiter_ShouldRateLimitConcurrentRequests_WhenTrafficIsParallel() throws InterruptedException {
         // Arrange
         WebTestClient client = buildClient();
-        int totalRequests = 150;
+        warmUpRateLimiter(client);
+        int totalRequests = 30;
         AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger rejectedCount = new AtomicInteger(0);
 
-        // Act — send requests concurrently to simulate real traffic
+        // Act — send requests concurrently to simulate real traffic (burstCapacity=10)
         try (ExecutorService executor = Executors.newFixedThreadPool(10)) {
             CountDownLatch latch = new CountDownLatch(totalRequests);
 
@@ -283,18 +294,19 @@ class RateLimiterIntegrationTest {
     void rateLimiter_ShouldReplenishTokens_WhenWaitingBetweenBursts() {
         // Arrange
         WebTestClient client = buildClient();
+        warmUpRateLimiter(client);
 
-        // Act — exhaust most of the burst capacity
-        IntStream.range(0, 75).forEach(_ -> sendAuthenticatedRequest(client, "/students/test"));
+        // Act — exhaust most of the burst capacity (burstCapacity=10)
+        IntStream.range(0, 12).forEach(_ -> sendAuthenticatedRequest(client, "/students/test"));
 
-        // Wait for replenishment (replenishRate = 40 tokens/sec → ~1s should add ~40 tokens)
+        // Wait for replenishment (replenishRate = 5 tokens/sec → ~2s should add ~10 tokens)
         AtomicInteger successCount = new AtomicInteger(0);
-        await().atMost(3, TimeUnit.SECONDS)
-                .pollDelay(1, TimeUnit.SECONDS)
-                .pollInterval(200, TimeUnit.MILLISECONDS)
+        await().atMost(5, TimeUnit.SECONDS)
+                .pollDelay(2, TimeUnit.SECONDS)
+                .pollInterval(500, TimeUnit.MILLISECONDS)
                 .untilAsserted(() -> {
                     successCount.set(0);
-                    IntStream.range(0, 10).forEach(_ -> {
+                    IntStream.range(0, 3).forEach(_ -> {
                         HttpStatusCode status = sendAuthenticatedRequest(client, "/students/test");
                         if (status.equals(HttpStatus.OK)) {
                             successCount.incrementAndGet();
@@ -323,21 +335,36 @@ class RateLimiterIntegrationTest {
     // --- Helper methods ---
 
     /**
-     * Sends a single request and waits until the rate limiter is actively connected to Redis.
+     * Sends multiple requests and waits until the rate limiter is actively connected to Redis.
      * Without this, the rate limiter may fail-open (allow all) on first requests if the
      * Lettuce connection pool hasn't been established yet.
+     * After warmup, flushes Redis so the test starts with full token bucket.
      */
     private void warmUpRateLimiter(WebTestClient client) {
-        await().atMost(5, TimeUnit.SECONDS)
-                .pollInterval(200, TimeUnit.MILLISECONDS)
+        await().atMost(10, TimeUnit.SECONDS)
+                .pollInterval(500, TimeUnit.MILLISECONDS)
                 .until(() -> {
+                    // Send a few requests to establish Lettuce connections
                     sendAuthenticatedRequest(client, "/students/warmup");
-                    // After warmup, verify rate limiter is working by checking Redis has rate-limit keys
+                    sendAuthenticatedRequest(client, "/students/warmup");
+                    // Verify rate limiter is working by checking Redis has rate-limit keys
                     Long keyCount = reactiveRedisTemplate.keys("request_rate_limiter.*")
                             .count()
                             .block(Duration.ofSeconds(2));
                     return keyCount != null && keyCount > 0;
                 });
+
+        // Flush Redis after warmup so the actual test starts with a full token bucket (burstCapacity=10)
+        reactiveRedisTemplate.getConnectionFactory()
+                .getReactiveConnection()
+                .serverCommands()
+                .flushAll()
+                .block(Duration.ofSeconds(2));
+
+        // Small pause to let Lettuce connection pool stabilize after flush
+        await().pollDelay(200, TimeUnit.MILLISECONDS)
+                .atMost(1, TimeUnit.SECONDS)
+                .until(() -> true);
     }
 
     private WebTestClient buildClient() {

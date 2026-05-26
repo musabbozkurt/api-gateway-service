@@ -72,3 +72,8 @@ management:
   health:
     redis:
       enabled: false
+
+  otlp:
+    metrics:
+      export:
+        enabled: false
