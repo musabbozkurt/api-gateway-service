@@ -21,7 +21,7 @@
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
         <opentelemetry-logback-appender-1.0.version>2.27.0-alpha</opentelemetry-logback-appender-1.0.version>
-        <protobuf.version>4.34.1</protobuf.version>
+        <protobuf.version>4.35.0</protobuf.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
         <firebase-admin.version>9.9.0</firebase-admin.version>
         <spring-cloud.version>2025.1.1</spring-cloud.version>
@@ -176,7 +176,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20251224</version>
+            <version>20260522</version>
         </dependency>
 
         <dependency>

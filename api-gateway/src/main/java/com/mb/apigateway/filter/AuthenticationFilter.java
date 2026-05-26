@@ -104,10 +104,19 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                 .orElse(null);
     }
 
+    /**
+     * Decodes the payload (second segment) of a JWT token to extract claims.
+     * Returns an empty map if the token is not in valid JWT format (header.payload.signature)
+     * or if decoding/parsing fails — e.g., opaque tokens passed by introspection-based auth.
+     */
     private HashMap<String, String> extractJwtClaims(String token) {
         try {
-            Base64.Decoder decoder = Base64.getUrlDecoder();
             String[] chunks = token.split("\\.");
+            if (chunks.length < 2) {
+                log.warn("Token is not a valid JWT (expected at least 2 dot-separated parts, got {})", chunks.length);
+                return new HashMap<>();
+            }
+            Base64.Decoder decoder = Base64.getUrlDecoder();
             String payload = new String(decoder.decode(chunks[1]));
             return objectMapper.readValue(payload, HashMap.class);
         } catch (Exception e) {

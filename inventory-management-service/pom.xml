@@ -35,7 +35,7 @@
         <org.mapstruct.version>1.7.0.Beta1</org.mapstruct.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
         <opentelemetry-logback-appender-1.0.version>2.27.0-alpha</opentelemetry-logback-appender-1.0.version>
-        <protobuf.version>4.34.1</protobuf.version>
+        <protobuf.version>4.35.0</protobuf.version>
         <jboss-logging.version>3.6.3.Final</jboss-logging.version>
         <newrelic-java.version>9.2.0</newrelic-java.version>
         <moneta.version>1.4.5</moneta.version>
