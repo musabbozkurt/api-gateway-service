@@ -14,4 +14,5 @@ public final class GatewayServiceConstants {
     public static final String MDC_CONTEXT = "MDC_CONTEXT";
 
     public static final String RESPONSE_BODY_CONTAINS_ANY_ERROR = "responseBodyContainsAnyError";
+    public static final String SERVICE_ACCESS_KEY_PREFIX = "swagger-application:service-access:";
 }

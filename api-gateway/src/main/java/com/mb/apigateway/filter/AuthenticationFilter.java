@@ -1,6 +1,9 @@
 package com.mb.apigateway.filter;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mb.apigateway.enums.AccessType;
+import com.mb.apigateway.service.ServiceAccessCacheService;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,9 +12,14 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.buffer.DataBufferFactory;
+import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -20,7 +28,6 @@ import reactor.core.publisher.Mono;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import static com.mb.apigateway.constant.GatewayServiceConstants.CLIENT_ID;
@@ -41,22 +48,44 @@ import static com.mb.apigateway.constant.GatewayServiceConstants.USER_NAME;
 @RequiredArgsConstructor
 public class AuthenticationFilter implements GlobalFilter, Ordered {
 
+    private static final ClassPathResource MAINTENANCE_PAGE = new ClassPathResource("templates/maintenance.html");
+    private static final DataBufferFactory BUFFER_FACTORY = new DefaultDataBufferFactory();
+    private static final TypeReference<HashMap<String, String>> STRING_MAP_TYPE = new TypeReference<>() {
+    };
+
     private final ObjectMapper objectMapper;
+    private final ServiceAccessCacheService serviceAccessCacheService;
 
     @NonNull
     @Override
     public Mono<Void> filter(@NonNull ServerWebExchange exchange, @NonNull GatewayFilterChain chain) {
         return ReactiveSecurityContextHolder.getContext()
-                .map(Optional::of)
-                .defaultIfEmpty(Optional.empty())
-                .flatMap(optionalSecurityContext -> {
-                    if (optionalSecurityContext.isEmpty()) {
-                        return chain.filter(exchange);
+                .switchIfEmpty(Mono.defer(() -> chain.filter(exchange).then(Mono.empty()))) // no security context (pre-auth / permitted path) → pass through
+                .flatMap(securityContext -> {
+                    if (!(securityContext.getAuthentication() instanceof BearerTokenAuthentication bearerAuth)) {
+                        return chain.filter(exchange); // anonymous / permitted path – skip access check
                     }
+
                     ServerWebExchange mutatedExchange = exchange.mutate()
-                            .request(requestBuilder -> requestBuilder.headers(headers -> setHeaders(exchange, optionalSecurityContext.get(), headers)))
+                            .request(requestBuilder -> requestBuilder.headers(headers -> setHeadersFromBearerAuth(exchange, bearerAuth, headers)))
                             .build();
-                    return chain.filter(mutatedExchange);
+
+                    String clientId = (String) mutatedExchange.getAttributes().get(CLIENT_ID);
+                    String userId = (String) mutatedExchange.getAttributes().get(USER_ID);
+                    String path = exchange.getRequest().getURI().getPath();
+                    String method = exchange.getRequest().getMethod().name();
+                    String serviceName = extractServiceName(path);
+                    String api = extractApiPath(path);
+                    String accessType = StringUtils.isNotBlank(userId) ? AccessType.USER.name() : AccessType.CLIENT.name();
+
+                    return serviceAccessCacheService.hasAccess(clientId, serviceName, api, method, accessType)
+                            .flatMap(hasAccess -> {
+                                if (Boolean.FALSE.equals(hasAccess)) {
+                                    log.warn("Access denied for clientId: {}, service: {}, api: {}, method: {}", clientId, serviceName, api, method);
+                                    return renderMaintenancePage(exchange);
+                                }
+                                return chain.filter(mutatedExchange);
+                            });
                 });
     }
 
@@ -70,32 +99,30 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         return Ordered.HIGHEST_PRECEDENCE + 1;
     }
 
-    private void setHeaders(ServerWebExchange exchange, SecurityContext securityContext, HttpHeaders headers) {
-        if (securityContext.getAuthentication() instanceof BearerTokenAuthentication bearerAuth) {
-            Map<String, Object> tokenAttributes = bearerAuth.getTokenAttributes();
+    private void setHeadersFromBearerAuth(ServerWebExchange exchange, BearerTokenAuthentication bearerAuth, HttpHeaders headers) {
+        Map<String, Object> tokenAttributes = bearerAuth.getTokenAttributes();
 
-            String clientId = getAttribute(tokenAttributes, CLIENT_ID);
-            String userId = getAttribute(tokenAttributes, USER_ID);
-            String username = getAttribute(tokenAttributes, USER_NAME);
+        String clientId = getAttribute(tokenAttributes, CLIENT_ID);
+        String userId = getAttribute(tokenAttributes, USER_ID);
+        String username = getAttribute(tokenAttributes, USER_NAME);
 
-            if (StringUtils.isBlank(clientId) || StringUtils.isBlank(userId) || StringUtils.isBlank(username)) {
-                HashMap<String, String> claims = extractJwtClaims(bearerAuth.getToken().getTokenValue());
+        if (StringUtils.isBlank(clientId) || StringUtils.isBlank(userId) || StringUtils.isBlank(username)) {
+            HashMap<String, String> claims = extractJwtClaims(bearerAuth.getToken().getTokenValue());
 
-                if (StringUtils.isBlank(clientId)) {
-                    clientId = claims.get(CLIENT_ID);
-                }
-
-                userId = getUserId(userId, claims);
-
-                if (StringUtils.isBlank(username)) {
-                    username = claims.get(USER_NAME);
-                }
+            if (StringUtils.isBlank(clientId)) {
+                clientId = claims.get(CLIENT_ID);
             }
 
-            setHeaderAndAttribute(headers, exchange, CLIENT_ID, clientId);
-            setHeaderAndAttribute(headers, exchange, USER_ID, userId);
-            setHeaderAndAttribute(headers, exchange, USERNAME, username);
+            userId = getUserId(userId, claims);
+
+            if (StringUtils.isBlank(username)) {
+                username = claims.get(USER_NAME);
+            }
         }
+
+        setHeaderAndAttribute(headers, exchange, CLIENT_ID, clientId);
+        setHeaderAndAttribute(headers, exchange, USER_ID, userId);
+        setHeaderAndAttribute(headers, exchange, USERNAME, username);
     }
 
     private String getAttribute(Map<String, Object> attributes, String key) {
@@ -118,7 +145,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             }
             Base64.Decoder decoder = Base64.getUrlDecoder();
             String payload = new String(decoder.decode(chunks[1]));
-            return objectMapper.readValue(payload, HashMap.class);
+            return objectMapper.readValue(payload, STRING_MAP_TYPE);
         } catch (Exception e) {
             log.error("Error occurred while extracting JWT claims. Exception: {}", ExceptionUtils.getStackTrace(e));
             return new HashMap<>();
@@ -128,7 +155,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     private String getUserId(String userId, HashMap<String, String> claims) {
         if (StringUtils.isBlank(userId)) {
             Object userIdClaim = claims.get(USER_ID);
-            userId = Objects.nonNull(userIdClaim) ? userIdClaim.toString() : userId;
+            userId = userIdClaim != null ? userIdClaim.toString() : userId;
         }
         return userId;
     }
@@ -138,5 +165,38 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             headers.set(key, value);
             exchange.getAttributes().put(key, value);
         }
+    }
+
+    private String extractServiceName(String path) {
+        if (StringUtils.isBlank(path)) {
+            return null;
+        }
+        // Path format: /{service-name}/api/v1/...
+        String[] segments = path.split("/");
+        if (segments.length > 1) {
+            return segments[1];
+        }
+        return null;
+    }
+
+    private String extractApiPath(String path) {
+        if (StringUtils.isBlank(path)) {
+            return null;
+        }
+        // Remove the service name prefix: /{service-name}/api/... -> /api/...
+        int secondSlash = path.indexOf('/', 1);
+        if (secondSlash > 0) {
+            return path.substring(secondSlash);
+        }
+        return path;
+    }
+
+    private Mono<Void> renderMaintenancePage(ServerWebExchange exchange) {
+        exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+        exchange.getResponse().getHeaders().setContentType(MediaType.TEXT_HTML);
+
+        return DataBufferUtils.read(MAINTENANCE_PAGE, BUFFER_FACTORY, 8192)
+                .collectList()
+                .flatMap(dataBuffers -> exchange.getResponse().writeWith(Mono.just(BUFFER_FACTORY.join(dataBuffers))));
     }
 }
