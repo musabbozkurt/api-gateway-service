@@ -2,6 +2,7 @@ package com.mb.apigateway.config;
 
 import com.mb.apigateway.filter.AuthenticationFilter;
 import com.mb.apigateway.filter.HttpRequestSmugglingPreventionFilter;
+import com.mb.apigateway.service.ServiceAccessCacheService;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -94,6 +95,9 @@ class SecurityConfigTest {
         @MockitoBean(name = "stockExchangeTokenIntrospector")
         private ReactiveOpaqueTokenIntrospector stockExchangeTokenIntrospector;
 
+        @MockitoBean
+        private ServiceAccessCacheService serviceAccessCacheService;
+
         @BeforeAll
         static void setUp() throws IOException {
             mockBackendServer = new MockWebServer();
@@ -130,6 +134,11 @@ class SecurityConfigTest {
             registry.add("spring.cloud.gateway.server.webflux.routes[4].id", () -> "inventory-management-service");
             registry.add("spring.cloud.gateway.server.webflux.routes[4].uri", () -> mockBackendUrl);
             registry.add("spring.cloud.gateway.server.webflux.routes[4].predicates[0]", () -> "Path=/inventory/**");
+        }
+
+        @BeforeEach
+        void setUpMocks() {
+            when(serviceAccessCacheService.hasAccess(any(), any(), any(), any(), any())).thenReturn(Mono.just(true));
         }
 
         @Test

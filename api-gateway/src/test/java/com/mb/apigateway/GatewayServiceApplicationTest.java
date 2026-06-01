@@ -1,10 +1,12 @@
 package com.mb.apigateway;
 
+import com.mb.apigateway.service.ServiceAccessCacheService;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -45,6 +48,9 @@ class GatewayServiceApplicationTest {
 
     @MockitoBean(name = "stockExchangeTokenIntrospector")
     private ReactiveOpaqueTokenIntrospector stockExchangeTokenIntrospector;
+
+    @MockitoBean
+    private ServiceAccessCacheService serviceAccessCacheService;
 
     @BeforeAll
     static void setUp() throws IOException {
@@ -70,6 +76,11 @@ class GatewayServiceApplicationTest {
         registry.add("spring.cloud.gateway.server.webflux.routes[1].id", () -> "stock-exchange-service");
         registry.add("spring.cloud.gateway.server.webflux.routes[1].uri", () -> mockBackendUrl);
         registry.add("spring.cloud.gateway.server.webflux.routes[1].predicates[0]", () -> "Path=/stock-exchange/**");
+    }
+
+    @BeforeEach
+    void setUpMocks() {
+        when(serviceAccessCacheService.hasAccess(any(), any(), any(), any(), any())).thenReturn(Mono.just(true));
     }
 
     @Test

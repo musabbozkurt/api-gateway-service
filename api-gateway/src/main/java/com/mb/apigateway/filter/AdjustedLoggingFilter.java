@@ -68,7 +68,7 @@ public class AdjustedLoggingFilter implements GlobalFilter, Ordered {
                                         executeWithMDC(exchange, () -> log.error("Request processing failed. Method: {}, URI: {}, RequestBody: {}, Error: {}",
                                                         request.getMethod(),
                                                         request.getURI(),
-                                                        SUPPORTED_MEDIA_TYPES.contains(request.getHeaders().getContentType()) ? exchange.getAttribute(ServerWebExchangeUtils.CACHED_REQUEST_BODY_ATTR) : UNSUPPORTED_MEDIA_TYPE_NOT_LOGGED,
+                                                        SUPPORTED_MEDIA_TYPES.stream().anyMatch(mediaType -> mediaType.isCompatibleWith(request.getHeaders().getContentType())) ? exchange.getAttribute(ServerWebExchangeUtils.CACHED_REQUEST_BODY_ATTR) : UNSUPPORTED_MEDIA_TYPE_NOT_LOGGED,
                                                         error.getMessage()
                                                 ),
                                                 sessionId.get()
@@ -80,7 +80,7 @@ public class AdjustedLoggingFilter implements GlobalFilter, Ordered {
                                                         executeWithMDC(exchange, () -> log.error("Request processing failed. Method: {}, URI: {}, RequestBody: {}, Status: {}",
                                                                         request.getMethod(),
                                                                         request.getURI(),
-                                                                        SUPPORTED_MEDIA_TYPES.contains(request.getHeaders().getContentType()) ? exchange.getAttribute(ServerWebExchangeUtils.CACHED_REQUEST_BODY_ATTR) : UNSUPPORTED_MEDIA_TYPE_NOT_LOGGED,
+                                                                        SUPPORTED_MEDIA_TYPES.stream().anyMatch(mediaType -> mediaType.isCompatibleWith(request.getHeaders().getContentType())) ? exchange.getAttribute(ServerWebExchangeUtils.CACHED_REQUEST_BODY_ATTR) : UNSUPPORTED_MEDIA_TYPE_NOT_LOGGED,
                                                                         statusCode
                                                                 ),
                                                                 sessionId.get()
