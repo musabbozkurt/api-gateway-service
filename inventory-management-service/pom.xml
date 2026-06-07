@@ -30,7 +30,7 @@
 
     <properties>
         <java.version>25</java.version>
-        <hypersistence-utils-hibernate.version>3.15.2</hypersistence-utils-hibernate.version>
+        <hypersistence-utils-hibernate.version>3.15.3</hypersistence-utils-hibernate.version>
         <jjwt.version>0.13.0</jjwt.version>
         <org.mapstruct.version>1.7.0.Beta1</org.mapstruct.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
@@ -43,7 +43,7 @@
         <embedded-redis.version>1.4.3</embedded-redis.version>
         <spring-cloud-dependencies.version>2025.1.1</spring-cloud-dependencies.version>
         <testcontainers-bom.version>2.0.5</testcontainers-bom.version>
-        <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <dockerfile-maven-plugin.version>1.4.13</dockerfile-maven-plugin.version>
         <!--suppress UnresolvedMavenProperty -->
