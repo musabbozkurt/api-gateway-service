@@ -1,0 +1,42 @@
+# Root-level .dockerignore for multi-service Docker builds
+# Since build context is now the project root, exclude unnecessary files
+
+# Build artifacts
+**/target/
+**/*.jar
+**/*.class
+
+# IDE and editor files
+.idea/
+.vscode/
+**/*.iml
+
+# Git
+.git/
+.gitignore
+
+# Documentation (not needed for builds)
+docs/
+**/*.md
+!**/README.md
+
+# Logs
+**/*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files (sensitive)
+.env
+
+# Error/temp files
+**/*.tmp
+**/*.bak
+
+# Node modules (if any)
+**/node_modules/
+
+# Postman collections (not needed for builds)
+**/*.postman_collection.json
+**/*.postman_environment.json

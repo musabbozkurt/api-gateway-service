@@ -5,17 +5,22 @@ FROM maven:4.0.0-rc-5-ibm-semeru-25-noble AS build
 # Set the working directory
 WORKDIR /app
 
+# Copy version-rules.xml to /app/ (parent of service dir) for versions-maven-plugin
+COPY version-rules.xml /app/version-rules.xml
+
 # Copy pom.xml first and resolve dependencies for better layer caching
-COPY pom.xml /app/service-registry/pom.xml
+COPY service-registry/pom.xml /app/service-registry/pom.xml
 RUN --mount=type=cache,target=/root/.m2 mvn -f /app/service-registry/pom.xml dependency:go-offline -B -q || true
 
 # Copy source and build the application
-COPY . /app/service-registry
+COPY service-registry/. /app/service-registry
 RUN --mount=type=cache,target=/root/.m2 mvn -f /app/service-registry/pom.xml clean package
 
 # Create a custom Java runtime - Added java.compiler module to provide javax.lang.model.SourceVersion
+# Added jdk.net and java.net.http because Spring RestClient / Apache HttpClient may require
+# jdk.net.Sockets and related networking classes at runtime inside Docker
 RUN "$JAVA_HOME"/bin/jlink \
-         --add-modules jdk.unsupported,java.base,java.sql,java.naming,java.desktop,java.management,java.security.jgss,java.instrument,java.compiler \
+         --add-modules jdk.unsupported,jdk.net,java.net.http,java.base,java.sql,java.naming,java.desktop,java.management,java.security.jgss,java.instrument,java.compiler \
          --strip-java-debug-attributes \
          --no-man-pages \
          --no-header-files \
