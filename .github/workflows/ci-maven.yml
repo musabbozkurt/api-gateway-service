@@ -103,15 +103,11 @@ jobs:
       - name: Try the cluster !
         run: kubectl get pods -A
 
+      # Build from project root so the Dockerfile can access version-rules.xml (referenced by versions-maven-plugin)
       - name: Build image
         run: |
-          pwd
-          ls -la
           eval $(minikube -p minikube docker-env)
-          cd api-gateway/
-          pwd
-          ls -la
-          docker build -t api-gateway .
+          docker build -f api-gateway/Dockerfile -t api-gateway .
           echo -n "verifying images:"
           docker images
 
@@ -281,13 +277,14 @@ jobs:
       - name: Build gitlab-service with Maven
         run: mvn -B package --file gitlab-service/pom.xml
 
+      # Build from project root so the Dockerfile can access version-rules.xml (referenced by versions-maven-plugin)
       - name: Build and Push Docker Image
         uses: mr-smithers-excellent/docker-build-push@v6
         with:
           image: musabbozkurt/github-projects
           tags: gitlab-service-v1, gitlab-service-latest
           registry: docker.io
-          directory: gitlab-service
+          directory: .
           dockerfile: gitlab-service/Dockerfile
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -310,13 +307,14 @@ jobs:
       - name: Build kafka-debezium-service with Maven
         run: mvn -B package --file kafka-debezium-service/pom.xml
 
+      # Build from project root so the Dockerfile can access version-rules.xml (referenced by versions-maven-plugin)
       - name: Build and Push Docker Image
         uses: mr-smithers-excellent/docker-build-push@v6
         with:
           image: musabbozkurt/github-projects
           tags: kafka-debezium-service-v1, kafka-debezium-service-latest
           registry: docker.io
-          directory: kafka-debezium-service
+          directory: .
           dockerfile: kafka-debezium-service/Dockerfile
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
