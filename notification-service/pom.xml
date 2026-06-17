@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.6</version>
+        <version>4.1.0</version>
         <relativePath/>
     </parent>
 
@@ -20,12 +20,13 @@
         <org.projectlombok.version>1.18.46</org.projectlombok.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
-        <opentelemetry-logback-appender-1.0.version>2.27.0-alpha</opentelemetry-logback-appender-1.0.version>
-        <protobuf.version>4.35.0</protobuf.version>
+        <opentelemetry-logback-appender-1.0.version>2.28.1-alpha</opentelemetry-logback-appender-1.0.version>
+        <protobuf.version>4.35.1</protobuf.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
         <firebase-admin.version>9.9.0</firebase-admin.version>
-        <spring-cloud.version>2025.1.1</spring-cloud.version>
+        <spring-cloud.version>2025.1.2</spring-cloud.version>
         <commons-validator.version>1.10.1</commons-validator.version>
+        <versions-maven-plugin.version>2.21.0</versions-maven-plugin.version>
     </properties>
 
     <dependencies>
@@ -237,12 +238,44 @@
                 </configuration>
             </plugin>
 
+            <!-- Maven Versions Plugin: detect & update dependency/plugin/property versions -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
+                <version>${versions-maven-plugin.version}</version>
                 <configuration>
+                    <!-- Ignore milestone, alpha, beta, RC versions by default -->
                     <rulesUri>file://${project.basedir}/../version-rules.xml</rulesUri>
+                    <allowMajorUpdates>true</allowMajorUpdates>
+                    <allowMinorUpdates>true</allowMinorUpdates>
+                    <generateBackupPoms>false</generateBackupPoms>
+                    <!-- Explicitly process dependencyManagement BOMs (import scope) -->
+                    <processDependencyManagement>true</processDependencyManagement>
                 </configuration>
+                <!-- Apply newest versions to pom.xml during 'mvn clean install' (validate phase) -->
+                <executions>
+                    <execution>
+                        <id>update-parent</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>update-parent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>update-properties</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>update-properties</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>use-latest-releases</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>use-latest-releases</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

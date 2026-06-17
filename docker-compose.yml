@@ -2,8 +2,8 @@ services:
 
   api-gateway:
     build:
-      context: ./api-gateway
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: api-gateway/Dockerfile
     env_file:
       - .env
     ports:
@@ -59,8 +59,8 @@ services:
 
   student-service:
     build:
-      context: ./student-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: student-service/Dockerfile
     env_file:
       - .env
     ports:
@@ -101,8 +101,8 @@ services:
       restart_policy:
         condition: on-failure
     build:
-      context: ./swagger-application
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: swagger-application/Dockerfile
     ports:
       - "8082:8082" # Map host port 8082 to container port 8080
     depends_on:
@@ -131,8 +131,8 @@ services:
 
   payment-service:
     build:
-      context: ./payment-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: payment-service/Dockerfile
     ports:
       - "8083:8083" # Map host port 8083 to container port 8080
     depends_on:
@@ -164,8 +164,8 @@ services:
 
   openai-service:
     build:
-      context: ./openai-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: openai-service/Dockerfile
     ports:
       - "8084:8084" # Map host port 8084 to container port 8080
     depends_on:
@@ -188,8 +188,8 @@ services:
 
   notification-service:
     build:
-      context: ./notification-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: notification-service/Dockerfile
     ports:
       - "8085:8085"
     depends_on:
@@ -227,8 +227,8 @@ services:
 
   service-registry:
     build:
-      context: ./service-registry
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: service-registry/Dockerfile
     ports:
       - "8761:8761" # Map host port 8761 to container port 8761
     depends_on:
@@ -246,8 +246,8 @@ services:
 
   spring-config-server:
     build:
-      context: ./spring-config-server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: spring-config-server/Dockerfile
     env_file:
       - .env
     ports:
@@ -474,8 +474,8 @@ services:
 
   gitlab-service:
     build:
-      context: ./gitlab-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: gitlab-service/Dockerfile
     ports:
       - "8086:8086"
     environment:
@@ -505,8 +505,8 @@ services:
 
   brokerage-provider:
     build:
-      context: ./brokerage-provider
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: brokerage-provider/Dockerfile
     ports:
       - "8088:8088"
     depends_on:
@@ -544,8 +544,8 @@ services:
 
   stock-exchange-service:
     build:
-      context: ./stock-exchange-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: stock-exchange-service/Dockerfile
     ports:
       - "8089:8089"
     depends_on:
@@ -588,8 +588,8 @@ services:
 
   inventory-management-service:
     build:
-      context: ./inventory-management-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: inventory-management-service/Dockerfile
     ports:
       - "8090:8090"
     depends_on:
@@ -827,8 +827,8 @@ services:
 
   kafka-debezium-service:
     build:
-      context: ./kafka-debezium-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: kafka-debezium-service/Dockerfile
     ports:
       - "8001:8001"
     environment:

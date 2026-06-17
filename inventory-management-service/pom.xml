@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.6</version>
+        <version>4.1.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -30,24 +30,25 @@
 
     <properties>
         <java.version>25</java.version>
-        <hypersistence-utils-hibernate.version>3.15.2</hypersistence-utils-hibernate.version>
+        <hypersistence-utils-hibernate.version>3.15.3</hypersistence-utils-hibernate.version>
         <jjwt.version>0.13.0</jjwt.version>
-        <org.mapstruct.version>1.7.0.Beta1</org.mapstruct.version>
+        <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
-        <opentelemetry-logback-appender-1.0.version>2.27.0-alpha</opentelemetry-logback-appender-1.0.version>
-        <protobuf.version>4.35.0</protobuf.version>
+        <opentelemetry-logback-appender-1.0.version>2.28.1-alpha</opentelemetry-logback-appender-1.0.version>
+        <protobuf.version>4.35.1</protobuf.version>
         <jboss-logging.version>3.6.3.Final</jboss-logging.version>
         <newrelic-java.version>9.3.0</newrelic-java.version>
         <moneta.version>1.4.5</moneta.version>
-        <jackson-datatype-moneta.version>3.1.4</jackson-datatype-moneta.version>
+        <jackson-datatype-moneta.version>3.2.0</jackson-datatype-moneta.version>
         <embedded-redis.version>1.4.3</embedded-redis.version>
-        <spring-cloud-dependencies.version>2025.1.1</spring-cloud-dependencies.version>
+        <spring-cloud-dependencies.version>2025.1.2</spring-cloud-dependencies.version>
         <testcontainers-bom.version>2.0.5</testcontainers-bom.version>
-        <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
         <dockerfile-maven-plugin.version>1.4.13</dockerfile-maven-plugin.version>
         <!--suppress UnresolvedMavenProperty -->
         <registry>${env.CI_REGISTRY}/${env.CI_REGION}/${project.artifactId}</registry>
+        <versions-maven-plugin.version>2.21.0</versions-maven-plugin.version>
     </properties>
 
     <dependencies>
@@ -213,6 +214,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <!-- Fix of Caused by: java.lang.NoClassDefFoundError: org/springframework/boot/restclient/RestTemplateBuilder -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-restclient</artifactId>
         </dependency>
 
         <dependency>
@@ -430,12 +437,44 @@
                 </configuration>
             </plugin>
 
+            <!-- Maven Versions Plugin: detect & update dependency/plugin/property versions -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
+                <version>${versions-maven-plugin.version}</version>
                 <configuration>
+                    <!-- Ignore milestone, alpha, beta, RC versions by default -->
                     <rulesUri>file://${project.basedir}/../version-rules.xml</rulesUri>
+                    <allowMajorUpdates>true</allowMajorUpdates>
+                    <allowMinorUpdates>true</allowMinorUpdates>
+                    <generateBackupPoms>false</generateBackupPoms>
+                    <!-- Explicitly process dependencyManagement BOMs (import scope) -->
+                    <processDependencyManagement>true</processDependencyManagement>
                 </configuration>
+                <!-- Apply newest versions to pom.xml during 'mvn clean install' (validate phase) -->
+                <executions>
+                    <execution>
+                        <id>update-parent</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>update-parent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>update-properties</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>update-properties</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>use-latest-releases</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>use-latest-releases</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

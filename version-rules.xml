@@ -8,7 +8,6 @@
         Dependencies that intentionally use pre-release qualifiers must be excluded via the per-artifact rules below.
     -->
     <ignoreVersions>
-        <ignoreVersion type="regex">(?i).*[-.]alpha[-.]?\d*</ignoreVersion>
         <ignoreVersion type="regex">(?i).*[-.]beta[-.]?\d*</ignoreVersion>
         <ignoreVersion type="regex">(?i).*[-.]rc[-.]?\d*</ignoreVersion>
         <ignoreVersion type="regex">(?i).*[-.]cr[-.]?\d*</ignoreVersion>

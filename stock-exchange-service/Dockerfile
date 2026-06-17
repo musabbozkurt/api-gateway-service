@@ -5,12 +5,15 @@ FROM maven:4.0.0-rc-5-ibm-semeru-25-noble AS build
 # Set the working directory
 WORKDIR /app
 
+# Copy version-rules.xml to /app/ (parent of service dir) for versions-maven-plugin
+COPY version-rules.xml /app/version-rules.xml
+
 # Copy pom.xml first and resolve dependencies for better layer caching
-COPY pom.xml /app/stock-exchange-service/pom.xml
+COPY stock-exchange-service/pom.xml /app/stock-exchange-service/pom.xml
 RUN --mount=type=cache,target=/root/.m2 mvn -f /app/stock-exchange-service/pom.xml dependency:go-offline -B -q || true
 
 # Copy source and build the application
-COPY . /app/stock-exchange-service
+COPY stock-exchange-service/. /app/stock-exchange-service
 RUN --mount=type=cache,target=/root/.m2 mvn -f /app/stock-exchange-service/pom.xml clean package -DskipTests
 
 # Create a custom Java runtime - Added java.compiler module to provide javax.lang.model.SourceVersion
