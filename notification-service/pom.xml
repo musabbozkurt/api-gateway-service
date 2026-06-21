@@ -20,7 +20,7 @@
         <org.projectlombok.version>1.18.46</org.projectlombok.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
-        <opentelemetry-logback-appender-1.0.version>2.28.1-alpha</opentelemetry-logback-appender-1.0.version>
+        <opentelemetry-logback-appender-1.0.version>2.29.0-alpha</opentelemetry-logback-appender-1.0.version>
         <protobuf.version>4.35.1</protobuf.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
         <firebase-admin.version>9.9.0</firebase-admin.version>

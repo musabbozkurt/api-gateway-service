@@ -24,7 +24,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
         <org.projectlombok.version>1.18.46</org.projectlombok.version>
-        <opentelemetry-logback-appender-1.0.version>2.28.1-alpha</opentelemetry-logback-appender-1.0.version>
+        <opentelemetry-logback-appender-1.0.version>2.29.0-alpha</opentelemetry-logback-appender-1.0.version>
         <protobuf.version>4.35.1</protobuf.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
         <moneta.version>1.4.5</moneta.version>

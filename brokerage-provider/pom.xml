@@ -22,7 +22,7 @@
         <awaitility.version>4.3.0</awaitility.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <jboss-logging.version>3.6.3.Final</jboss-logging.version>
-        <opentelemetry-logback-appender-1.0.version>2.28.1-alpha</opentelemetry-logback-appender-1.0.version>
+        <opentelemetry-logback-appender-1.0.version>2.29.0-alpha</opentelemetry-logback-appender-1.0.version>
         <protobuf.version>4.35.1</protobuf.version>
         <spring-cloud.version>2025.1.2</spring-cloud.version>
         <testcontainers-bom.version>2.0.5</testcontainers-bom.version>
