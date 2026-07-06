@@ -2,12 +2,12 @@ package com.mb.notificationservice.api.controller;
 
 import com.mb.notificationservice.api.controller.swagger.NotificationApi;
 import com.mb.notificationservice.api.request.DeviceTokenRequest;
+import com.mb.notificationservice.api.request.NotificationFilterRequest;
 import com.mb.notificationservice.api.request.NotificationRequest;
 import com.mb.notificationservice.api.response.ApiResponse;
 import com.mb.notificationservice.api.response.NotificationDetailResponse;
 import com.mb.notificationservice.api.response.NotificationResponse;
 import com.mb.notificationservice.api.response.NotificationSummaryResponse;
-import com.mb.notificationservice.enums.NotificationChannel;
 import com.mb.notificationservice.service.DeviceTokenService;
 import com.mb.notificationservice.service.NotificationService;
 import com.mb.notificationservice.service.SseNotificationService;
@@ -17,11 +17,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -68,9 +68,8 @@ public class NotificationController implements NotificationApi {
 
     @Override
     @GetMapping
-    public ApiResponse<Page<NotificationSummaryResponse>> getNotifications(@RequestParam(required = false) NotificationChannel channel,
-                                                                           @ParameterObject Pageable pageable) {
-        return new ApiResponse<>(notificationService.getNotifications(pageable, channel));
+    public ApiResponse<Page<NotificationSummaryResponse>> getNotifications(@ParameterObject NotificationFilterRequest filter, @ParameterObject Pageable pageable) {
+        return new ApiResponse<>(notificationService.getNotifications(pageable, filter));
     }
 
     @Override
@@ -83,6 +82,12 @@ public class NotificationController implements NotificationApi {
     @GetMapping("/unread-count")
     public ApiResponse<Long> getUnreadCount() {
         return new ApiResponse<>(notificationService.getUnreadCount());
+    }
+
+    @Override
+    @PatchMapping("/read-all")
+    public ApiResponse<Integer> updateUnreadToReadByUserId() {
+        return new ApiResponse<>(notificationService.updateUnreadToReadByUserId());
     }
 
     @Override

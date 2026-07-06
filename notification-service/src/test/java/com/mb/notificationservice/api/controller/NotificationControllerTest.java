@@ -1,6 +1,7 @@
 package com.mb.notificationservice.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mb.notificationservice.api.request.NotificationFilterRequest;
 import com.mb.notificationservice.api.request.NotificationRequest;
 import com.mb.notificationservice.api.response.NotificationDetailResponse;
 import com.mb.notificationservice.api.response.NotificationResponse;
@@ -8,9 +9,11 @@ import com.mb.notificationservice.api.response.NotificationSummaryResponse;
 import com.mb.notificationservice.enums.NotificationChannel;
 import com.mb.notificationservice.enums.NotificationLevel;
 import com.mb.notificationservice.enums.NotificationStatus;
+import com.mb.notificationservice.exception.BaseException;
 import com.mb.notificationservice.service.DeviceTokenService;
 import com.mb.notificationservice.service.NotificationService;
 import com.mb.notificationservice.service.SseNotificationService;
+import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +33,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -39,6 +43,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -259,6 +264,27 @@ class NotificationControllerTest {
     }
 
     @Test
+    void getNotifications_ShouldReturn200_WhenUnreadFilterIsProvided() throws Exception {
+        // Arrange
+        NotificationSummaryResponse summary = NotificationSummaryResponse.builder()
+                .id(1L)
+                .channel(NotificationChannel.PUSH)
+                .read(false)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        Page<NotificationSummaryResponse> page = new PageImpl<>(List.of(summary), PageRequest.of(0, 20), 1);
+        when(notificationService.getNotifications(any(), any(NotificationFilterRequest.class))).thenReturn(page);
+
+        // Act
+        mockMvc.perform(get("/api/v1/notifications").param("isRead", "false"))
+                .andExpect(status().isOk());
+
+        // Assertions
+        verify(notificationService, times(1)).getNotifications(any(), any(NotificationFilterRequest.class));
+    }
+
+    @Test
     void getNotificationDetailById_ShouldReturn200_WhenNotificationExists() throws Exception {
         // Arrange
         NotificationDetailResponse detail = NotificationDetailResponse.builder()
@@ -293,6 +319,44 @@ class NotificationControllerTest {
                 .andExpect(status().isOk());
 
         verify(notificationService, times(1)).getUnreadCount();
+    }
+
+    @Test
+    void updateUnreadToReadByUserId_ShouldReturn200_WhenNotificationsAreUpdated() throws Exception {
+        // Arrange
+        when(notificationService.updateUnreadToReadByUserId()).thenReturn(3);
+
+        // Act
+        mockMvc.perform(patch("/api/v1/notifications/read-all"))
+                .andExpect(status().isOk());
+
+        // Assertions
+        verify(notificationService, times(1)).updateUnreadToReadByUserId();
+    }
+
+    @Test
+    void updateUnreadToReadByUserId_ShouldReturn200_WhenNoNotificationsNeedUpdate() throws Exception {
+        // Arrange
+        when(notificationService.updateUnreadToReadByUserId()).thenReturn(0);
+
+        // Act
+        mockMvc.perform(patch("/api/v1/notifications/read-all"))
+                .andExpect(status().isOk());
+
+        // Assertions
+        verify(notificationService, times(1)).updateUnreadToReadByUserId();
+    }
+
+    @Test
+    void updateUnreadToReadByUserId_ShouldReturn5XX_WhenServiceThrowsException() {
+        // Arrange
+        when(notificationService.updateUnreadToReadByUserId()).thenThrow(new BaseException("Unexpected error"));
+
+        // Act
+        assertThrows(ServletException.class, () -> mockMvc.perform(patch("/api/v1/notifications/read-all")));
+
+        // Assertions
+        verify(notificationService, times(1)).updateUnreadToReadByUserId();
     }
 
     @Test
