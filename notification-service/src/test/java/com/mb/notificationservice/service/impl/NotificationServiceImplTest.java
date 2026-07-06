@@ -1,6 +1,7 @@
 package com.mb.notificationservice.service.impl;
 
 import com.mb.notificationservice.api.context.ContextHolder;
+import com.mb.notificationservice.api.request.NotificationFilterRequest;
 import com.mb.notificationservice.api.request.NotificationRequest;
 import com.mb.notificationservice.api.response.NotificationDetailResponse;
 import com.mb.notificationservice.api.response.NotificationResponse;
@@ -20,6 +21,7 @@ import com.mb.notificationservice.service.NotificationTemplateResolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -29,8 +31,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 
@@ -132,13 +136,16 @@ class NotificationServiceImplTest {
 
         NotificationSummaryResponse summary = NotificationSummaryResponse.builder().id(1L).channel(NotificationChannel.PUSH).build();
 
-        when(notificationRepository.findByUserIdAndChannel(any(), any(), any(Pageable.class))).thenReturn(entityPage);
+        when(notificationRepository.findAll(org.mockito.ArgumentMatchers.<Specification<Notification>>any(), any(Pageable.class))).thenReturn(entityPage);
         when(notificationMapper.toNotificationSummaryResponse(entity)).thenReturn(summary);
 
-        Page<NotificationSummaryResponse> result = notificationService.getNotifications(pageable, NotificationChannel.PUSH);
+        NotificationFilterRequest filter = new NotificationFilterRequest();
+        filter.setChannel(NotificationChannel.PUSH);
+
+        Page<NotificationSummaryResponse> result = notificationService.getNotifications(pageable, filter);
 
         assertEquals(1, result.getTotalElements());
-        verify(notificationRepository).findByUserIdAndChannel(any(), any(), any(Pageable.class));
+        verify(notificationRepository).findAll(ArgumentMatchers.<Specification<Notification>>any(), any(Pageable.class));
     }
 
     @Test
@@ -150,14 +157,15 @@ class NotificationServiceImplTest {
 
         NotificationSummaryResponse summary = NotificationSummaryResponse.builder().id(1L).channel(NotificationChannel.PUSH).build();
 
-        when(notificationRepository.findByUserId(any(), any(Pageable.class))).thenReturn(entityPage);
+        when(notificationRepository.findAll(ArgumentMatchers.<Specification<Notification>>any(), any(Pageable.class))).thenReturn(entityPage);
         when(notificationMapper.toNotificationSummaryResponse(entity)).thenReturn(summary);
 
-        Page<NotificationSummaryResponse> result = notificationService.getNotifications(pageable, null);
+        NotificationFilterRequest filter = new NotificationFilterRequest();
+
+        Page<NotificationSummaryResponse> result = notificationService.getNotifications(pageable, filter);
 
         assertEquals(1, result.getTotalElements());
-        verify(notificationRepository).findByUserId(any(), any(Pageable.class));
-        verify(notificationRepository, never()).findByUserIdAndChannel(any(), any(), any());
+        verify(notificationRepository).findAll(ArgumentMatchers.<Specification<Notification>>any(), any(Pageable.class));
     }
 
     @Test
@@ -194,7 +202,7 @@ class NotificationServiceImplTest {
         Notification entity = new Notification();
         entity.setId(1L);
         entity.setRead(true);
-        LocalDateTime previousReadAt = LocalDateTime.of(2026, 3, 1, 10, 0);
+        LocalDateTime previousReadAt = LocalDateTime.of(2026, Month.MARCH, 1, 10, 0);
         entity.setReadAt(previousReadAt);
 
         NotificationDetailResponse detail = NotificationDetailResponse.builder().id(1L).build();

@@ -1,18 +1,19 @@
 package com.mb.notificationservice.api.controller.swagger;
 
 import com.mb.notificationservice.api.request.DeviceTokenRequest;
+import com.mb.notificationservice.api.request.NotificationFilterRequest;
 import com.mb.notificationservice.api.request.NotificationRequest;
 import com.mb.notificationservice.api.response.ApiResponse;
 import com.mb.notificationservice.api.response.NotificationDetailResponse;
 import com.mb.notificationservice.api.response.NotificationResponse;
 import com.mb.notificationservice.api.response.NotificationSummaryResponse;
-import com.mb.notificationservice.enums.NotificationChannel;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -186,10 +187,9 @@ public interface NotificationApi {
 
     @Operation(
             summary = "Get notifications for the current user (paginated)",
-            description = "Returns a paginated summary list of notifications for the authenticated user. Optionally filter by channel (SMS, EMAIL, PUSH)."
+            description = "Returns a paginated list of notifications for the authenticated user, with optional filters."
     )
-    ApiResponse<Page<NotificationSummaryResponse>> getNotifications(@Parameter(description = "Filter by notification channel", example = "PUSH") NotificationChannel channel,
-                                                                    Pageable pageable);
+    ApiResponse<Page<NotificationSummaryResponse>> getNotifications(@ParameterObject NotificationFilterRequest filter, Pageable pageable);
 
     @Operation(
             summary = "Get notification detail by ID",
@@ -202,6 +202,12 @@ public interface NotificationApi {
             description = "Returns the count of unread notifications for the authenticated user."
     )
     ApiResponse<Long> getUnreadCount();
+
+    @Operation(
+            summary = "Mark all notifications as read",
+            description = "Marks all notifications as read for the authenticated user."
+    )
+    ApiResponse<Integer> updateUnreadToReadByUserId();
 
     @Operation(
             summary = "Register a device token",

@@ -1,13 +1,14 @@
 package com.mb.notificationservice.service.impl;
 
 import com.mb.notificationservice.api.context.ContextHolder;
+import com.mb.notificationservice.api.request.NotificationFilterRequest;
 import com.mb.notificationservice.api.request.NotificationRequest;
 import com.mb.notificationservice.api.response.NotificationDetailResponse;
 import com.mb.notificationservice.api.response.NotificationResponse;
 import com.mb.notificationservice.api.response.NotificationSummaryResponse;
 import com.mb.notificationservice.data.entity.Notification;
 import com.mb.notificationservice.data.repository.NotificationRepository;
-import com.mb.notificationservice.enums.NotificationChannel;
+import com.mb.notificationservice.data.specification.NotificationSpecification;
 import com.mb.notificationservice.exception.BaseException;
 import com.mb.notificationservice.exception.NotificationErrorCode;
 import com.mb.notificationservice.mapper.NotificationMapper;
@@ -26,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -72,15 +72,10 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<NotificationSummaryResponse> getNotifications(Pageable pageable, NotificationChannel channel) {
-        Long userId = ContextHolder.getContext().userId();
-        Pageable sortedPageable = pageable.getSort().isSorted()
-                ? pageable
-                : PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdDate"));
-        Page<Notification> page = Objects.nonNull(channel)
-                ? notificationRepository.findByUserIdAndChannel(userId, channel, sortedPageable)
-                : notificationRepository.findByUserId(userId, sortedPageable);
-        return page.map(notificationMapper::toNotificationSummaryResponse);
+    public Page<NotificationSummaryResponse> getNotifications(Pageable pageable, NotificationFilterRequest filter) {
+        Pageable sortedPageable = pageable.getSort().isSorted() ? pageable : PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "createdDate"));
+        return notificationRepository.findAll(NotificationSpecification.init(ContextHolder.getContext().userId(), filter), sortedPageable)
+                .map(notificationMapper::toNotificationSummaryResponse);
     }
 
     @Override
@@ -103,5 +98,11 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional(readOnly = true)
     public long getUnreadCount() {
         return notificationRepository.countByUserIdAndIsReadFalse(ContextHolder.getContext().userId());
+    }
+
+    @Override
+    @Transactional
+    public int updateUnreadToReadByUserId() {
+        return notificationRepository.updateUnreadToReadByUserId(ContextHolder.getContext().userId());
     }
 }

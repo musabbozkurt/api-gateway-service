@@ -49,7 +49,7 @@ public class ContextHolder {
         CONTEXT.remove();
     }
 
-    @Builder
+    @Builder(toBuilder = true)
     public record Context(String username, String clientId, Long userId) {
     }
 }

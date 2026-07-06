@@ -1,10 +1,10 @@
 package com.mb.notificationservice.service;
 
+import com.mb.notificationservice.api.request.NotificationFilterRequest;
 import com.mb.notificationservice.api.request.NotificationRequest;
 import com.mb.notificationservice.api.response.NotificationDetailResponse;
 import com.mb.notificationservice.api.response.NotificationResponse;
 import com.mb.notificationservice.api.response.NotificationSummaryResponse;
-import com.mb.notificationservice.enums.NotificationChannel;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -18,9 +18,11 @@ public interface NotificationService {
 
     NotificationResponse sendSync(NotificationRequest request);
 
-    Page<NotificationSummaryResponse> getNotifications(Pageable pageable, NotificationChannel channel);
+    Page<NotificationSummaryResponse> getNotifications(Pageable pageable, NotificationFilterRequest filter);
 
     NotificationDetailResponse getNotificationDetailById(Long id);
 
     long getUnreadCount();
+
+    int updateUnreadToReadByUserId();
 }
