@@ -39,7 +39,7 @@
         <jboss-logging.version>3.6.3.Final</jboss-logging.version>
         <newrelic-java.version>9.3.0</newrelic-java.version>
         <moneta.version>1.4.5</moneta.version>
-        <jackson-datatype-moneta.version>3.2.0</jackson-datatype-moneta.version>
+        <jackson-datatype-moneta.version>3.2.1</jackson-datatype-moneta.version>
         <embedded-redis.version>1.4.3</embedded-redis.version>
         <spring-cloud-dependencies.version>2025.1.2</spring-cloud-dependencies.version>
         <testcontainers-bom.version>2.0.5</testcontainers-bom.version>
