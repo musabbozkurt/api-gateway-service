@@ -1,8 +1,7 @@
-package com.mb.notificationservice.utils;
+package com.mb.notificationservice.util;
 
 import com.mb.notificationservice.api.request.NotificationRequest;
 import com.mb.notificationservice.enums.NotificationChannel;
-import com.mb.notificationservice.util.EmailUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;

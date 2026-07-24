@@ -19,7 +19,7 @@
         <java.version>25</java.version>
         <spring-cloud.version>2025.1.2</spring-cloud.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.0.3</springdoc-openapi-starter-webmvc-ui.version>
-        <opentelemetry-logback-appender-1.0.version>2.29.0-alpha</opentelemetry-logback-appender-1.0.version>
+        <opentelemetry-logback-appender-1.0.version>2.30.0-alpha</opentelemetry-logback-appender-1.0.version>
         <protobuf.version>4.35.1</protobuf.version>
         <testcontainers-bom.version>2.0.5</testcontainers-bom.version>
         <dockerfile-maven-plugin.version>1.4.13</dockerfile-maven-plugin.version>

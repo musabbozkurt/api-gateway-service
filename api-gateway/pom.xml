@@ -17,17 +17,17 @@
 
     <properties>
         <java.version>25</java.version>
-        <oauth2-oidc-sdk.version>11.38.1</oauth2-oidc-sdk.version>
+        <oauth2-oidc-sdk.version>11.38.2</oauth2-oidc-sdk.version>
         <aspectjweaver.version>1.9.25.1</aspectjweaver.version>
         <springdoc-openapi-starter-webflux-ui.version>3.0.3</springdoc-openapi-starter-webflux-ui.version>
         <org.projectlombok.version>1.18.46</org.projectlombok.version>
         <mockserver-client-java.version>7.4.0</mockserver-client-java.version>
-        <opentelemetry-logback-appender-1.0.version>2.29.0-alpha</opentelemetry-logback-appender-1.0.version>
+        <opentelemetry-logback-appender-1.0.version>2.30.0-alpha</opentelemetry-logback-appender-1.0.version>
         <protobuf.version>4.35.1</protobuf.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
         <!-- Aligns okio version across okhttp 4.x (from mockwebserver) and okhttp 5.x (from opentelemetry-exporter-sender-okhttp).
         Without this, okhttp 5.2.1 fails at runtime with NoSuchMethodError on Okio.socket() because the older okio 3.6.0 (from mockwebserver → okhttp 4.12.0) lacks that method. -->
-        <okio.version>3.17.0</okio.version>
+        <okio.version>3.18.0</okio.version>
         <spring-cloud.version>2025.1.2</spring-cloud.version>
         <testcontainers-bom.version>2.0.5</testcontainers-bom.version>
         <versions-maven-plugin.version>2.21.0</versions-maven-plugin.version>

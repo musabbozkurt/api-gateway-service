@@ -33,7 +33,7 @@
 
     <properties>
         <java.version>25</java.version>
-        <opentelemetry-logback-appender-1.0.version>2.29.0-alpha</opentelemetry-logback-appender-1.0.version>
+        <opentelemetry-logback-appender-1.0.version>2.30.0-alpha</opentelemetry-logback-appender-1.0.version>
         <protobuf.version>4.35.1</protobuf.version>
         <spring-cloud.version>2025.1.2</spring-cloud.version>
         <versions-maven-plugin.version>2.21.0</versions-maven-plugin.version>
