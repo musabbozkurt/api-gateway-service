@@ -132,7 +132,9 @@
            run [ApiGatewayApplication.java](api-gateway/src/main/java/com/mb/apigateway/ApiGatewayApplication.java) to
            install RabbitMQ, PostgreSQL and Keycloak
         2. Run `mvn clean install` or `mvn clean package` or `./mvnw clean install` or `./mvnw clean package` command
-           under each service's directory
+           under each service's directory or run [build-all.sh](build-all.sh)
+           or [run-all-mvn-in-parallel.sh](run-all-mvn-in-parallel.sh)
+           or [run-all-mvn-in-parallel-with-wait.sh](run-all-mvn-in-parallel-with-wait.sh) script to build all services
         3. Run `mvn spring-boot:run` command under each service's directory
 
 ####
