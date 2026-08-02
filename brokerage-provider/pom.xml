@@ -18,7 +18,7 @@
 
     <properties>
         <java.version>25</java.version>
-        <springdoc-openapi-starter-webflux-ui.version>3.0.3</springdoc-openapi-starter-webflux-ui.version>
+        <springdoc-openapi-starter-webflux-ui.version>3.1.0</springdoc-openapi-starter-webflux-ui.version>
         <awaitility.version>4.3.0</awaitility.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <jboss-logging.version>3.6.3.Final</jboss-logging.version>
