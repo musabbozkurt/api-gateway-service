@@ -41,6 +41,7 @@ public class NotificationMapper {
         dto.setRecipients(request.getRecipients());
         dto.setCc(request.getCc());
         dto.setBcc(request.getBcc());
+        dto.setAttachments(request.getAttachments());
         dto.setCreatedBy(ContextHolder.getContext().userId());
         return dto;
     }

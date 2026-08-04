@@ -75,6 +75,20 @@ email:
   from: ${EMAIL_FROM:noreply@example.com}
   subject:
     prefix: ""
+  attachments:
+    max-count: 5
+    max-file-size-bytes: 5242880
+    max-total-size-bytes: 15728640
+    allowed-content-types:
+      - application/pdf
+      - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      - application/vnd.ms-excel
+      - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+      - application/msword
+      - text/csv
+      - text/plain
+      - image/png
+      - image/jpeg
 
 dummy-sms:
   body-prefix: ${DUMMY_SMS_BODY_PREFIX:}

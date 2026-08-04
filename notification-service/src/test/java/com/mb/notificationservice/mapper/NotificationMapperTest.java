@@ -11,6 +11,7 @@ import com.mb.notificationservice.enums.NotificationChannel;
 import com.mb.notificationservice.enums.NotificationLevel;
 import com.mb.notificationservice.enums.NotificationStatus;
 import com.mb.notificationservice.enums.NotificationType;
+import com.mb.notificationservice.queue.dto.AttachmentDto;
 import com.mb.notificationservice.queue.dto.NotificationEventDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,8 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -61,6 +64,11 @@ class NotificationMapperTest {
         request.setRecipients(Set.of("r@test.com"));
         request.setCc(Set.of("cc@test.com"));
         request.setBcc(Set.of("bcc@test.com"));
+        AttachmentDto attachment = new AttachmentDto();
+        attachment.setFilename("invoice.pdf");
+        attachment.setContentType("application/pdf");
+        attachment.setContentBase64("JVBERi0x");
+        request.setAttachments(List.of(attachment));
 
         NotificationEventDto dto = converter.convert(request);
 
@@ -77,6 +85,8 @@ class NotificationMapperTest {
         assertEquals(Set.of("r@test.com"), dto.getRecipients());
         assertEquals(Set.of("cc@test.com"), dto.getCc());
         assertEquals(Set.of("bcc@test.com"), dto.getBcc());
+        assertEquals(1, dto.getAttachments().size());
+        assertEquals("invoice.pdf", dto.getAttachments().getFirst().getFilename());
         assertEquals(99L, dto.getCreatedBy());
     }
 
@@ -300,7 +310,7 @@ class NotificationMapperTest {
         entity.setRead(false);
         entity.setReadAt(null);
 
-        entity.setCreatedDate(LocalDateTime.of(2026, 3, 30, 10, 0));
+        entity.setCreatedDate(LocalDateTime.of(2026, Month.MARCH, 30, 10, 0));
 
         return entity;
     }

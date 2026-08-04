@@ -2,13 +2,16 @@ package com.mb.notificationservice.api.request;
 
 import com.mb.notificationservice.enums.NotificationChannel;
 import com.mb.notificationservice.enums.NotificationLevel;
+import com.mb.notificationservice.queue.dto.AttachmentDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,4 +59,22 @@ public class NotificationRequest {
 
     @Schema(example = "[\"bcc@example.com\"]")
     private Set<String> bcc = new HashSet<>();
+
+    @Schema(
+            description = "Email file attachments (Base64-encoded content). Email channel only; subject to configured count/size limits.",
+            example = """
+                    [
+                      {
+                        "filename": "invoice.pdf",
+                        "contentType": "application/pdf",
+                        "contentBase64": "JVBERi0xLjQK..."
+                      },
+                      {
+                        "filename": "report.xlsx",
+                        "contentType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "contentBase64": "UEsDBBQAAAAI..."
+                      }
+                    ]"""
+    )
+    private List<AttachmentDto> attachments = new ArrayList<>();
 }

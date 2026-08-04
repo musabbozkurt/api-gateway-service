@@ -50,6 +50,30 @@ public interface NotificationApi {
                                             }
                                             """),
                             @ExampleObject(
+                                    name = "Email with attachments",
+                                    value = """
+                                            {
+                                              "channel": "EMAIL",
+                                              "level": "INFO",
+                                              "userId": 12345,
+                                              "recipients": ["user@example.com"],
+                                              "subject": "Order Confirmation",
+                                              "body": "<p>Your order #1234 has been confirmed.</p>",
+                                              "attachments": [
+                                                {
+                                                  "filename": "invoice.pdf",
+                                                  "contentType": "application/pdf",
+                                                  "contentBase64": "JVBERi0xLjQK..."
+                                                },
+                                                {
+                                                  "filename": "report.xlsx",
+                                                  "contentType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                                                  "contentBase64": "UEsDBBQAAAAI..."
+                                                }
+                                              ]
+                                            }
+                                            """),
+                            @ExampleObject(
                                     name = "Email with template",
                                     value = """
                                             {
@@ -138,7 +162,7 @@ public interface NotificationApi {
 
     @Operation(
             summary = "Send a notification synchronously",
-            description = "Sends a notification immediately and waits for the result",
+            description = "Sends a notification immediately and waits for the result. Email attachments are Base64-encoded, email-only, and subject to configured count/size limits.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     content = @Content(examples = {
                             @ExampleObject(
@@ -151,6 +175,30 @@ public interface NotificationApi {
                                               "recipients": ["user@example.com"],
                                               "subject": "Password Reset",
                                               "body": "<p>Click the link to reset your password.</p>"
+                                            }
+                                            """),
+                            @ExampleObject(
+                                    name = "Email with attachments",
+                                    value = """
+                                            {
+                                              "channel": "EMAIL",
+                                              "level": "INFO",
+                                              "userId": 12345,
+                                              "recipients": ["user@example.com"],
+                                              "subject": "Order Confirmation",
+                                              "body": "<p>Your order #1234 has been confirmed.</p>",
+                                              "attachments": [
+                                                {
+                                                  "filename": "invoice.pdf",
+                                                  "contentType": "application/pdf",
+                                                  "contentBase64": "JVBERi0xLjQK..."
+                                                },
+                                                {
+                                                  "filename": "report.xlsx",
+                                                  "contentType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                                                  "contentBase64": "UEsDBBQAAAAI..."
+                                                }
+                                              ]
                                             }
                                             """),
                             @ExampleObject(
