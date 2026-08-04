@@ -2,21 +2,28 @@ package com.mb.notificationservice.service.impl;
 
 import com.mb.notificationservice.api.request.NotificationRequest;
 import com.mb.notificationservice.api.response.NotificationResponse;
+import com.mb.notificationservice.config.EmailAttachmentProperties;
 import com.mb.notificationservice.enums.NotificationChannel;
+import com.mb.notificationservice.queue.dto.AttachmentDto;
 import com.mb.notificationservice.service.NotificationStrategy;
+import com.mb.notificationservice.util.AttachmentUtils;
 import com.mb.notificationservice.util.ContentUtils;
 import com.mb.notificationservice.util.EmailUtils;
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
+import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 
@@ -26,6 +33,7 @@ import java.util.UUID;
 public class EmailServiceImpl implements NotificationStrategy {
 
     private final JavaMailSender javaMailSender;
+    private final EmailAttachmentProperties emailAttachmentProperties;
 
     @Value("${email.from}")
     private String emailFrom;
@@ -76,9 +84,15 @@ public class EmailServiceImpl implements NotificationStrategy {
             String body = request.getBody();
 
             boolean isHtml = ContentUtils.isHtml(body);
+            List<AttachmentDto> attachments = request.getAttachments();
+            boolean multipart = CollectionUtils.isNotEmpty(attachments);
+
+            if (multipart) {
+                AttachmentUtils.validate(attachments, emailAttachmentProperties);
+            }
 
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "UTF-8");
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, multipart, "UTF-8");
 
             helper.setFrom(emailFrom);
             helper.setSubject(subjectPrefix + subject);
@@ -86,13 +100,17 @@ public class EmailServiceImpl implements NotificationStrategy {
             helper.setTo(request.getRecipients().toArray(new String[0]));
 
             Set<String> cc = request.getCc();
-            if (!CollectionUtils.isEmpty(cc)) {
+            if (CollectionUtils.isNotEmpty(cc)) {
                 helper.setCc(cc.toArray(new String[0]));
             }
 
             Set<String> bcc = request.getBcc();
-            if (!CollectionUtils.isEmpty(bcc)) {
+            if (CollectionUtils.isNotEmpty(bcc)) {
                 helper.setBcc(bcc.toArray(new String[0]));
+            }
+
+            if (multipart) {
+                addAttachments(helper, attachments);
             }
 
             javaMailSender.send(mimeMessage);
@@ -100,6 +118,14 @@ public class EmailServiceImpl implements NotificationStrategy {
         } catch (Exception e) {
             log.error("Exception occurred while sending email. Exception: {}", ExceptionUtils.getStackTrace(e));
             throw new MailSendException("Failed to send email", e);
+        }
+    }
+
+    private void addAttachments(MimeMessageHelper helper, List<AttachmentDto> attachments) throws MessagingException {
+        for (AttachmentDto attachment : attachments) {
+            byte[] content = AttachmentUtils.decode(attachment);
+            String contentType = attachment.getContentType().trim().toLowerCase(Locale.ROOT);
+            helper.addAttachment(attachment.getFilename(), new ByteArrayResource(content), contentType);
         }
     }
 }

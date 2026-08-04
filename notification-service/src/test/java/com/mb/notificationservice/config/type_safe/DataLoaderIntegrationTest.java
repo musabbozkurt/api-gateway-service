@@ -19,11 +19,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @DataJdbcTest(
         properties = {
                 "spring.sql.init.mode=never",
-                "spring.cloud.config.enabled=false",
-                "spring.cloud.config.import-check.enabled=false"
+                "spring.cloud.config.enabled=false"
         }
 )
-@Sql(scripts = "/schema.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = "/db/migration/schema.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class DataLoaderIntegrationTest {
 
     private final PersonRepository repository;
