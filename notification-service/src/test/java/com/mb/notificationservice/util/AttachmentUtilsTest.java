@@ -41,8 +41,10 @@ class AttachmentUtilsTest {
 
         // Assertions
         assertTrue(nullResult.validAttachments().isEmpty());
+        assertTrue(nullResult.validInlineAttachments().isEmpty());
         assertTrue(nullResult.skippedAttachments().isEmpty());
         assertTrue(emptyResult.validAttachments().isEmpty());
+        assertTrue(emptyResult.validInlineAttachments().isEmpty());
         assertTrue(emptyResult.skippedAttachments().isEmpty());
         assertFalse(nullResult.hasAttachments());
     }
@@ -484,11 +486,104 @@ class AttachmentUtilsTest {
         assertTrue(contentBase64.endsWith("=="));
     }
 
+    @Test
+    void partition_ShouldReturnInlineAttachments_WhenContentIdIsProvided() {
+        // Arrange
+        AttachmentDto inline = createInlineAttachment("logo.png", "image/png", "hello", "company-logo");
+
+        // Act
+        AttachmentValidationResult result = AttachmentUtils.partition(List.of(inline), properties);
+
+        // Assertions
+        assertTrue(result.validAttachments().isEmpty());
+        assertEquals(1, result.validInlineAttachments().size());
+        assertEquals("company-logo", result.validInlineAttachments().getFirst().getContentId());
+        assertTrue(result.skippedAttachments().isEmpty());
+        assertTrue(result.hasAttachments());
+    }
+
+    @Test
+    void partition_ShouldReturnMultipleInlineAttachments_WhenEachHasUniqueContentId() {
+        // Arrange
+        List<AttachmentDto> attachments = List.of(
+                createInlineAttachment("logo.png", "image/png", "logo", "company-logo"),
+                createInlineAttachment("banner.png", "image/png", "banner", "promo-banner")
+        );
+
+        // Act
+        AttachmentValidationResult result = AttachmentUtils.partition(attachments, properties);
+
+        // Assertions
+        assertTrue(result.validAttachments().isEmpty());
+        assertEquals(2, result.validInlineAttachments().size());
+        assertEquals("company-logo", result.validInlineAttachments().get(0).getContentId());
+        assertEquals("promo-banner", result.validInlineAttachments().get(1).getContentId());
+        assertTrue(result.skippedAttachments().isEmpty());
+    }
+
+    @Test
+    void partition_ShouldSkipInlineAttachment_WhenContentTypeIsNotAnImage() {
+        // Arrange
+        AttachmentDto inline = createInlineAttachment("doc.pdf", "application/pdf", "hello", "doc");
+
+        // Act
+        AttachmentValidationResult result = AttachmentUtils.partition(List.of(inline), properties);
+
+        // Assertions
+        assertTrue(result.validAttachments().isEmpty());
+        assertTrue(result.validInlineAttachments().isEmpty());
+        assertEquals(1, result.skippedAttachments().size());
+        assertTrue(result.skippedAttachments().getFirst().contains("doc.pdf"));
+        assertTrue(result.skippedAttachments().getFirst().contains("inline attachments must be images"));
+    }
+
+    @Test
+    void partition_ShouldSkipInlineAttachment_WhenContentIdIsDuplicate() {
+        // Arrange
+        List<AttachmentDto> attachments = List.of(
+                createInlineAttachment("logo.png", "image/png", "logo", "company-logo"),
+                createInlineAttachment("banner.png", "image/png", "banner", "company-logo")
+        );
+
+        // Act
+        AttachmentValidationResult result = AttachmentUtils.partition(attachments, properties);
+
+        // Assertions
+        assertEquals(1, result.validInlineAttachments().size());
+        assertEquals(1, result.skippedAttachments().size());
+        assertTrue(result.skippedAttachments().getFirst().contains("banner.png"));
+        assertTrue(result.skippedAttachments().getFirst().contains("duplicate contentId"));
+    }
+
+    @Test
+    void partition_ShouldCountInlineAndRegularAttachmentsTowardLimits() {
+        // Arrange
+        List<AttachmentDto> attachments = List.of(
+                createAttachment("a.pdf", "application/pdf", "a"),
+                createInlineAttachment("logo.png", "image/png", "b", "logo"),
+                createInlineAttachment("banner.png", "image/png", "c", "banner")
+        );
+
+        // Act
+        AttachmentValidationResult result = AttachmentUtils.partition(attachments, properties);
+
+        // Assertions
+        assertEquals(1, result.validAttachments().size());
+        assertEquals(1, result.validInlineAttachments().size());
+        assertEquals(1, result.skippedAttachments().size());
+    }
+
     private AttachmentDto createAttachment(String filename, String contentType, String content) {
         AttachmentDto attachment = new AttachmentDto();
         attachment.setFilename(filename);
         attachment.setContentType(contentType);
         attachment.setContentBase64(Base64.getEncoder().encodeToString(content.getBytes(StandardCharsets.UTF_8)));
+        return attachment;
+    }
+
+    private AttachmentDto createInlineAttachment(String filename, String contentType, String content, String contentId) {
+        AttachmentDto attachment = createAttachment(filename, contentType, content);
+        attachment.setContentId(contentId);
         return attachment;
     }
 

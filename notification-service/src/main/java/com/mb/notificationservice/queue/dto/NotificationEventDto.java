@@ -176,7 +176,8 @@ public class NotificationEventDto {
     private Set<String> bcc = new HashSet<>();
 
     /**
-     * File attachments for email notifications (PDF, Excel, Word, etc.).
+     * File attachments for email notifications (PDF, Excel, Word, inline images, etc.).
+     * Set {@code contentId} on an attachment to embed it inline in the HTML body.
      * Content is Base64-encoded. Not persisted on the notification entity.
      */
     private List<AttachmentDto> attachments = new ArrayList<>();

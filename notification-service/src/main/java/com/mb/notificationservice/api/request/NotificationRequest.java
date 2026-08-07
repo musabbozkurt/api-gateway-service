@@ -61,7 +61,7 @@ public class NotificationRequest {
     private Set<String> bcc = new HashSet<>();
 
     @Schema(
-            description = "Email file attachments (Base64-encoded content). Email channel only; subject to configured count/size limits.",
+            description = "Email file attachments (Base64-encoded content). Set contentId to embed images inline in the HTML body via cid:. Email channel only; subject to configured count/size limits.",
             example = """
                     [
                       {
@@ -70,9 +70,16 @@ public class NotificationRequest {
                         "contentBase64": "JVBERi0xLjQK..."
                       },
                       {
-                        "filename": "report.xlsx",
-                        "contentType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                        "contentBase64": "UEsDBBQAAAAI..."
+                        "filename": "logo.png",
+                        "contentType": "image/png",
+                        "contentBase64": "iVBORw0KGgo...",
+                        "contentId": "company-logo"
+                      },
+                      {
+                        "filename": "banner.png",
+                        "contentType": "image/png",
+                        "contentBase64": "iVBORw0KGgo...",
+                        "contentId": "promo-banner"
                       }
                     ]"""
     )

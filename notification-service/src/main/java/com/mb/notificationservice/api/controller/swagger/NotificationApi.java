@@ -32,7 +32,7 @@ public interface NotificationApi {
 
     @Operation(
             summary = "Send a notification asynchronously",
-            description = "Queues a notification for async delivery via the specified channel",
+            description = "Queues a notification for async delivery via the specified channel. Email attachments are Base64-encoded, email-only, and subject to configured count/size limits. Set contentId on attachments to embed multiple images inline in the HTML body via cid:.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     content = @Content(examples = {
                             @ExampleObject(
@@ -69,6 +69,32 @@ public interface NotificationApi {
                                                   "filename": "report.xlsx",
                                                   "contentType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                                                   "contentBase64": "UEsDBBQAAAAI..."
+                                                }
+                                              ]
+                                            }
+                                            """),
+                            @ExampleObject(
+                                    name = "Email with inline images",
+                                    value = """
+                                            {
+                                              "channel": "EMAIL",
+                                              "level": "INFO",
+                                              "userId": 12345,
+                                              "recipients": ["user@example.com"],
+                                              "subject": "Welcome",
+                                              "body": "<p>Welcome to our store!</p><img src=\\"cid:company-logo\\"/><img src=\\"cid:promo-banner\\"/>",
+                                              "attachments": [
+                                                {
+                                                  "filename": "logo.png",
+                                                  "contentType": "image/png",
+                                                  "contentBase64": "iVBORw0KGgo...",
+                                                  "contentId": "company-logo"
+                                                },
+                                                {
+                                                  "filename": "banner.png",
+                                                  "contentType": "image/png",
+                                                  "contentBase64": "iVBORw0KGgo...",
+                                                  "contentId": "promo-banner"
                                                 }
                                               ]
                                             }
