@@ -7,6 +7,7 @@ import com.mb.notificationservice.enums.NotificationChannel;
 import com.mb.notificationservice.queue.dto.AttachmentDto;
 import com.mb.notificationservice.service.NotificationStrategy;
 import com.mb.notificationservice.util.AttachmentUtils;
+import com.mb.notificationservice.util.AttachmentValidationResult;
 import com.mb.notificationservice.util.ContentUtils;
 import com.mb.notificationservice.util.EmailUtils;
 import jakarta.mail.MessagingException;
@@ -84,12 +85,9 @@ public class EmailServiceImpl implements NotificationStrategy {
             String body = request.getBody();
 
             boolean isHtml = ContentUtils.isHtml(body);
-            List<AttachmentDto> attachments = request.getAttachments();
-            boolean multipart = CollectionUtils.isNotEmpty(attachments);
-
-            if (multipart) {
-                AttachmentUtils.validate(attachments, emailAttachmentProperties);
-            }
+            AttachmentValidationResult attachmentResult = AttachmentUtils.partition(request.getAttachments(), emailAttachmentProperties);
+            body = AttachmentUtils.appendSkippedAttachmentsNotice(body, attachmentResult.skippedAttachments(), isHtml);
+            boolean multipart = attachmentResult.hasAttachments();
 
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, multipart, "UTF-8");
@@ -110,7 +108,7 @@ public class EmailServiceImpl implements NotificationStrategy {
             }
 
             if (multipart) {
-                addAttachments(helper, attachments);
+                addAttachments(helper, attachmentResult.validAttachments());
             }
 
             javaMailSender.send(mimeMessage);
