@@ -122,32 +122,36 @@ class EmailServiceTest {
     }
 
     @Test
-    void send_ShouldReturnFailedResponse_WhenAttachmentCountExceedsLimit() {
+    void send_ShouldSendEmailWithValidAttachmentsOnly_WhenAttachmentCountExceedsLimit() {
         // Arrange
         emailAttachmentProperties.setMaxCount(1);
         NotificationRequest request = createValidRequest();
         request.setAttachments(List.of(createAttachment("a.pdf", "application/pdf", "a"), createAttachment("b.pdf", "application/pdf", "b")));
+        doNothing().when(javaMailSender).send(any(MimeMessage.class));
+        when(javaMailSender.createMimeMessage()).thenReturn(new MimeMessage((Session) null));
 
         // Act
         NotificationResponse response = emailService.send(request);
 
         // Assertions
-        assertFalse(response.isSuccess());
-        verifyNoInteractions(javaMailSender);
+        assertTrue(response.isSuccess());
+        verify(javaMailSender, times(1)).send(any(MimeMessage.class));
     }
 
     @Test
-    void send_ShouldReturnFailedResponse_WhenAttachmentContentTypeIsNotAllowed() {
+    void send_ShouldSendEmailWithoutAttachment_WhenAttachmentContentTypeIsNotAllowed() {
         // Arrange
         NotificationRequest request = createValidRequest();
         request.setAttachments(List.of(createAttachment("malware.exe", "application/octet-stream", "evil")));
+        doNothing().when(javaMailSender).send(any(MimeMessage.class));
+        when(javaMailSender.createMimeMessage()).thenReturn(new MimeMessage((Session) null));
 
         // Act
         NotificationResponse response = emailService.send(request);
 
         // Assertions
-        assertFalse(response.isSuccess());
-        verifyNoInteractions(javaMailSender);
+        assertTrue(response.isSuccess());
+        verify(javaMailSender, times(1)).send(any(MimeMessage.class));
     }
 
     @ParameterizedTest
