@@ -9,8 +9,10 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Base64;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -20,18 +22,25 @@ public final class AttachmentUtils {
         AttachmentValidationResult attachmentValidationResult = new AttachmentValidationResult();
 
         if (CollectionUtils.isEmpty(attachments)) {
-            return new AttachmentValidationResult();
+            return attachmentValidationResult;
         }
 
         long totalSize = 0L;
+        Set<String> usedContentIds = new HashSet<>();
 
         for (AttachmentDto attachment : attachments) {
-            String skipReason = getSkipReason(attachment, properties, attachmentValidationResult.validAttachments().size(), totalSize);
+            int validCount = attachmentValidationResult.validAttachments().size() + attachmentValidationResult.validInlineAttachments().size();
+            String skipReason = getSkipReason(attachment, properties, validCount, totalSize, usedContentIds);
             if (StringUtils.isNotBlank(skipReason)) {
                 attachmentValidationResult.skippedAttachments().add(skipReason);
             } else {
                 long decodedSize = estimateDecodedSize(attachment.getContentBase64());
-                attachmentValidationResult.validAttachments().add(attachment);
+                if (isInline(attachment)) {
+                    attachmentValidationResult.validInlineAttachments().add(attachment);
+                    usedContentIds.add(attachment.getContentId().trim());
+                } else {
+                    attachmentValidationResult.validAttachments().add(attachment);
+                }
                 totalSize += decodedSize;
             }
         }
@@ -59,14 +68,15 @@ public final class AttachmentUtils {
         }
     }
 
-    private static String getSkipReason(AttachmentDto attachment, EmailAttachmentProperties properties, int validCount, long totalSize) {
-        String rejectionReason = getRejectionReason(attachment, properties);
+    private static String getSkipReason(AttachmentDto attachment, EmailAttachmentProperties properties, int validCount, long totalSize, Set<String> usedContentIds) {
+        String rejectionReason = getRejectionReason(attachment, properties, usedContentIds);
         if (StringUtils.isNotBlank(rejectionReason)) {
             return rejectionReason;
         }
 
         String filename = attachment.getFilename();
         long decodedSize = estimateDecodedSize(attachment.getContentBase64());
+
         if (decodedSize > properties.getMaxFileSizeBytes()) {
             log.error("Attachment '{}' exceeds max file size of {} bytes", filename, properties.getMaxFileSizeBytes());
             return "%s (exceeds max file size of %d bytes)".formatted(filename, properties.getMaxFileSizeBytes());
@@ -107,11 +117,15 @@ public final class AttachmentUtils {
         return ((long) length * 3 / 4) - padding;
     }
 
+    private static boolean isInline(AttachmentDto attachment) {
+        return StringUtils.isNotBlank(attachment.getContentId());
+    }
+
     private static String stripWhitespace(String value) {
         return value.replaceAll("\\s", "");
     }
 
-    private static String getRejectionReason(AttachmentDto attachment, EmailAttachmentProperties properties) {
+    private static String getRejectionReason(AttachmentDto attachment, EmailAttachmentProperties properties, Set<String> usedContentIds) {
         if (attachment == null) {
             log.error("Attachment must not be null");
             return "unknown attachment (attachment must not be null)";
@@ -138,6 +152,19 @@ public final class AttachmentUtils {
             log.error("Attachment contentType '{}' is not allowed for '{}'", attachment.getContentType(), filename);
             return displayName + " (content type '%s' is not allowed)".formatted(attachment.getContentType());
         }
+
+        if (isInline(attachment)) {
+            String contentId = attachment.getContentId().trim();
+            if (usedContentIds.contains(contentId)) {
+                log.error("Duplicate inline contentId '{}' for '{}'", contentId, filename);
+                return displayName + " (duplicate contentId '%s')".formatted(contentId);
+            }
+            if (!contentType.startsWith("image/")) {
+                log.error("Inline attachment '{}' must be an image, got '{}'", filename, attachment.getContentType());
+                return displayName + " (inline attachments must be images)";
+            }
+        }
+
         return null;
     }
 

@@ -109,6 +109,7 @@ public class EmailServiceImpl implements NotificationStrategy {
 
             if (multipart) {
                 addAttachments(helper, attachmentResult.validAttachments());
+                addInlineAttachments(helper, attachmentResult.validInlineAttachments());
             }
 
             javaMailSender.send(mimeMessage);
@@ -124,6 +125,14 @@ public class EmailServiceImpl implements NotificationStrategy {
             byte[] content = AttachmentUtils.decode(attachment);
             String contentType = attachment.getContentType().trim().toLowerCase(Locale.ROOT);
             helper.addAttachment(attachment.getFilename(), new ByteArrayResource(content), contentType);
+        }
+    }
+
+    private void addInlineAttachments(MimeMessageHelper helper, List<AttachmentDto> inlineAttachments) throws MessagingException {
+        for (AttachmentDto attachment : inlineAttachments) {
+            byte[] content = AttachmentUtils.decode(attachment);
+            String contentType = attachment.getContentType().trim().toLowerCase(Locale.ROOT);
+            helper.addInline(attachment.getContentId(), new ByteArrayResource(content), contentType);
         }
     }
 }

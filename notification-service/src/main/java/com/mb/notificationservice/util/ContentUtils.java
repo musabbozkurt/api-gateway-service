@@ -18,6 +18,8 @@ public final class ContentUtils {
                 || trimmed.contains("<body")
                 || trimmed.contains("<table")
                 || trimmed.contains("<div")
+                || trimmed.contains("<p")
+                || trimmed.contains("<img")
                 || trimmed.contains("th:")
                 || trimmed.contains("[[${");
     }

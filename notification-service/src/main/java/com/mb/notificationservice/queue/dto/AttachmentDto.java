@@ -17,6 +17,16 @@ import lombok.ToString;
  *   "contentBase64": "UEsDBBQAAAAI..."
  * }
  * }</pre>
+ *
+ * <p>Inline image example (referenced in HTML body via {@code cid:contentId}):</p>
+ * <pre>{@code
+ * {
+ *   "filename": "logo.png",
+ *   "contentType": "image/png",
+ *   "contentBase64": "iVBORw0KGgo...",
+ *   "contentId": "company-logo"
+ * }
+ * }</pre>
  */
 @Getter
 @Setter
@@ -44,4 +54,13 @@ public class AttachmentDto {
      */
     @Schema(description = "Base64-encoded file content", example = "JVBERi0xLjQK...")
     private String contentBase64;
+
+    /**
+     * Content ID for inline images embedded in the HTML body.
+     * <p>When set, the attachment is embedded inline and must be referenced in the body as
+     * {@code &lt;img src="cid:contentId"/&gt;}. Each inline image requires a unique contentId.
+     * Only image content types are supported for inline attachments.</p>
+     */
+    @Schema(description = "Unique content ID for inline images referenced in HTML body via cid:", example = "company-logo")
+    private String contentId;
 }

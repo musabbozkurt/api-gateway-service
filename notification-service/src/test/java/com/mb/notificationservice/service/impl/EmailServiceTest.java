@@ -264,6 +264,63 @@ class EmailServiceTest {
     }
 
     @Test
+    void send_ShouldSendEmail_WhenInlineImageAttachmentIsProvided() {
+        // Arrange
+        NotificationRequest request = createValidRequest();
+        request.setBody("<p>Welcome!</p><img src=\"cid:company-logo\"/>");
+        request.setAttachments(List.of(createInlineAttachment("logo.png", "png-content", "company-logo")));
+        doNothing().when(javaMailSender).send(any(MimeMessage.class));
+        when(javaMailSender.createMimeMessage()).thenReturn(new MimeMessage((Session) null));
+
+        // Act
+        NotificationResponse response = emailService.send(request);
+
+        // Assertions
+        assertTrue(response.isSuccess());
+        verify(javaMailSender, times(1)).send(any(MimeMessage.class));
+    }
+
+    @Test
+    void send_ShouldSendEmail_WhenMultipleInlineImagesAreProvided() {
+        // Arrange
+        NotificationRequest request = createValidRequest();
+        request.setBody("<p>Welcome!</p><img src=\"cid:company-logo\"/><img src=\"cid:promo-banner\"/>");
+        request.setAttachments(List.of(
+                createInlineAttachment("logo.png", "logo-content", "company-logo"),
+                createInlineAttachment("banner.png", "banner-content", "promo-banner")
+        ));
+        doNothing().when(javaMailSender).send(any(MimeMessage.class));
+        when(javaMailSender.createMimeMessage()).thenReturn(new MimeMessage((Session) null));
+
+        // Act
+        NotificationResponse response = emailService.send(request);
+
+        // Assertions
+        assertTrue(response.isSuccess());
+        verify(javaMailSender, times(1)).send(any(MimeMessage.class));
+    }
+
+    @Test
+    void send_ShouldSendEmail_WhenInlineAndRegularAttachmentsAreProvided() {
+        // Arrange
+        NotificationRequest request = createValidRequest();
+        request.setBody("<p>Invoice attached.</p><img src=\"cid:company-logo\"/>");
+        request.setAttachments(List.of(
+                createAttachment("invoice.pdf", "application/pdf", "pdf-content"),
+                createInlineAttachment("logo.png", "png-content", "company-logo")
+        ));
+        doNothing().when(javaMailSender).send(any(MimeMessage.class));
+        when(javaMailSender.createMimeMessage()).thenReturn(new MimeMessage((Session) null));
+
+        // Act
+        NotificationResponse response = emailService.send(request);
+
+        // Assertions
+        assertTrue(response.isSuccess());
+        verify(javaMailSender, times(1)).send(any(MimeMessage.class));
+    }
+
+    @Test
     void send_ShouldReturnFailedResponse_WhenMailSenderFails() {
         // Arrange
         NotificationRequest request = createValidRequest();
@@ -295,6 +352,12 @@ class EmailServiceTest {
         attachment.setFilename(filename);
         attachment.setContentType(contentType);
         attachment.setContentBase64(Base64.getEncoder().encodeToString(content.getBytes(StandardCharsets.UTF_8)));
+        return attachment;
+    }
+
+    private AttachmentDto createInlineAttachment(String filename, String content, String contentId) {
+        AttachmentDto attachment = createAttachment(filename, "image/png", content);
+        attachment.setContentId(contentId);
         return attachment;
     }
 }

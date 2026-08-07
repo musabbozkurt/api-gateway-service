@@ -28,6 +28,8 @@ class ContentUtilsTest {
             "<body>Hello</body>",
             "<table><tr><td>Data</td></tr></table>",
             "<div>Hello World</div>",
+            "<p>Hello</p>",
+            "<img src=\"cid:company-logo\"/>",
             "<p th:text=\"${name}\">Name</p>",
             "Hello [[${name}]]"
     })
