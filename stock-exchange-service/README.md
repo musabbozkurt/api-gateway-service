@@ -28,7 +28,7 @@ persistence.
 
 ## Tech Stack
 
-- Java 25, Spring Boot 4.0, Spring WebMVC, Spring Security
+- Java 26, Spring Boot 4.0, Spring WebMVC, Spring Security
 - Spring Data JPA + PostgreSQL + Flyway + Hibernate Envers
 - Spring Data Redis + Jedis, JJWT
 - Spring Cloud Stream + Kafka

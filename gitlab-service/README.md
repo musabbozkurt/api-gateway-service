@@ -4,7 +4,7 @@
 
 ### Prerequisites
 
-- Java 25 should be installed and used. `export JAVA_HOME=$(/usr/libexec/java_home -v 25)`
+- Java 26 should be installed and used. `export JAVA_HOME=$(/usr/libexec/java_home -v 26)`
 - Maven should be installed.
 - Docker can be installed (OPTIONAL).
 - Postman can be installed (OPTIONAL).

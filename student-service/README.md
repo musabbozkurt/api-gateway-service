@@ -16,7 +16,7 @@ Keycloak OAuth2**, **HCaptcha integration**, and **event-driven messaging** via 
 
 ## Tech Stack
 
-- Java 25, Spring Boot 4.0
+- Java 26, Spring Boot 4.0
 - Spring Data JPA + H2 (in-memory)
 - Spring Cloud Stream + RabbitMQ
 - OpenFeign + OAuth2 (Keycloak client credentials)

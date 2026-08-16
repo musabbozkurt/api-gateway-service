@@ -27,7 +27,7 @@ limiting, request/response logging, and aggregated Swagger documentation.
 
 ## Tech Stack
 
-- Java 25, Spring Boot 4.0, Spring Cloud Gateway
+- Java 26, Spring Boot 4.0, Spring Cloud Gateway
 - Spring WebFlux (reactive)
 - Redis (rate limiting)
 - Spring Cloud Eureka Client

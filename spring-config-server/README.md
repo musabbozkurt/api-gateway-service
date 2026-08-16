@@ -17,7 +17,7 @@ real-time.
 
 ## Tech Stack
 
-- Java 25, Spring Boot 4.0
+- Java 26, Spring Boot 4.0
 - Spring Cloud Config Server
 - Spring Cloud Bus + Kafka
 - H2 (in-memory database) + Flyway

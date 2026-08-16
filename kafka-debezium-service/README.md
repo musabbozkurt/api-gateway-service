@@ -1,7 +1,7 @@
 ### Prerequisites
 
 - Docker should be installed
-- Java 25 should be installed --> `export JAVA_HOME=$(/usr/libexec/java_home -v 25)`
+- Java 26 should be installed --> `export JAVA_HOME=$(/usr/libexec/java_home -v 26)`
 - Oracle Container Registry (OPTIONAL)
     - Create account: https://container-registry.oracle.com/
     - Generate `Auth Token`, copy the token, and update `ORACLE_AUTH_TOKEN` and update `ORACLE_USERNAME_OR_EMAIL`
@@ -113,7 +113,7 @@ to make sure message is published
 For further reference, please consider the following sections:
 
 - [Debezium Source Connectors](https://debezium.io/documentation/reference/stable/connectors/index.html)
-- [Setting Up a Kafka Cluster Using Docker Compose(Kraft Mode): A Step-by-Step Guide](https://medium.com/@darshak.kachchhi/setting-up-a-kafka-cluster-using-docker-compose-a-step-by-step-guide-a1ee5972b122)
+- [Setting Up a Kafka Cluster Using Docker Compose (Kraft Mode): A Step-by-Step Guide](https://medium.com/@darshak.kachchhi/setting-up-a-kafka-cluster-using-docker-compose-a-step-by-step-guide-a1ee5972b122)
 - [Posting Request Body with Curl [Curl/Bash Code]](https://reqbin.com/req/curl/c-d2nzjn3z/curl-post-body)
 - [Capture Oracle database events with Debezium - Preparing the database (Part 1)](https://www.youtube.com/watch?v=mzho5QS6CSk)
     - [Capture Oracle database events in Apache Kafka with Debezium](https://developers.redhat.com/blog/2021/04/19/capture-oracle-database-events-in-apache-kafka-with-debezium)

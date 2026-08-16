@@ -1,6 +1,6 @@
 # Use a multi-stage build to optimize the image size
 # Stage 1: Build the application
-FROM maven:4.0.0-rc-5-ibm-semeru-25-noble AS build
+FROM maven:4.0.0-rc-5-eclipse-temurin-26-noble AS build
 
 # Set the working directory
 WORKDIR /app
@@ -46,6 +46,6 @@ COPY --from=build /mbjavaruntime $JAVA_HOME
 COPY --from=build /app/student-service/target/*.jar app.jar
 
 # Command to run the application
-# --enable-native-access=ALL-UNNAMED: allows libraries to access native code without warnings on Java 25
+# --enable-native-access=ALL-UNNAMED: allows libraries to access native code without warnings on Java 26
 # --sun-misc-unsafe-memory-access=allow: suppresses sun.misc.Unsafe deprecation warnings from protobuf-java (UnsafeUtil)
 ENTRYPOINT ["java", "--enable-native-access=ALL-UNNAMED", "--sun-misc-unsafe-memory-access=allow", "-jar", "app.jar"]

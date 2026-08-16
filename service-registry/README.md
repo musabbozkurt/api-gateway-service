@@ -13,7 +13,7 @@ architecture. Each service registers itself with Eureka and discovers other serv
 
 ## Tech Stack
 
-- Java 25, Spring Boot 4.0
+- Java 26, Spring Boot 4.0
 - Spring Cloud Netflix Eureka Server
 
 ## Configuration

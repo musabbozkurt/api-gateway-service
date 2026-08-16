@@ -16,7 +16,7 @@
     <description>api-gateway</description>
 
     <properties>
-        <java.version>25</java.version>
+        <java.version>26</java.version>
         <oauth2-oidc-sdk.version>11.38.2</oauth2-oidc-sdk.version>
         <aspectjweaver.version>1.9.25.1</aspectjweaver.version>
         <springdoc-openapi-starter-webflux-ui.version>3.1.0</springdoc-openapi-starter-webflux-ui.version>
@@ -231,7 +231,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <!-- Java 25's security model issues a warning when libraries try to access native code without explicit permission-->
+                    <!-- Java 26's security model issues a warning when libraries try to access native code without explicit permission-->
                     <jvmArguments>--enable-native-access=ALL-UNNAMED</jvmArguments>
                 </configuration>
             </plugin>

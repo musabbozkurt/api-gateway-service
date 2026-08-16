@@ -197,7 +197,7 @@ notification_schema.device_token
 
 ### Prerequisites
 
-- Java 25+
+- Java 26+
 - PostgreSQL
 - Apache Kafka
 - Maven (wrapper included)
