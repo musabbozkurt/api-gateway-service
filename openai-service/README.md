@@ -14,7 +14,7 @@ with OpenAI and exposes endpoints for generating text completions.
 
 ## Tech Stack
 
-- Java 25, Spring Boot 4.0
+- Java 26, Spring Boot 4.0
 - OpenFeign (HTTP client)
 - SpringDoc OpenAPI
 

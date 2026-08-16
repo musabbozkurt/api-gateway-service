@@ -19,7 +19,7 @@ via RabbitMQ events.
 
 ## Tech Stack
 
-- Java 25, Spring Boot 4.0
+- Java 26, Spring Boot 4.0
 - Spring Cloud Stream + RabbitMQ + Kafka
 - Spring Cloud Config Client + Bus
 - H2 (in-memory database)

@@ -16,7 +16,7 @@
     <description>notification-service</description>
 
     <properties>
-        <java.version>25</java.version>
+        <java.version>26</java.version>
         <org.projectlombok.version>1.18.46</org.projectlombok.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.1.0</springdoc-openapi-starter-webmvc-ui.version>
@@ -214,7 +214,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20260719</version>
+            <version>20260814</version>
         </dependency>
 
         <dependency>

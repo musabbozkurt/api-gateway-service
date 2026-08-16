@@ -1,23 +1,23 @@
 #!/bin/bash
 
 # Run mvn clean install in all Maven project directories
-# Uses Java 25 — auto-detects via SDKMAN, JAVA_HOME, or system defaults
+# Uses Java 26 — auto-detects via SDKMAN, JAVA_HOME, or system defaults
 
-set_java_25() {
+set_java_26() {
   # 1. Try SDKMAN
   if [ -f "$HOME/.sdkman/bin/sdkman-init.sh" ]; then
     source "$HOME/.sdkman/bin/sdkman-init.sh"
-    sdk use java 25.0.2-open 2>/dev/null && return
+    sdk use java 26.0.0-open 2>/dev/null && return
   fi
 
-  # 2. If JAVA_HOME is already set to Java 25, use it
-  if [ -n "$JAVA_HOME" ] && "$JAVA_HOME/bin/java" -version 2>&1 | grep -q '"25'; then
+  # 2. If JAVA_HOME is already set to Java 26, use it
+  if [ -n "$JAVA_HOME" ] && "$JAVA_HOME/bin/java" -version 2>&1 | grep -q '"26'; then
     return
   fi
 
   # 3. macOS: use java_home utility
   if command -v /usr/libexec/java_home &>/dev/null; then
-    local jh=$(/usr/libexec/java_home -v 25 2>/dev/null)
+    local jh=$(/usr/libexec/java_home -v 26 2>/dev/null)
     if [ -n "$jh" ] && [ -d "$jh" ]; then
       export JAVA_HOME="$jh"
       return
@@ -26,10 +26,10 @@ set_java_25() {
 
   # 4. Linux / Windows Git Bash: search common paths
   for candidate in \
-    "/usr/lib/jvm/java-25"* \
-    "/usr/lib/jvm/jdk-25"* \
-    "/c/Program Files/Java/jdk-25"* \
-    "/c/Program Files/Eclipse Adoptium/jdk-25"*; do
+    "/usr/lib/jvm/java-26"* \
+    "/usr/lib/jvm/jdk-26"* \
+    "/c/Program Files/Java/jdk-26"* \
+    "/c/Program Files/Eclipse Adoptium/jdk-26"*; do
     if [ -d "$candidate" ]; then
       export JAVA_HOME="$candidate"
       return
@@ -37,15 +37,15 @@ set_java_25() {
   done
 
   # 5. Fall back to whatever 'java' is on PATH
-  if java -version 2>&1 | grep -q '"25'; then
+  if java -version 2>&1 | grep -q '"26'; then
     return
   fi
 
-  echo "❌ Java 25 not found. Please install it or set JAVA_HOME."
+  echo "❌ Java 26 not found. Please install it or set JAVA_HOME."
   exit 1
 }
 
-set_java_25
+set_java_26
 
 echo "Using JAVA_HOME: $JAVA_HOME"
 echo "Java version:"

@@ -16,7 +16,7 @@
     <description>Spring Boot project for Kafka, Debezium and PostgreSQL integration</description>
 
     <properties>
-        <java.version>25</java.version>
+        <java.version>26</java.version>
         <spring-cloud.version>2025.1.2</spring-cloud.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.1.0</springdoc-openapi-starter-webmvc-ui.version>
         <opentelemetry-logback-appender-1.0.version>2.30.0-alpha</opentelemetry-logback-appender-1.0.version>
@@ -155,7 +155,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <!-- Java 25's security model issues a warning when libraries try to access native code without explicit permission-->
+                    <!-- Java 26's security model issues a warning when libraries try to access native code without explicit permission-->
                     <jvmArguments>--enable-native-access=ALL-UNNAMED</jvmArguments>
                 </configuration>
             </plugin>

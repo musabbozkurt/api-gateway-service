@@ -16,7 +16,7 @@
     <description>payment-service</description>
 
     <properties>
-        <java.version>25</java.version>
+        <java.version>26</java.version>
         <org.projectlombok.version>1.18.46</org.projectlombok.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.1.0</springdoc-openapi-starter-webmvc-ui.version>
@@ -155,7 +155,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <!-- Java 25's security model issues a warning when libraries try to access native code without explicit permission-->
+                    <!-- Java 26's security model issues a warning when libraries try to access native code without explicit permission-->
                     <jvmArguments>--enable-native-access=ALL-UNNAMED</jvmArguments>
                 </configuration>
             </plugin>

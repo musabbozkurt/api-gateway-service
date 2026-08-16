@@ -29,7 +29,7 @@
     </scm>
 
     <properties>
-        <java.version>25</java.version>
+        <java.version>26</java.version>
         <hypersistence-utils-hibernate.version>3.15.4</hypersistence-utils-hibernate.version>
         <jjwt.version>0.13.0</jjwt.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
@@ -39,7 +39,7 @@
         <jboss-logging.version>3.6.3.Final</jboss-logging.version>
         <newrelic-java.version>9.4.0</newrelic-java.version>
         <moneta.version>1.4.5</moneta.version>
-        <jackson-datatype-moneta.version>3.2.1</jackson-datatype-moneta.version>
+        <jackson-datatype-moneta.version>3.2.2</jackson-datatype-moneta.version>
         <embedded-redis.version>1.4.3</embedded-redis.version>
         <spring-cloud-dependencies.version>2025.1.2</spring-cloud-dependencies.version>
         <testcontainers-bom.version>2.0.5</testcontainers-bom.version>
@@ -432,7 +432,7 @@
                 <configuration>
                     <mainClass>com.mb.inventorymanagementservice.InventoryManagementServiceApplication</mainClass>
                     <layout>JAR</layout>
-                    <!-- Java 25's security model issues a warning when libraries try to access native code without explicit permission-->
+                    <!-- Java 26's security model issues a warning when libraries try to access native code without explicit permission-->
                     <jvmArguments>--enable-native-access=ALL-UNNAMED</jvmArguments>
                 </configuration>
             </plugin>

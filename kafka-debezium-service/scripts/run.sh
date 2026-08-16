@@ -12,7 +12,7 @@ echo "PROJECT_ROOT: $PROJECT_ROOT"
 
 echo "Current JAVA_HOME: $JAVA_HOME"
 
-JAVA_HOME=$(/usr/libexec/java_home -v 25)
+JAVA_HOME=$(/usr/libexec/java_home -v 26)
 export JAVA_HOME
 echo "Current JAVA_HOME after export: $JAVA_HOME"
 

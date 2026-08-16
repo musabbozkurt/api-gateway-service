@@ -20,7 +20,7 @@ auditing.
 
 ## Tech Stack
 
-- Java 25, Spring Boot 4.0, Spring WebFlux
+- Java 26, Spring Boot 4.0, Spring WebFlux
 - Spring Data JPA + PostgreSQL + Flyway + Hibernate Envers
 - Spring Kafka, MapStruct, Lombok
 - OpenTelemetry, Micrometer, Prometheus

@@ -16,7 +16,7 @@
     <description>student-service</description>
 
     <properties>
-        <java.version>25</java.version>
+        <java.version>26</java.version>
         <org.projectlombok.version>1.18.46</org.projectlombok.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.1.0</springdoc-openapi-starter-webmvc-ui.version>
         <opentelemetry-logback-appender-1.0.version>2.30.0-alpha</opentelemetry-logback-appender-1.0.version>
@@ -170,8 +170,8 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <!--
-                        enable-native-access=ALL-UNNAMED: Java 25's security model issues a warning when libraries access native code without explicit permission.
-                        sun-misc-unsafe-memory-access=allow: Suppresses terminally deprecated sun.misc.Unsafe warnings from protobuf-java (UnsafeUtil) on Java 25.
+                        enable-native-access=ALL-UNNAMED: Java 26's security model issues a warning when libraries access native code without explicit permission.
+                        sun-misc-unsafe-memory-access=allow: Suppresses terminally deprecated sun.misc.Unsafe warnings from protobuf-java (UnsafeUtil) on Java 26.
                     -->
                     <jvmArguments>
                         --enable-native-access=ALL-UNNAMED --sun-misc-unsafe-memory-access=allow

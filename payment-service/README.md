@@ -15,7 +15,7 @@ payments, integrates with Keycloak for OAuth2/JWT authentication, and persists p
 
 ## Tech Stack
 
-- Java 25, Spring Boot 4.0, Spring Security (OAuth2 + JWT)
+- Java 26, Spring Boot 4.0, Spring Security (OAuth2 + JWT)
 - Spring Data JPA + PostgreSQL + Flyway
 - Keycloak, SpringDoc OpenAPI, MapStruct
 

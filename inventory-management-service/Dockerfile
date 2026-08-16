@@ -1,7 +1,7 @@
 ### Build stage ###
 
-# Use an official Maven image with Java 25 as the base image
-FROM maven:4.0.0-rc-5-ibm-semeru-25-noble AS build
+# Use an official Maven image with Java 26 as the base image
+FROM maven:4.0.0-rc-5-eclipse-temurin-26-noble AS build
 
 # Set the working directory
 WORKDIR /app

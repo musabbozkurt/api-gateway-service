@@ -1,6 +1,6 @@
 # Use a multi-stage build to optimize the image size
 # Stage 1: Build the application
-FROM maven:4.0.0-rc-5-ibm-semeru-25-noble AS build
+FROM maven:4.0.0-rc-5-eclipse-temurin-26-noble AS build
 
 # Set the working directory
 WORKDIR /app
