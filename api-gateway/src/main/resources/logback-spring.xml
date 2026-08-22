@@ -15,7 +15,7 @@
 
     <!-- Console pattern (human-readable) -->
     <property name="localConsoleLogPattern"
-              value="%green(%d{dd-MM-yyyy HH:mm:ss.SSS}) %magenta([%thread]) %highlight(%-5level) [%X{traceId:-},%X{spanId:-},%X{username:-},%X{client_id:-},%X{sessionId:-}] %logger{36} %msg%n"/>
+              value="%green(%d{dd-MM-yyyy HH:mm:ss.SSS}) %magenta([%thread]) %highlight(%-5level) [%X{traceId:-},%X{spanId:-},%X{username:-},%X{client_id:-},%X{sessionId:-},%X{api:-}] %logger{36} %msg%n"/>
 
     <!-- ===== OpenTelemetry Appender ===== -->
     <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
@@ -48,6 +48,9 @@
 
     <!-- ===== Default / local profile ===== -->
     <springProfile name="! (dev | prod | stage)">
+        <logger name="USER_ACTIVITY" level="INFO" additivity="false">
+            <appender-ref ref="LocalConsoleAppender"/>
+        </logger>
         <root level="INFO">
             <appender-ref ref="LocalConsoleAppender"/>
             <appender-ref ref="OTEL"/>
@@ -56,6 +59,9 @@
 
     <!-- ===== Dev / Prod / Stage ===== -->
     <springProfile name="(dev | prod | stage)">
+        <logger name="USER_ACTIVITY" level="INFO" additivity="false">
+            <appender-ref ref="ConsoleAppender"/>
+        </logger>
         <root level="INFO">
             <appender-ref ref="ConsoleAppender"/>
             <appender-ref ref="OTEL"/>

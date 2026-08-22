@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.0</version>
+        <version>4.1.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -24,11 +24,11 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <springdoc-openapi-starter-webmvc-ui.version>3.1.0</springdoc-openapi-starter-webmvc-ui.version>
         <org.projectlombok.version>1.18.46</org.projectlombok.version>
-        <opentelemetry-logback-appender-1.0.version>2.30.0-alpha</opentelemetry-logback-appender-1.0.version>
-        <protobuf.version>4.35.1</protobuf.version>
+        <opentelemetry-logback-appender-1.0.version>2.31.0-alpha</opentelemetry-logback-appender-1.0.version>
+        <protobuf.version>4.36.0</protobuf.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
         <moneta.version>1.4.5</moneta.version>
-        <spring-cloud.version>2025.1.2</spring-cloud.version>
+        <spring-cloud.version>2025.1.3</spring-cloud.version>
         <skipAot>true</skipAot>
         <versions-maven-plugin.version>2.21.0</versions-maven-plugin.version>
     </properties>

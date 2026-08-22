@@ -1,7 +1,10 @@
 package com.mb.apigateway.config;
 
+import com.mb.apigateway.enums.ActivityStatus;
 import com.mb.apigateway.filter.AuthenticationFilter;
 import com.mb.apigateway.filter.HttpRequestSmugglingPreventionFilter;
+import com.mb.apigateway.logging.UserActivityEvent;
+import com.mb.apigateway.logging.UserActivityLogger;
 import com.mb.apigateway.service.ServiceAccessCacheService;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -56,7 +59,10 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -97,6 +103,9 @@ class SecurityConfigTest {
 
         @MockitoBean
         private ServiceAccessCacheService serviceAccessCacheService;
+
+        @MockitoBean
+        private UserActivityLogger userActivityLogger;
 
         @BeforeAll
         static void setUp() throws IOException {
@@ -702,6 +711,40 @@ class SecurityConfigTest {
                     .expectStatus().is2xxSuccessful();
         }
 
+        @Test
+        @DisplayName("Activity logger should receive extracted api path for protected endpoint")
+        void activityLogger_ShouldReceiveApiPath_WhenProtectedEndpointIsCalled() {
+            // Arrange
+            mockBackendServer.enqueue(new MockResponse()
+                    .setResponseCode(200)
+                    .setBody("""
+                            {
+                              "products": []
+                            }
+                            """)
+                    .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
+
+            mockValidTokenIntrospection();
+
+            // Act
+            webTestClient.get()
+                    .uri("/product-service/api/v1/products")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-token")
+                    .exchange()
+                    .expectStatus().isOk();
+
+            // Assertions
+            verify(userActivityLogger, timeout(2000).atLeastOnce()).log(
+                    any(),
+                    argThat((UserActivityEvent event) -> "/api/v1/products".equals(event.api()))
+            );
+
+            verify(userActivityLogger, timeout(2000).atLeastOnce()).log(
+                    any(),
+                    argThat((UserActivityEvent event) -> event.status() == ActivityStatus.STARTED || event.status() == ActivityStatus.COMPLETED)
+            );
+        }
+
         private void mockValidTokenIntrospection() {
             var authenticatedPrincipal = createAuthenticatedPrincipal("test-user");
             when(opaqueTokenIntrospector.introspect(anyString())).thenReturn(Mono.just(authenticatedPrincipal));
@@ -715,12 +758,12 @@ class SecurityConfigTest {
         private OAuth2AuthenticatedPrincipal createAuthenticatedPrincipal(String username) {
             return new OAuth2AuthenticatedPrincipal() {
                 @Override
-                public Map<String, Object> getAttributes() {
+                public @NonNull Map<String, Object> getAttributes() {
                     return Map.of("active", true, "sub", username);
                 }
 
                 @Override
-                public Collection<? extends GrantedAuthority> getAuthorities() {
+                public @NonNull Collection<? extends GrantedAuthority> getAuthorities() {
                     return List.of();
                 }
 

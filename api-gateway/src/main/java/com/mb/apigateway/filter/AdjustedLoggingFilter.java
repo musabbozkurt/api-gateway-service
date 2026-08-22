@@ -23,10 +23,14 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.mb.apigateway.constant.GatewayServiceConstants.API;
 import static com.mb.apigateway.constant.GatewayServiceConstants.CLIENT_ID;
+import static com.mb.apigateway.constant.GatewayServiceConstants.DEVICE_INFO_HEADER;
 import static com.mb.apigateway.constant.GatewayServiceConstants.MDC_CONTEXT;
+import static com.mb.apigateway.constant.GatewayServiceConstants.PAGE_URL_HEADER;
 import static com.mb.apigateway.constant.GatewayServiceConstants.SESSION_ID;
 import static com.mb.apigateway.constant.GatewayServiceConstants.USERNAME;
+import static com.mb.apigateway.constant.GatewayServiceConstants.USER_AGENT_HEADER;
 
 /**
  * Initializes MDC and {@link com.mb.apigateway.context.ContextHolder} for every request and
@@ -111,6 +115,21 @@ public class AdjustedLoggingFilter implements GlobalFilter, Ordered {
         if (StringUtils.isNotBlank(clientId)) {
             MDC.put(CLIENT_ID, clientId);
             contextBuilder.clientId(clientId);
+        }
+
+        String apiPath = (String) exchange.getAttributes().get(API);
+        if (StringUtils.isNotBlank(apiPath)) {
+            MDC.put(API, apiPath);
+        }
+
+        String pageUrlHeader = exchange.getRequest().getHeaders().getFirst(PAGE_URL_HEADER);
+        if (StringUtils.isNotBlank(pageUrlHeader)) {
+            MDC.put(PAGE_URL_HEADER, pageUrlHeader);
+        }
+
+        String userAgent = exchange.getRequest().getHeaders().getFirst(USER_AGENT_HEADER);
+        if (StringUtils.isNotBlank(userAgent)) {
+            MDC.put(DEVICE_INFO_HEADER, userAgent);
         }
 
         exchange.mutate()
