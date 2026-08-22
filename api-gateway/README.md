@@ -153,12 +153,12 @@ flowchart TD
                   │                                               │
                   ▼                                               ▼
         ┌──────────────────────┐                    ┌──────────────────────────┐
-        │  Permitted Paths     │                    │   Protected Paths        │
-        │  ✓ /actuator/health │                    │   Opaque token required  │
-        │  ✓ /swagger-ui/**   │                    │                          │
-        │  ✓ forgot-password  │                    └─────────┬────────────────┘
+        │  Permitted Paths     │                    │  Protected Paths         │
+        │  - /actuator/health  │                    │  Opaque token required   │
+        │  - /swagger-ui/**    │                    │                          │
+        │  - forgot-password   │                    └─────────┬────────────────┘
         └──────────┬───────────┘                              │
-                   │                                 [4] Path-based introspection
+                   │                                [4] Path-based introspection
                    │ Skip Auth                                │
                    │                      ┌───────────────────┴───────────────────┐
                    │                      │                                       │
