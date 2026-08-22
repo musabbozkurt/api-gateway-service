@@ -12,6 +12,13 @@ public final class GatewayServiceConstants {
     public static final String CLIENT_ID = "client_id";
     public static final String SESSION_ID = "sessionId";
     public static final String MDC_CONTEXT = "MDC_CONTEXT";
+    public static final String API = "api";
+    public static final String DEVICE_INFO_HEADER = "deviceInfo";
+    public static final String FORWARDED_FOR_HEADER = "X-Forwarded-For";
+    public static final String PAGE_URL_HEADER = "X-Page-Url";
+    public static final String USER_AGENT_HEADER = "User-Agent";
+    public static final String USER_ACTIVITY_LOGGER = "USER_ACTIVITY";
+    public static final String USER_ACTIVITY_EVENT_TYPE = "USER_ACTIVITY_EVENT";
 
     public static final String RESPONSE_BODY_CONTAINS_ANY_ERROR = "responseBodyContainsAnyError";
     public static final String SERVICE_ACCESS_KEY_PREFIX = "swagger-application:service-access:";

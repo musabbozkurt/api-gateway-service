@@ -3,6 +3,9 @@ package com.mb.apigateway.filter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mb.apigateway.enums.AccessType;
+import com.mb.apigateway.enums.ActivityStatus;
+import com.mb.apigateway.logging.UserActivityEvent;
+import com.mb.apigateway.logging.UserActivityLogger;
 import com.mb.apigateway.service.ServiceAccessCacheService;
 import io.micrometer.common.util.StringUtils;
 import lombok.RequiredArgsConstructor;
@@ -18,18 +21,24 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.SignalType;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
+import static com.mb.apigateway.constant.GatewayServiceConstants.API;
 import static com.mb.apigateway.constant.GatewayServiceConstants.CLIENT_ID;
 import static com.mb.apigateway.constant.GatewayServiceConstants.USERNAME;
 import static com.mb.apigateway.constant.GatewayServiceConstants.USER_ID;
@@ -55,6 +64,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
     private final ObjectMapper objectMapper;
     private final ServiceAccessCacheService serviceAccessCacheService;
+    private final UserActivityLogger userActivityLogger;
 
     @NonNull
     @Override
@@ -76,15 +86,35 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                     String method = exchange.getRequest().getMethod().name();
                     String serviceName = extractServiceName(path);
                     String api = extractApiPath(path);
+                    if (StringUtils.isNotBlank(api)) {
+                        mutatedExchange.getAttributes().put(API, api);
+                    }
                     String accessType = StringUtils.isNotBlank(userId) ? AccessType.USER.name() : AccessType.CLIENT.name();
+                    String requestId = exchange.getRequest().getId();
+                    Instant startedAt = Instant.now();
+                    long startNanos = System.nanoTime();
 
                     return serviceAccessCacheService.hasAccess(clientId, serviceName, api, method, accessType)
                             .flatMap(hasAccess -> {
                                 if (Boolean.FALSE.equals(hasAccess)) {
                                     log.warn("Access denied for clientId: {}, service: {}, api: {}, method: {}", clientId, serviceName, api, method);
+                                    userActivityLogger.log(mutatedExchange, new UserActivityEvent(ActivityStatus.FAILED, requestId, serviceName, api, method, startedAt, Instant.now(), Duration.ofNanos(System.nanoTime() - startNanos).toMillis(), HttpStatus.TEMPORARY_REDIRECT.value(), "ACCESS_DENIED"));
                                     return renderMaintenancePage(exchange);
                                 }
-                                return chain.filter(mutatedExchange);
+
+                                userActivityLogger.log(mutatedExchange, new UserActivityEvent(ActivityStatus.STARTED, requestId, serviceName, api, method, startedAt, null, null, null, null));
+
+                                AtomicReference<Throwable> requestError = new AtomicReference<>();
+                                return chain.filter(mutatedExchange)
+                                        .doOnError(requestError::set)
+                                        .doFinally(signalType -> {
+                                            long durationMs = Duration.ofNanos(System.nanoTime() - startNanos).toMillis();
+                                            HttpStatusCode statusCode = mutatedExchange.getResponse().getStatusCode();
+                                            Integer httpStatus = statusCode != null ? statusCode.value() : null;
+                                            Throwable throwable = requestError.get();
+
+                                            userActivityLogger.log(mutatedExchange, new UserActivityEvent(resolveCompletionStatus(signalType, throwable), requestId, serviceName, api, method, startedAt, Instant.now(), durationMs, httpStatus, throwable != null ? throwable.getMessage() : null));
+                                        });
                             });
                 });
     }
@@ -198,5 +228,15 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         return DataBufferUtils.read(MAINTENANCE_PAGE, BUFFER_FACTORY, 8192)
                 .collectList()
                 .flatMap(dataBuffers -> exchange.getResponse().writeWith(Mono.just(BUFFER_FACTORY.join(dataBuffers))));
+    }
+
+    private ActivityStatus resolveCompletionStatus(SignalType signalType, Throwable throwable) {
+        if (throwable != null) {
+            return ActivityStatus.FAILED;
+        }
+        if (signalType == SignalType.CANCEL) {
+            return ActivityStatus.CANCELLED;
+        }
+        return ActivityStatus.COMPLETED;
     }
 }
