@@ -41,6 +41,8 @@ services:
         condition: service_started
       zipkin:
         condition: service_started
+      elasticsearch:
+        condition: service_started
     environment:
       CLIENT_ID: ${GATEWAY_CLIENT_ID:-api-gateway-client}
       CLIENT_SECRET: ${GATEWAY_CLIENT_SECRET:-m5CxL5t54ACk17mDjp0Zje0jBBRsXJuM}
@@ -51,6 +53,7 @@ services:
       OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
       REDIS_HOST: redis-service
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
+      ELASTICSEARCH_URL: http://elasticsearch:9200
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:
@@ -859,6 +862,30 @@ services:
       - mb-network
     restart: on-failure
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.3.1
+    container_name: elasticsearch-service
+    environment:
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.type=single-node"
+      - xpack.security.enabled=false
+      - cluster.routing.allocation.disk.watermark.low=95%
+      - cluster.routing.allocation.disk.watermark.high=97%
+      - cluster.routing.allocation.disk.watermark.flood_stage=99%
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    networks:
+      - mb-network
+
 volumes:
   redis-data:
   redis-insight:
@@ -867,6 +894,7 @@ volumes:
   debezium-kafka1-data:
   debezium-kafka2-data:
   debezium-kafka3-data:
+  elasticsearch_data:
 
 networks:
   mb-network:

@@ -31,11 +31,11 @@
     <properties>
         <java.version>26</java.version>
         <jjwt.version>0.13.0</jjwt.version>
-        <embedded-redis.version>1.4.3</embedded-redis.version>
+        <embedded-redis.version>1.4.4</embedded-redis.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.1.0</springdoc-openapi-starter-webmvc-ui.version>
         <jboss-logging.version>3.6.3.Final</jboss-logging.version>
-        <opentelemetry-logback-appender-1.0.version>2.31.0-alpha</opentelemetry-logback-appender-1.0.version>
+        <opentelemetry-logback-appender-1.0.version>2.31.1-alpha</opentelemetry-logback-appender-1.0.version>
         <protobuf.version>4.36.0</protobuf.version>
         <spring-cloud.version>2025.1.3</spring-cloud.version>
         <testcontainers-bom.version>2.0.5</testcontainers-bom.version>

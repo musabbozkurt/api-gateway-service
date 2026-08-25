@@ -292,6 +292,56 @@ flowchart TD
 ./mvnw spring-boot:run
 ```
 
+## USER_ACTIVITY Logs
+
+`USER_ACTIVITY` events are produced by `UserActivityLogger` with message `USER_ACTIVITY_EVENT`. Main fields include
+`client_id`, `userId`, `username`, `api`, `status`, `httpStatus`, `durationMs`, `ipAddress`, `deviceInfo`, and
+`X-Page-Url`.
+
+Use this Elasticsearch query for local direct appender output (exact-match with `.keyword` fields):
+
+```bash
+curl -s -X GET "http://localhost:9200/logstash-api-gateway-service/_search?pretty" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "size": 20,
+    "query": {
+      "bool": {
+        "filter": [
+          { "term": { "logger_name.keyword": "USER_ACTIVITY" } },
+          { "term": { "eventType.keyword": "USER_ACTIVITY_EVENT" } }
+        ]
+      }
+    },
+    "sort": [{ "@timestamp": { "order": "desc" } }]
+  }'
+```
+
+If your environment writes to date-suffixed indices, use:
+
+```bash
+curl -s -X GET "http://localhost:9200/logstash-api-gateway-service-*/_search?pretty" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "size": 20,
+    "query": {
+      "bool": {
+        "filter": [
+          { "term": { "logger_name.keyword": "USER_ACTIVITY" } },
+          { "term": { "eventType.keyword": "USER_ACTIVITY_EVENT" } }
+        ]
+      }
+    },
+    "sort": [{ "@timestamp": { "order": "desc" } }]
+  }'
+```
+
+If no results are returned:
+
+1. Confirm you sent a protected request that passes authentication.
+2. Confirm gateway logs are being shipped to `logstash-api-gateway-service-*`.
+3. Query only gateway indices (not all indices) to avoid mapping/sort conflicts.
+
 **URLs:**
 
 - Gateway: `http://localhost:8080`
