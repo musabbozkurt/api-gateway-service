@@ -232,6 +232,9 @@ logging:
     excludeContentTypes:
       - "multipart/form-data"
 
+elasticsearch:
+  url: ${ELASTICSEARCH_URL:http://localhost:9200}
+
 secure-service:
   introspection-uri: ${INTROSPECTION_URI:http://localhost:9090/realms/${KEYCLOAK_REALM:mb-realm}/protocol/openid-connect/token/introspect}
 

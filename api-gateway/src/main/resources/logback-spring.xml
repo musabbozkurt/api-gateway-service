@@ -10,6 +10,8 @@
     <!-- Spring properties -->
     <springProperty scope="context" name="service" source="spring.application.name"/>
     <springProperty scope="context" name="logFilePath" source="logging.file:logs/console-${service}.log"/>
+    <springProperty scope="context" name="elasticsearchUrl" source="elasticsearch.url"
+                    defaultValue="http://localhost:9200"/>
 
     <property scope="context" name="host" value="${HOSTNAME}"/>
 
@@ -46,6 +48,10 @@
         </encoder>
     </appender>
 
+    <appender name="LocalUserActivityElasticAppender" class="com.mb.apigateway.logging.ElasticsearchHttpAppender">
+        <indexUrl>${elasticsearchUrl}/logstash-api-gateway-service</indexUrl>
+    </appender>
+
     <!-- ===== Default / local profile ===== -->
     <springProfile name="! (dev | prod | stage)">
         <logger name="USER_ACTIVITY" level="INFO" additivity="false">
@@ -54,6 +60,7 @@
         <root level="INFO">
             <appender-ref ref="LocalConsoleAppender"/>
             <appender-ref ref="OTEL"/>
+            <appender-ref ref="LocalUserActivityElasticAppender"/>
         </root>
     </springProfile>
 
