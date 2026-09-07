@@ -115,14 +115,19 @@ jobs:
 
       - name: Start minikube
         uses: medyagh/setup-minikube@master
+        with:
+          driver: docker
+          memory: 4096
 
       - name: Try the cluster !
         run: kubectl get pods -A
 
-      # Build into minikube directly — avoids docker-env + buildx (404 on buildkit with containerd runtime)
-      - name: Build image into minikube
+      # Build on the GitHub runner (fast) then load into minikube.
+      # minikube image build runs inside the VM and re-runs the Dockerfile Maven stages — very slow / appears stuck.
+      - name: Build image and load into minikube
         run: |
-          minikube image build -f api-gateway/Dockerfile -t api-gateway:latest .
+          docker build --progress=plain -f api-gateway/Dockerfile -t api-gateway:latest .
+          minikube image load api-gateway:latest
           minikube image ls | grep api-gateway || true
 
       - name: Deploy to minikube
@@ -130,7 +135,7 @@ jobs:
           pwd
           ls -la
           kubectl apply -f api-gateway/.helm/templates/k8s-api-gateway-app.yaml
-          kubectl wait --for=condition=ready pod -l app=api-gateway
+          kubectl wait --for=condition=ready pod -l app=api-gateway --timeout=300s
 
       - name: Test service URLs
         run: |
