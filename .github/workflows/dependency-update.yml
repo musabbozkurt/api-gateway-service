@@ -1,12 +1,13 @@
 # =============================================================================
 # MB Dependency Version Update
 # =============================================================================
-# Detects outdated Maven dependencies across all service pom.xml files using the
-# versions-maven-plugin configured in each service pom.xml with ../version-rules.xml.
+# Detects and applies outdated versions for:
+#   - Maven dependencies (versions-maven-plugin + version-rules.xml per service)
+#   - Docker Compose images (check-compose-image-updates.sh --apply)
 #
 # Behavior per trigger:
-#   pull_request       → Read-only check: displays available updates in the log
-#   push (this file)   → Applies updates, verifies changed services compile, creates a PR (for testing)
+#   pull_request       → Read-only check: Maven update report + Compose image report
+#   push (this file)   → Applies updates, verifies changed services compile, creates a PR
 #   schedule/dispatch  → Applies updates, verifies changed services compile, creates a PR
 # =============================================================================
 
@@ -76,6 +77,11 @@ jobs:
             echo "::endgroup::"
           done
 
+      - name: Check Docker Compose image versions
+        run: |
+          chmod +x check-compose-image-updates.sh
+          ./check-compose-image-updates.sh
+
   update-and-pr:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
     runs-on: ubuntu-latest
@@ -127,50 +133,82 @@ jobs:
             mvn -B versions:use-latest-releases -DgenerateBackupPoms=false --file "$pom"
           done
 
-      - name: Check if service pom.xml files changed
+      - name: Apply Docker Compose image updates
+        if: steps.pr-exists.outputs.skip == 'false'
+        run: |
+          chmod +x check-compose-image-updates.sh
+          ./check-compose-image-updates.sh --apply
+          rm -f docker-compose.yml.bak
+
+      - name: Check if dependency files changed
         if: steps.pr-exists.outputs.skip == 'false'
         id: diff
         run: |
           CHANGED_POMS=$(git diff --name-only | grep '/pom\.xml$' || true)
+          COMPOSE_CHANGED=false
+          if git diff --name-only | grep -qx 'docker-compose.yml'; then
+            COMPOSE_CHANGED=true
+          fi
 
-          if [ -z "$CHANGED_POMS" ]; then
-            echo "All service dependencies are up to date."
+          if [ -z "$CHANGED_POMS" ] && [ "$COMPOSE_CHANGED" != "true" ]; then
+            echo "All Maven and Docker Compose dependencies are up to date."
             echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "has_pom_changes=false" >> "$GITHUB_OUTPUT"
           else
             echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            if [ -n "$CHANGED_POMS" ]; then
+              echo "has_pom_changes=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "has_pom_changes=false" >> "$GITHUB_OUTPUT"
+            fi
             {
               echo 'changed_poms<<EOF'
               printf '%s\n' "$CHANGED_POMS"
+              echo 'EOF'
+              echo 'compose_changed<<EOF'
+              echo "$COMPOSE_CHANGED"
               echo 'EOF'
               echo 'body<<EOF'
               echo '## 🔄 MB Dependency Version Updates'
               echo ''
               echo 'This PR was automatically created by the **MB Dependency Version Update** workflow.'
               echo ''
-              echo '### Updated service POM files'
-              while IFS= read -r pom; do
-                [ -n "$pom" ] || continue
-                echo "- \`$pom\`"
-              done <<< "$CHANGED_POMS"
-              echo ''
-              while IFS= read -r pom; do
-                [ -n "$pom" ] || continue
-                echo "#### \`$pom\`"
+              if [ -n "$CHANGED_POMS" ]; then
+                echo '### Updated service POM files'
+                while IFS= read -r pom; do
+                  [ -n "$pom" ] || continue
+                  echo "- \`$pom\`"
+                done <<< "$CHANGED_POMS"
+                echo ''
+                while IFS= read -r pom; do
+                  [ -n "$pom" ] || continue
+                  echo "#### \`$pom\`"
+                  echo '```diff'
+                  git diff -- "$pom"
+                  echo '```'
+                  echo ''
+                done <<< "$CHANGED_POMS"
+              fi
+              if [ "$COMPOSE_CHANGED" = "true" ]; then
+                echo '### Updated docker-compose.yml images'
                 echo '```diff'
-                git diff -- "$pom"
+                git diff -- docker-compose.yml
                 echo '```'
                 echo ''
-              done <<< "$CHANGED_POMS"
+              fi
               echo '### Checklist'
               echo '- [ ] Review the version changes above'
               echo '- [ ] Verify CI build passes'
               echo '- [ ] Check for breaking changes in release notes'
+              if [ "$COMPOSE_CHANGED" = "true" ]; then
+                echo '- [ ] Smoke-test updated container images locally'
+              fi
               echo 'EOF'
             } >> "$GITHUB_OUTPUT"
           fi
 
       - name: Verify changed services compile
-        if: steps.pr-exists.outputs.skip == 'false' && steps.diff.outputs.has_changes == 'true'
+        if: steps.pr-exists.outputs.skip == 'false' && steps.diff.outputs.has_changes == 'true' && steps.diff.outputs.has_pom_changes == 'true'
         env:
           CHANGED_POMS: ${{ steps.diff.outputs.changed_poms }}
         run: |
@@ -186,10 +224,10 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ steps.generate-token.outputs.token }}
-          commit-message: "build(deps): update Maven dependency versions"
+          commit-message: "build(deps): update Maven and Docker Compose dependency versions"
           branch: automated/dependency-updates
           delete-branch: true
-          title: "build(deps): update Maven dependency versions"
+          title: "build(deps): update Maven and Docker Compose dependency versions"
           body: ${{ steps.diff.outputs.body }}
           labels: |
             dependencies

@@ -187,6 +187,25 @@
 
 5. [Kubernetes Deployment Guide](KubernetesDeploymentGuide.md) (OPTIONAL)
 
+####
+
+6. Check `docker-compose.yml` image versions (manual)
+
+    - Linux / macOS / Windows Git Bash / WSL:
+      `./check-compose-image-updates.sh`
+    - Windows CMD / PowerShell:
+      `.\check-compose-image-updates.cmd` or `.\check-compose-image-updates.ps1`
+    - Fail if anything is outdated or uses a floating tag (`latest` / `master`):
+      `./check-compose-image-updates.sh --fail-on-outdated`
+    - Preview upgrades (no file changes):
+      `./check-compose-image-updates.sh --dry-run`
+    - Apply OUTDATED bumps to `docker-compose.yml` (creates `.bak` backup):
+      `./check-compose-image-updates.sh --apply`
+    - CI runs the same check in the Java CI workflow (`check_compose_images`).
+    - Automated upgrades (Maven + Compose) run weekly via `.github/workflows/dependency-update.yml`.
+
+####
+
 ---
 
 <!-- REFERENCES -->

@@ -1,5 +1,9 @@
 # This workflow will build a Java project with Maven and cache/restore any dependencies to improve the workflow execution time
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
+#
+# Also runs check-compose-image-updates.sh on every pipeline (read-only, same as the
+# pull_request job in dependency-update.yml). Automated image bumps are applied by
+# dependency-update.yml on schedule; this job reports OUTDATED/FLOATING/ERROR in CI logs.
 
 # This workflow uses actions that GitHub does not certify.
 # They are provided by a third-party and are governed by
@@ -16,6 +20,18 @@ on:
     branches: [ "main" ]
 
 jobs:
+  check_compose_images:
+    name: Check docker-compose image versions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Check Docker Compose image versions
+        run: |
+          chmod +x check-compose-image-updates.sh
+          ./check-compose-image-updates.sh
+        # Report-only (warnings in log + job summary). Optional strict mode:
+        # ./check-compose-image-updates.sh --fail-on-outdated
+
   detect_changes:
     runs-on: ubuntu-latest
     # Skip change detection for workflow_dispatch (manual triggers always build all)
@@ -375,8 +391,8 @@ jobs:
 
   success-job:
     runs-on: ubuntu-latest
-    if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
-    needs: [ build_api_gateway, build_notification_service, build_openai_service, build_payment_service, build_service_registry, build_student_service, build_spring_config_server, build_swagger_application, build_gitlab_service, build_kafka_debezium_service, build_brokerage_provider, build_stock_exchange_service, build_inventory_management_service ]
+    if: ${{ always() && needs.check_compose_images.result == 'success' && !contains(join(needs.*.result, ','), 'failure') && !contains(join(needs.*.result, ','), 'cancelled') }}
+    needs: [ check_compose_images, build_api_gateway, build_notification_service, build_openai_service, build_payment_service, build_service_registry, build_student_service, build_spring_config_server, build_swagger_application, build_gitlab_service, build_kafka_debezium_service, build_brokerage_provider, build_stock_exchange_service, build_inventory_management_service ]
     steps:
       - name: Build is Succeeded
         env:
