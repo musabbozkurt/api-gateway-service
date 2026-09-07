@@ -52,7 +52,7 @@ echo "Java version:"
 java -version
 echo ""
 
-BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
+BASE_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 
 MAVEN_DIRS=(
   "api-gateway"

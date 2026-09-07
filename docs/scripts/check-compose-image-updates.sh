@@ -22,11 +22,11 @@
 # Prints per-image progress on stderr; each registry call times out after 15s.
 #
 # Usage:
-#   ./check-compose-image-updates.sh
-#   ./check-compose-image-updates.sh --dry-run          # preview upgrades
-#   ./check-compose-image-updates.sh --apply            # write OUTDATED bumps
-#   ./check-compose-image-updates.sh --compose-file docker-compose.yml --fail-on-outdated
-#   FAIL_ON_OUTDATED=true ./check-compose-image-updates.sh
+#   ./docs/scripts/check-compose-image-updates.sh
+#   ./docs/scripts/check-compose-image-updates.sh --dry-run
+#   ./docs/scripts/check-compose-image-updates.sh --apply
+#   ./docs/scripts/check-compose-image-updates.sh --compose-file docker-compose.yml --fail-on-outdated
+#   FAIL_ON_OUTDATED=true ./docs/scripts/check-compose-image-updates.sh
 # =============================================================================
 
 set -euo pipefail
@@ -36,6 +36,7 @@ FAIL_ON_OUTDATED="${FAIL_ON_OUTDATED:-false}"
 APPLY_UPDATES=false
 DRY_RUN=false
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -71,8 +72,12 @@ if [[ "$APPLY_UPDATES" == "true" && "$DRY_RUN" == "true" ]]; then
   exit 2
 fi
 
-if [[ ! -f "$COMPOSE_FILE" && -f "$SCRIPT_DIR/$COMPOSE_FILE" ]]; then
-  COMPOSE_FILE="$SCRIPT_DIR/$COMPOSE_FILE"
+if [[ ! -f "$COMPOSE_FILE" ]]; then
+  if [[ -f "$REPO_ROOT/$COMPOSE_FILE" ]]; then
+    COMPOSE_FILE="$REPO_ROOT/$COMPOSE_FILE"
+  elif [[ -f "$SCRIPT_DIR/$COMPOSE_FILE" ]]; then
+    COMPOSE_FILE="$SCRIPT_DIR/$COMPOSE_FILE"
+  fi
 fi
 if [[ ! -f "$COMPOSE_FILE" ]]; then
   echo "Compose file not found: $COMPOSE_FILE" >&2

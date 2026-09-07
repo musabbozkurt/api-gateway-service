@@ -3,12 +3,13 @@
 # =============================================================================
 # Detects and applies outdated versions for:
 #   - Maven dependencies (versions-maven-plugin + version-rules.xml per service)
-#   - Docker Compose images (check-compose-image-updates.sh --apply)
+#   - Docker Compose images (docs/scripts/check-compose-image-updates.sh --apply)
 #
 # Behavior per trigger:
 #   pull_request       → Read-only check: Maven update report + Compose image report
-#   push (this file)   → Applies updates, verifies changed services compile, creates a PR
-#   schedule/dispatch  → Applies updates, verifies changed services compile, creates a PR
+#   push (this file)   → Applies updates, verifies changed services compile, creates/updates PR
+#   schedule/dispatch  → Same as push; if automated/dependency-updates PR is open, checks
+#                        out that branch and pushes new commits instead of skipping
 # =============================================================================
 
 name: MB Dependency Version Update
@@ -28,6 +29,7 @@ permissions:
   pull-requests: write
 
 env:
+  UPDATE_BRANCH: automated/dependency-updates
   SERVICE_DIRS: >-
     api-gateway
     brokerage-provider
@@ -79,8 +81,8 @@ jobs:
 
       - name: Check Docker Compose image versions
         run: |
-          chmod +x check-compose-image-updates.sh
-          ./check-compose-image-updates.sh
+          chmod +x docs/scripts/check-compose-image-updates.sh
+          ./docs/scripts/check-compose-image-updates.sh
 
   update-and-pr:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
@@ -95,28 +97,29 @@ jobs:
           app-id: ${{ vars.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
-      - name: Checkout main
-        uses: actions/checkout@v7
-        with:
-          ref: main
-          token: ${{ steps.generate-token.outputs.token }}
-
-      - name: Check if update PR already exists
-        id: pr-exists
+      - name: Resolve update base branch
+        id: update-base
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
-          OPEN_PRS=$(gh pr list --head automated/dependency-updates --state open --json number --jq 'length')
-          if [ "$OPEN_PRS" -gt 0 ]; then
-            echo "An open dependency update PR already exists. Skipping."
-            echo "skip=true" >> "$GITHUB_OUTPUT"
+          OPEN_PR=$(gh pr list --head "$UPDATE_BRANCH" --state open --json number --jq '.[0].number // empty')
+          if [ -n "$OPEN_PR" ]; then
+            echo "checkout_ref=$UPDATE_BRANCH" >> "$GITHUB_OUTPUT"
+            echo "pr_number=$OPEN_PR" >> "$GITHUB_OUTPUT"
+            echo "Updating existing open PR #$OPEN_PR on branch $UPDATE_BRANCH."
           else
-            echo "No open dependency update PR found. Proceeding."
-            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "checkout_ref=main" >> "$GITHUB_OUTPUT"
+            echo "pr_number=" >> "$GITHUB_OUTPUT"
+            echo "No open dependency update PR; starting from main."
           fi
 
+      - name: Checkout update base
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.update-base.outputs.checkout_ref }}
+          token: ${{ steps.generate-token.outputs.token }}
+
       - name: Set up JDK 26
-        if: steps.pr-exists.outputs.skip == 'false'
         uses: actions/setup-java@v5
         with:
           java-version: '26'
@@ -124,7 +127,6 @@ jobs:
           cache: maven
 
       - name: Apply all version updates
-        if: steps.pr-exists.outputs.skip == 'false'
         run: |
           for service in $SERVICE_DIRS; do
             pom="$service/pom.xml"
@@ -134,15 +136,15 @@ jobs:
           done
 
       - name: Apply Docker Compose image updates
-        if: steps.pr-exists.outputs.skip == 'false'
         run: |
-          chmod +x check-compose-image-updates.sh
-          ./check-compose-image-updates.sh --apply
+          chmod +x docs/scripts/check-compose-image-updates.sh
+          ./docs/scripts/check-compose-image-updates.sh --apply
           rm -f docker-compose.yml.bak
 
       - name: Check if dependency files changed
-        if: steps.pr-exists.outputs.skip == 'false'
         id: diff
+        env:
+          PR_NUMBER: ${{ steps.update-base.outputs.pr_number }}
         run: |
           CHANGED_POMS=$(git diff --name-only | grep '/pom\.xml$' || true)
           COMPOSE_CHANGED=false
@@ -171,7 +173,11 @@ jobs:
               echo 'body<<EOF'
               echo '## 🔄 MB Dependency Version Updates'
               echo ''
-              echo 'This PR was automatically created by the **MB Dependency Version Update** workflow.'
+              echo 'This PR was automatically created or updated by the **MB Dependency Version Update** workflow.'
+              if [ -n "$PR_NUMBER" ]; then
+                echo ''
+                echo "_Updated existing PR #$PR_NUMBER with new dependency bumps._"
+              fi
               echo ''
               if [ -n "$CHANGED_POMS" ]; then
                 echo '### Updated service POM files'
@@ -208,7 +214,7 @@ jobs:
           fi
 
       - name: Verify changed services compile
-        if: steps.pr-exists.outputs.skip == 'false' && steps.diff.outputs.has_changes == 'true' && steps.diff.outputs.has_pom_changes == 'true'
+        if: steps.diff.outputs.has_changes == 'true' && steps.diff.outputs.has_pom_changes == 'true'
         env:
           CHANGED_POMS: ${{ steps.diff.outputs.changed_poms }}
         run: |
@@ -219,13 +225,13 @@ jobs:
             echo "::endgroup::"
           done <<< "$CHANGED_POMS"
 
-      - name: Create Pull Request
-        if: steps.pr-exists.outputs.skip == 'false' && steps.diff.outputs.has_changes == 'true'
+      - name: Create or update Pull Request
+        if: steps.diff.outputs.has_changes == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ steps.generate-token.outputs.token }}
           commit-message: "build(deps): update Maven and Docker Compose dependency versions"
-          branch: automated/dependency-updates
+          branch: ${{ env.UPDATE_BRANCH }}
           delete-branch: true
           title: "build(deps): update Maven and Docker Compose dependency versions"
           body: ${{ steps.diff.outputs.body }}

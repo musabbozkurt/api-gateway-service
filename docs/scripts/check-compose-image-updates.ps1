@@ -13,10 +13,10 @@
 # Use -DryRun to preview changes without writing.
 #
 # Usage:
-#   .\check-compose-image-updates.ps1
-#   .\check-compose-image-updates.ps1 -DryRun
-#   .\check-compose-image-updates.ps1 -Apply
-#   .\check-compose-image-updates.ps1 -ComposeFile docker-compose.yml -FailOnOutdated
+#   .\docs\scripts\check-compose-image-updates.ps1
+#   .\docs\scripts\check-compose-image-updates.ps1 -DryRun
+#   .\docs\scripts\check-compose-image-updates.ps1 -Apply
+#   .\docs\scripts\check-compose-image-updates.ps1 -ComposeFile docker-compose.yml -FailOnOutdated
 # =============================================================================
 
 [CmdletBinding()]
@@ -34,7 +34,10 @@ if ($Apply -and $DryRun) {
 }
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-if (-not (Test-Path $ComposeFile) -and (Test-Path (Join-Path $scriptDir $ComposeFile))) {
+$repoRoot = (Resolve-Path (Join-Path $scriptDir "../..")).Path
+if (-not (Test-Path $ComposeFile) -and (Test-Path (Join-Path $repoRoot $ComposeFile))) {
+    $ComposeFile = Join-Path $repoRoot $ComposeFile
+} elseif (-not (Test-Path $ComposeFile) -and (Test-Path (Join-Path $scriptDir $ComposeFile))) {
     $ComposeFile = Join-Path $scriptDir $ComposeFile
 }
 if (-not (Test-Path $ComposeFile)) {

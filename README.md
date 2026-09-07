@@ -132,9 +132,9 @@
            run [ApiGatewayApplication.java](api-gateway/src/main/java/com/mb/apigateway/ApiGatewayApplication.java) to
            install RabbitMQ, PostgreSQL and Keycloak
         2. Run `mvn clean install` or `mvn clean package` or `./mvnw clean install` or `./mvnw clean package` command
-           under each service's directory or run [build-all.sh](build-all.sh)
-           or [run-all-mvn-in-parallel.sh](run-all-mvn-in-parallel.sh)
-           or [run-all-mvn-in-parallel-with-wait.sh](run-all-mvn-in-parallel-with-wait.sh) script to build all services
+           under each service's directory or run [build-all.sh](docs/scripts/build-all.sh)
+           or [run-all-mvn-in-parallel.sh](docs/scripts/run-all-mvn-in-parallel.sh)
+           or [run-all-mvn-in-parallel-with-wait.sh](docs/scripts/run-all-mvn-in-parallel-with-wait.sh) script to build all services
         3. Run `mvn spring-boot:run` command under each service's directory
 
 ####
@@ -192,15 +192,15 @@
 6. Check `docker-compose.yml` image versions (manual)
 
     - Linux / macOS / Windows Git Bash / WSL:
-      `./check-compose-image-updates.sh`
+      `./docs/scripts/check-compose-image-updates.sh`
     - Windows CMD / PowerShell:
-      `.\check-compose-image-updates.cmd` or `.\check-compose-image-updates.ps1`
+      `.\docs\scripts\check-compose-image-updates.cmd` or `.\docs\scripts\check-compose-image-updates.ps1`
     - Fail if anything is outdated or uses a floating tag (`latest` / `master`):
-      `./check-compose-image-updates.sh --fail-on-outdated`
+      `./docs/scripts/check-compose-image-updates.sh --fail-on-outdated`
     - Preview upgrades (no file changes):
-      `./check-compose-image-updates.sh --dry-run`
+      `./docs/scripts/check-compose-image-updates.sh --dry-run`
     - Apply OUTDATED bumps to `docker-compose.yml` (creates `.bak` backup):
-      `./check-compose-image-updates.sh --apply`
+      `./docs/scripts/check-compose-image-updates.sh --apply`
     - CI runs the same check in the Java CI workflow (`check_compose_images`).
     - Automated upgrades (Maven + Compose) run weekly via `.github/workflows/dependency-update.yml`.
 
