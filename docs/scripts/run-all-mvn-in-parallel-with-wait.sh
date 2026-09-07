@@ -1,5 +1,8 @@
 #!/bin/bash
 
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$REPO_ROOT" || exit 1
+
 # Maximum number of concurrent jobs
 MAX_JOBS=10
 

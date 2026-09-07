@@ -48,8 +48,10 @@ The dependency update workflow will:
 - run scheduled/manual update jobs on `main`,
 - generate a GitHub App token,
 - apply Maven dependency updates across all service `pom.xml` files,
+- apply Docker Compose image bumps via `docs/scripts/check-compose-image-updates.sh --apply`,
 - compile only the services whose `pom.xml` files changed,
-- create or update an automated pull request.
+- create a pull request on `automated/dependency-updates`, or push new commits to
+  that branch when an open PR already exists (instead of skipping).
 
 ### 5. Workflow File Reference
 

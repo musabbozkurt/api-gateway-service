@@ -1,5 +1,8 @@
 #!/bin/bash
 
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$REPO_ROOT" || exit 1
+
 # Maksimum aynı anda çalışacak proje sayısı (İşlemci çekirdek sayınıza göre ayarlayın)
 MAX_JOBS=10
 
