@@ -102,7 +102,13 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         run: |
-          OPEN_PR=$(gh pr list --head "$UPDATE_BRANCH" --state open --json number --jq '.[0].number // empty')
+          # gh needs --repo here: checkout has not run yet, so there is no local .git
+          OPEN_PR=$(gh pr list \
+            --repo "$GITHUB_REPOSITORY" \
+            --head "${GITHUB_REPOSITORY_OWNER}:${UPDATE_BRANCH}" \
+            --state open \
+            --json number \
+            --jq '.[0].number // empty')
           if [ -n "$OPEN_PR" ]; then
             echo "checkout_ref=$UPDATE_BRANCH" >> "$GITHUB_OUTPUT"
             echo "pr_number=$OPEN_PR" >> "$GITHUB_OUTPUT"
