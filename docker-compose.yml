@@ -278,7 +278,7 @@ services:
     restart: on-failure
 
   rabbitmq:
-    image: rabbitmq:4.2.4
+    image: rabbitmq:4.3.5
     restart: on-failure
     container_name: test-rabbitmq
     ports:
@@ -291,7 +291,7 @@ services:
       - mb-network
 
   kafka:
-    image: confluentinc/cp-kafka:8.2.0
+    image: confluentinc/cp-kafka:8.3.1
     hostname: kafka
     container_name: kafka
     ports:
@@ -332,7 +332,7 @@ services:
     restart: on-failure
 
   postgres:
-    image: postgres:18.3
+    image: postgres:18.6
     restart: on-failure
     container_name: postgres-db
     ports:
@@ -358,7 +358,7 @@ services:
 
   keycloak:
     container_name: keycloak
-    image: quay.io/keycloak/keycloak:26.5.5
+    image: quay.io/keycloak/keycloak:26.7.3
     command: start-dev
     environment:
       KC_HOSTNAME: localhost
@@ -386,7 +386,7 @@ services:
       - mb-network
 
   redis-service:
-    image: redis:8.6.1
+    image: redis:8.10.1
     container_name: redis-service
     ports:
       - "6379:6379"
@@ -431,7 +431,7 @@ services:
     restart: on-failure
 
   grafana-lgtm:
-    image: 'grafana/otel-lgtm:0.26.0'
+    image: 'grafana/otel-lgtm:0.32.1'
     ports:
       - "3001:3000"   # Grafana UI
       - "4318:4318"   # OTLP HTTP receiver
@@ -455,7 +455,7 @@ services:
       - mb-network
 
   mailpit:
-    image: axllent/mailpit:v1.29.2
+    image: axllent/mailpit:v1.31.1
     container_name: mailpit
     restart: on-failure
     ports:
@@ -629,7 +629,7 @@ services:
   # ========================================================================================
 
   debezium-postgres:
-    image: postgres:18
+    image: postgres:18.6
     container_name: debezium-postgres
     restart: on-failure
     ports:
@@ -659,7 +659,7 @@ services:
       - mb-network
 
   oracle-db:
-    image: gvenzl/oracle-free:23.8
+    image: gvenzl/oracle-free:23.26.3
     container_name: oracle-db
     restart: on-failure
     ports:
@@ -694,7 +694,7 @@ services:
       - mb-network
 
   debezium-kafka1:
-    image: confluentinc/cp-kafka:8.2.0
+    image: confluentinc/cp-kafka:8.3.1
     hostname: debezium-kafka1
     container_name: debezium-kafka1
     restart: on-failure
@@ -724,7 +724,7 @@ services:
       - mb-network
 
   debezium-kafka2:
-    image: confluentinc/cp-kafka:8.2.0
+    image: confluentinc/cp-kafka:8.3.1
     hostname: debezium-kafka2
     container_name: debezium-kafka2
     restart: on-failure
@@ -754,7 +754,7 @@ services:
       - mb-network
 
   debezium-kafka3:
-    image: confluentinc/cp-kafka:8.2.0
+    image: confluentinc/cp-kafka:8.3.1
     hostname: debezium-kafka3
     container_name: debezium-kafka3
     restart: on-failure
@@ -812,7 +812,7 @@ services:
       - mb-network
 
   debezium-init:
-    image: curlimages/curl:8.20.0
+    image: curlimages/curl:8.22.0
     container_name: debezium-init
     depends_on:
       debezium-connector:
