@@ -119,13 +119,11 @@ jobs:
       - name: Try the cluster !
         run: kubectl get pods -A
 
-      # Build from project root so the Dockerfile can access version-rules.xml (referenced by versions-maven-plugin)
-      - name: Build image
+      # Build into minikube directly — avoids docker-env + buildx (404 on buildkit with containerd runtime)
+      - name: Build image into minikube
         run: |
-          eval $(minikube -p minikube docker-env)
-          docker build -f api-gateway/Dockerfile -t api-gateway .
-          echo -n "verifying images:"
-          docker images
+          minikube image build -f api-gateway/Dockerfile -t api-gateway:latest .
+          minikube image ls | grep api-gateway || true
 
       - name: Deploy to minikube
         run: |
