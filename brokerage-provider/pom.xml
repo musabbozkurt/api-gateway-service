@@ -30,7 +30,7 @@
         <dockerfile-maven-plugin.version>1.4.13</dockerfile-maven-plugin.version>
         <!--suppress UnresolvedMavenProperty -->
         <registry>${env.CI_REGISTRY}/${env.CI_REGION}/${project.artifactId}</registry>
-        <versions-maven-plugin.version>2.21.0</versions-maven-plugin.version>
+        <versions-maven-plugin.version>2.22.0</versions-maven-plugin.version>
     </properties>
 
     <dependencies>
