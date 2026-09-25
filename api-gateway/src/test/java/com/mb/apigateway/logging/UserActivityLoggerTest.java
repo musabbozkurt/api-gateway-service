@@ -17,15 +17,7 @@ import java.net.InetSocketAddress;
 import java.time.Instant;
 import java.util.Map;
 
-import static com.mb.apigateway.constant.GatewayServiceConstants.API;
-import static com.mb.apigateway.constant.GatewayServiceConstants.CLIENT_ID;
-import static com.mb.apigateway.constant.GatewayServiceConstants.DEVICE_INFO_HEADER;
-import static com.mb.apigateway.constant.GatewayServiceConstants.PAGE_URL_HEADER;
-import static com.mb.apigateway.constant.GatewayServiceConstants.USERNAME;
-import static com.mb.apigateway.constant.GatewayServiceConstants.USER_ACTIVITY_EVENT_TYPE;
-import static com.mb.apigateway.constant.GatewayServiceConstants.USER_ACTIVITY_LOGGER;
-import static com.mb.apigateway.constant.GatewayServiceConstants.USER_AGENT_HEADER;
-import static com.mb.apigateway.constant.GatewayServiceConstants.USER_ID;
+import static com.mb.apigateway.constant.GatewayServiceConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class UserActivityLoggerTest {
@@ -153,7 +145,7 @@ class UserActivityLoggerTest {
                 .remoteAddress(remoteAddress);
 
         if (forwardedFor != null) {
-            requestBuilder.header("X-Forwarded-For", forwardedFor);
+            requestBuilder.header(FORWARDED_FOR_HEADER, forwardedFor);
         }
 
         return MockServerWebExchange.from(requestBuilder);
