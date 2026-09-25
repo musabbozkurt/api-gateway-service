@@ -342,6 +342,55 @@ If no results are returned:
 2. Confirm gateway logs are being shipped to `logstash-api-gateway-service-*`.
 3. Query only gateway indices (not all indices) to avoid mapping/sort conflicts.
 
+## User Activity Publishing
+
+`UserActivityPublisherServiceImpl` (`com.mb.apigateway.service`) is called by `AuthenticationFilter` and publishes user API
+activity events directly to Elasticsearch.
+
+- **Non-blocking:** uses the reactive `WebClient` in fire-and-forget mode, so gateway request threads are never
+  blocked.
+- **Safe:** it never throws into the request flow. Elasticsearch errors, timeouts (2s per call) and outages are
+  swallowed and logged at `DEBUG`.
+- **Monthly indices:** `{index-prefix}-yyyy-MM` (UTC), e.g. `user-activity-2026-09`. Each index is created on first
+  use with explicit mappings (`USER_ACTIVITY_INDEX_DEFINITION` in `GatewayServiceConstants`). If setup fails, the next
+  event retries it.
+- **Events:** `STARTED`, `COMPLETED`, `FAILED` (including `ACCESS_DENIED`) and `CANCELLED`. Each document includes
+  `@timestamp`, request/user context (`client_id`, `userId`, `username`, `ipAddress`, `deviceInfo`, `X-Page-Url`) and
+  timing (`startedAt`, `finishedAt`, `durationMs`, `httpStatus`).
+
+### Configuration
+
+Properties are bound by `UserActivityElasticsearchProperties`. Publishing is active only when `enabled` is `true`
+**and** `base-url` is set. In production the values come from Spring Cloud Vault.
+
+```yaml
+user-activity:
+  elasticsearch:
+    enabled: true
+    base-url: http://localhost:9200
+    username: elastic          # optional, basic auth
+    password: <password>       # optional, basic auth
+    index-prefix: user-activity
+```
+
+### Querying Events
+
+```bash
+# List user activity indices
+curl -s "http://localhost:9200/_cat/indices/user-activity-*?v&s=index"
+
+# Latest 20 events (newest first)
+curl -s -X GET "http://localhost:9200/user-activity-2026-09/_search?pretty" \
+  -H "Content-Type: application/json" \
+  -d '{
+        "size": 20,
+        "query": { "term": { "eventType": "USER_API_ACTIVITY" } },
+        "sort":  [ { "@timestamp": { "order": "desc" } } ]
+      }'
+```
+
+More query examples are in the Javadoc of `UserActivityPublisherServiceImpl`.
+
 **URLs:**
 
 - Gateway: `http://localhost:8080`
