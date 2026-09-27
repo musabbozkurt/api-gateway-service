@@ -386,7 +386,7 @@ services:
       - mb-network
 
   redis-service:
-    image: redis:8.10.1
+    image: redis:8.10.2
     container_name: redis-service
     ports:
       - "6379:6379"
@@ -431,7 +431,7 @@ services:
     restart: on-failure
 
   grafana-lgtm:
-    image: 'grafana/otel-lgtm:0.33.1'
+    image: 'grafana/otel-lgtm:0.34.0'
     ports:
       - "3001:3000"   # Grafana UI
       - "4318:4318"   # OTLP HTTP receiver
