@@ -358,7 +358,7 @@ services:
 
   keycloak:
     container_name: keycloak
-    image: quay.io/keycloak/keycloak:26.7.4
+    image: quay.io/keycloak/keycloak:26.8
     command: start-dev
     environment:
       KC_HOSTNAME: localhost
@@ -431,7 +431,7 @@ services:
     restart: on-failure
 
   grafana-lgtm:
-    image: 'grafana/otel-lgtm:0.34.0'
+    image: 'grafana/otel-lgtm:0.35.0'
     ports:
       - "3001:3000"   # Grafana UI
       - "4318:4318"   # OTLP HTTP receiver
@@ -455,7 +455,7 @@ services:
       - mb-network
 
   mailpit:
-    image: axllent/mailpit:v1.31.2
+    image: axllent/mailpit:v1.31.4
     container_name: mailpit
     restart: on-failure
     ports:
