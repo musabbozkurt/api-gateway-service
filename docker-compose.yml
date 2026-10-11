@@ -431,7 +431,7 @@ services:
     restart: on-failure
 
   grafana-lgtm:
-    image: 'grafana/otel-lgtm:0.35.0'
+    image: 'grafana/otel-lgtm:0.36.0'
     ports:
       - "3001:3000"   # Grafana UI
       - "4318:4318"   # OTLP HTTP receiver
@@ -455,7 +455,7 @@ services:
       - mb-network
 
   mailpit:
-    image: axllent/mailpit:v1.31.4
+    image: axllent/mailpit:v1.31.5
     container_name: mailpit
     restart: on-failure
     ports:
