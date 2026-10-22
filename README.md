@@ -28,23 +28,161 @@
 
 - `api-gateway-service` project established by combination of the following services and features
 
-### Services
+### Services - download a single module
 
-   ```
-    * api-gateway
-    * brokerage-provider
-    * gitlab-service
-    * inventory-management-service
-    * kafka-debezium-service
-    * notification-service
-    * openai-service
-    * payment-service
-    * service-registry
-    * spring-config-server
-    * stock-exchange-service
-    * student-service
-    * swagger-application
-   ```
+Each module is zipped by the `Package Modules` workflow on every push to `main`
+(or run it manually from the Actions tab).
+
+| Module                       | Zip (prebuilt release asset)                                                                                                 | Any folder, any branch                                                                                                                           | Clone only this module                       |
+|------------------------------|------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------|
+| api-gateway                  | [zip](https://github.com/musabbozkurt/api-gateway-service/releases/download/modules-latest/api-gateway.zip)                  | [download](https://download-directory.github.io/?url=https://github.com/musabbozkurt/api-gateway-service/tree/main/api-gateway)                  | [clone](#clone-api-gateway)                  |
+| brokerage-provider           | [zip](https://github.com/musabbozkurt/api-gateway-service/releases/download/modules-latest/brokerage-provider.zip)           | [download](https://download-directory.github.io/?url=https://github.com/musabbozkurt/api-gateway-service/tree/main/brokerage-provider)           | [clone](#clone-brokerage-provider)           |
+| gitlab-service               | [zip](https://github.com/musabbozkurt/api-gateway-service/releases/download/modules-latest/gitlab-service.zip)               | [download](https://download-directory.github.io/?url=https://github.com/musabbozkurt/api-gateway-service/tree/main/gitlab-service)               | [clone](#clone-gitlab-service)               |
+| inventory-management-service | [zip](https://github.com/musabbozkurt/api-gateway-service/releases/download/modules-latest/inventory-management-service.zip) | [download](https://download-directory.github.io/?url=https://github.com/musabbozkurt/api-gateway-service/tree/main/inventory-management-service) | [clone](#clone-inventory-management-service) |
+| kafka-debezium-service       | [zip](https://github.com/musabbozkurt/api-gateway-service/releases/download/modules-latest/kafka-debezium-service.zip)       | [download](https://download-directory.github.io/?url=https://github.com/musabbozkurt/api-gateway-service/tree/main/kafka-debezium-service)       | [clone](#clone-kafka-debezium-service)       |
+| notification-service         | [zip](https://github.com/musabbozkurt/api-gateway-service/releases/download/modules-latest/notification-service.zip)         | [download](https://download-directory.github.io/?url=https://github.com/musabbozkurt/api-gateway-service/tree/main/notification-service)         | [clone](#clone-notification-service)         |
+| openai-service               | [zip](https://github.com/musabbozkurt/api-gateway-service/releases/download/modules-latest/openai-service.zip)               | [download](https://download-directory.github.io/?url=https://github.com/musabbozkurt/api-gateway-service/tree/main/openai-service)               | [clone](#clone-openai-service)               |
+| payment-service              | [zip](https://github.com/musabbozkurt/api-gateway-service/releases/download/modules-latest/payment-service.zip)              | [download](https://download-directory.github.io/?url=https://github.com/musabbozkurt/api-gateway-service/tree/main/payment-service)              | [clone](#clone-payment-service)              |
+| service-registry             | [zip](https://github.com/musabbozkurt/api-gateway-service/releases/download/modules-latest/service-registry.zip)             | [download](https://download-directory.github.io/?url=https://github.com/musabbozkurt/api-gateway-service/tree/main/service-registry)             | [clone](#clone-service-registry)             |
+| spring-config-server         | [zip](https://github.com/musabbozkurt/api-gateway-service/releases/download/modules-latest/spring-config-server.zip)         | [download](https://download-directory.github.io/?url=https://github.com/musabbozkurt/api-gateway-service/tree/main/spring-config-server)         | [clone](#clone-spring-config-server)         |
+| stock-exchange-service       | [zip](https://github.com/musabbozkurt/api-gateway-service/releases/download/modules-latest/stock-exchange-service.zip)       | [download](https://download-directory.github.io/?url=https://github.com/musabbozkurt/api-gateway-service/tree/main/stock-exchange-service)       | [clone](#clone-stock-exchange-service)       |
+| student-service              | [zip](https://github.com/musabbozkurt/api-gateway-service/releases/download/modules-latest/student-service.zip)              | [download](https://download-directory.github.io/?url=https://github.com/musabbozkurt/api-gateway-service/tree/main/student-service)              | [clone](#clone-student-service)              |
+| swagger-application          | [zip](https://github.com/musabbozkurt/api-gateway-service/releases/download/modules-latest/swagger-application.zip)          | [download](https://download-directory.github.io/?url=https://github.com/musabbozkurt/api-gateway-service/tree/main/swagger-application)          | [clone](#clone-swagger-application)          |
+
+### Clone only this module (sparse checkout)
+
+Click **clone** in the table above (or expand a module below), then use the copy button on its code block (requires Git
+2.25+).
+
+<details><summary>api-gateway</summary>
+
+#### clone-api-gateway
+
+```bash
+git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/api-gateway-service.git && cd api-gateway-service && git sparse-checkout set api-gateway
+```
+
+</details>
+
+<details><summary>brokerage-provider</summary>
+
+#### clone-brokerage-provider
+
+```bash
+git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/api-gateway-service.git && cd api-gateway-service && git sparse-checkout set brokerage-provider
+```
+
+</details>
+
+<details><summary>gitlab-service</summary>
+
+#### clone-gitlab-service
+
+```bash
+git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/api-gateway-service.git && cd api-gateway-service && git sparse-checkout set gitlab-service
+```
+
+</details>
+
+<details><summary>inventory-management-service</summary>
+
+#### clone-inventory-management-service
+
+```bash
+git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/api-gateway-service.git && cd api-gateway-service && git sparse-checkout set inventory-management-service
+```
+
+</details>
+
+<details><summary>kafka-debezium-service</summary>
+
+#### clone-kafka-debezium-service
+
+```bash
+git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/api-gateway-service.git && cd api-gateway-service && git sparse-checkout set kafka-debezium-service
+```
+
+</details>
+
+<details><summary>notification-service</summary>
+
+#### clone-notification-service
+
+```bash
+git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/api-gateway-service.git && cd api-gateway-service && git sparse-checkout set notification-service
+```
+
+</details>
+
+<details><summary>openai-service</summary>
+
+#### clone-openai-service
+
+```bash
+git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/api-gateway-service.git && cd api-gateway-service && git sparse-checkout set openai-service
+```
+
+</details>
+
+<details><summary>payment-service</summary>
+
+#### clone-payment-service
+
+```bash
+git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/api-gateway-service.git && cd api-gateway-service && git sparse-checkout set payment-service
+```
+
+</details>
+
+<details><summary>service-registry</summary>
+
+#### clone-service-registry
+
+```bash
+git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/api-gateway-service.git && cd api-gateway-service && git sparse-checkout set service-registry
+```
+
+</details>
+
+<details><summary>spring-config-server</summary>
+
+#### clone-spring-config-server
+
+```bash
+git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/api-gateway-service.git && cd api-gateway-service && git sparse-checkout set spring-config-server
+```
+
+</details>
+
+<details><summary>stock-exchange-service</summary>
+
+#### clone-stock-exchange-service
+
+```bash
+git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/api-gateway-service.git && cd api-gateway-service && git sparse-checkout set stock-exchange-service
+```
+
+</details>
+
+<details><summary>student-service</summary>
+
+#### clone-student-service
+
+```bash
+git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/api-gateway-service.git && cd api-gateway-service && git sparse-checkout set student-service
+```
+
+</details>
+
+<details><summary>swagger-application</summary>
+
+#### clone-swagger-application
+
+```bash
+git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/api-gateway-service.git && cd api-gateway-service && git sparse-checkout set swagger-application
+```
+
+</details>
 
 ### Features
 
@@ -134,7 +272,8 @@
         2. Run `mvn clean install` or `mvn clean package` or `./mvnw clean install` or `./mvnw clean package` command
            under each service's directory or run [build-all.sh](docs/scripts/build-all.sh)
            or [run-all-mvn-in-parallel.sh](docs/scripts/run-all-mvn-in-parallel.sh)
-           or [run-all-mvn-in-parallel-with-wait.sh](docs/scripts/run-all-mvn-in-parallel-with-wait.sh) script to build all services
+           or [run-all-mvn-in-parallel-with-wait.sh](docs/scripts/run-all-mvn-in-parallel-with-wait.sh) script to build
+           all services
         3. Run `mvn spring-boot:run` command under each service's directory
 
 ####
