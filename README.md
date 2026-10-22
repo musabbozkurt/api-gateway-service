@@ -28,7 +28,7 @@
 
 - `api-gateway-service` project established by combination of the following services and features
 
-### Services - download a single module
+### Services
 
 Each module is zipped by the `Package Modules` workflow on every push to `main`
 (or run it manually from the Actions tab).
