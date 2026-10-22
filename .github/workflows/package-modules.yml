@@ -1,0 +1,50 @@
+name: Package Modules
+
+# Package Modules
+# ---------------
+# What: zips every top-level Spring Boot module (folder with pom.xml or build.gradle)
+#       and uploads each zip to the rolling "modules-latest" GitHub release.
+# When: on every push to main, or manually via Actions > Package Modules > Run workflow.
+# Get:  https://github.com/<owner>/<repo>/releases/download/modules-latest/<module>.zip
+# Note: new modules are picked up automatically; target/, build/ and .idea/ are excluded.
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: package-modules
+  cancel-in-progress: true
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # Creates dist/<module>.zip for each module folder
+      - name: Zip each module
+        run: |
+          mkdir -p dist
+          for dir in */; do
+            name="${dir%/}"
+            if [ -f "$name/pom.xml" ] || [ -f "$name/build.gradle" ] || [ -f "$name/build.gradle.kts" ]; then
+              zip -rq "dist/$name.zip" "$name" -x "*/target/*" "*/build/*" "*/.idea/*"
+            fi
+          done
+          ls -l dist
+
+      # Creates the release once, then overwrites the zips on each run
+      - name: Publish release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if ! gh release view modules-latest >/dev/null 2>&1; then
+            gh release create modules-latest --title "Module downloads (latest)" \
+              --notes "Auto-generated zip per module from the latest main branch." --target "$GITHUB_SHA"
+          fi
+          gh release upload modules-latest dist/*.zip --clobber
