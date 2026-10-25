@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.1</version>
+        <version>4.1.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -33,15 +33,15 @@
         <hypersistence-utils-hibernate.version>3.16.0</hypersistence-utils-hibernate.version>
         <jjwt.version>0.13.0</jjwt.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
-        <springdoc-openapi-starter-webmvc-ui.version>3.1.1</springdoc-openapi-starter-webmvc-ui.version>
-        <opentelemetry-logback-appender-1.0.version>2.32.0-alpha</opentelemetry-logback-appender-1.0.version>
+        <springdoc-openapi-starter-webmvc-ui.version>3.2.0</springdoc-openapi-starter-webmvc-ui.version>
+        <opentelemetry-logback-appender-1.0.version>2.33.0-alpha</opentelemetry-logback-appender-1.0.version>
         <protobuf.version>4.36.2</protobuf.version>
         <jboss-logging.version>3.6.3.Final</jboss-logging.version>
         <newrelic-java.version>9.5.0</newrelic-java.version>
         <moneta.version>1.4.5</moneta.version>
-        <jackson-datatype-moneta.version>3.2.3</jackson-datatype-moneta.version>
+        <jackson-datatype-moneta.version>3.2.4</jackson-datatype-moneta.version>
         <embedded-redis.version>1.4.4</embedded-redis.version>
-        <spring-cloud-dependencies.version>2025.1.3</spring-cloud-dependencies.version>
+        <spring-cloud-dependencies.version>2025.1.4</spring-cloud-dependencies.version>
         <testcontainers-bom.version>2.0.5</testcontainers-bom.version>
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
