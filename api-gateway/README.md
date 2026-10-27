@@ -344,13 +344,16 @@ If no results are returned:
 
 ## User Activity Publishing
 
-`UserActivityPublisherServiceImpl` (`com.mb.apigateway.service`) is called by `AuthenticationFilter` and publishes user API
-activity events directly to Elasticsearch.
+`UserActivityPublisherServiceImpl` (`com.mb.apigateway.service.impl`) is called by `AuthenticationFilter` and publishes
+user API activity events directly to Elasticsearch.
 
 - **Non-blocking:** uses the reactive `WebClient` in fire-and-forget mode, so gateway request threads are never
   blocked.
-- **Safe:** it never throws into the request flow. Elasticsearch errors, timeouts (2s per call) and outages are
-  swallowed and logged at `DEBUG`.
+- **Safe:** it never throws into the request flow. Elasticsearch errors, timeouts (`request-timeout`, default 2s per
+  call) and outages are swallowed and logged at `WARN`.
+- **Resilient:** a dedicated connection pool evicts idle/expired connections, and connection errors or
+  `429/502/503/504` are retried with backoff. Writes use `PUT /{index}/_doc/{requestId}`, so a retry can never create
+  a duplicate document.
 - **Monthly indices:** `{index-prefix}-yyyy-MM` (UTC), e.g. `user-activity-2026-09`. Each index is created on first
   use with explicit mappings (`USER_ACTIVITY_INDEX_DEFINITION` in `GatewayServiceConstants`). If setup fails, the next
   event retries it.
@@ -367,11 +370,17 @@ Properties are bound by `UserActivityElasticsearchProperties`. Publishing is act
 user-activity:
   elasticsearch:
     enabled: true
-    base-url: http://localhost:9200
+    base-url: https://<es-host>.<your-domain>:9200   # https + host name from the certificate (http://localhost:9200 locally)
     username: elastic          # optional, basic auth
     password: <password>       # optional, basic auth
     index-prefix: user-activity
+    ssl-certificate-verified: true  # false = trust-all (see docs/ELASTICSEARCH_TLS_FIX.md)
 ```
+
+**TLS:** for `https` with `ssl-certificate-verified: true`, the client trusts the JDK CAs plus intermediates in
+`src/main/resources/elasticsearch/es-ca.crt` (when Elasticsearch omits the intermediate in the TLS handshake).
+With `ssl-certificate-verified: false`, certificate and hostname checks are skipped for this client only.
+See [ELASTICSEARCH_TLS_FIX.md](../docs/ELASTICSEARCH_TLS_FIX.md).
 
 ### Querying Events
 
