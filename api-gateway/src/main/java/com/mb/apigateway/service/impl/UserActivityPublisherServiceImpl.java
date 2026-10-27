@@ -3,22 +3,54 @@ package com.mb.apigateway.service.impl;
 import com.mb.apigateway.config.UserActivityElasticsearchProperties;
 import com.mb.apigateway.logging.UserActivityEvent;
 import com.mb.apigateway.service.UserActivityPublisherService;
+import com.mb.apigateway.utils.ElasticsearchCaBundleGenerator;
+import io.netty.channel.ChannelOption;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
+import reactor.netty.internal.shaded.reactor.pool.PoolAcquirePendingLimitException;
+import reactor.netty.resources.ConnectionProvider;
+import reactor.util.retry.Retry;
 
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.mb.apigateway.constant.GatewayServiceConstants.*;
@@ -29,7 +61,7 @@ import static com.mb.apigateway.constant.GatewayServiceConstants.*;
  * <b>Key Features:</b>
  * <ul>
  *   <li><b>Non-blocking</b> - Uses reactive WebClient; never blocks gateway request threads.</li>
- *   <li><b>Best-effort delivery</b> - Elasticsearch failures never affect requests; they are logged at DEBUG.</li>
+ *   <li><b>Best-effort delivery</b> - Elasticsearch failures never affect requests; they are logged at WARN.</li>
  *   <li><b>Monthly indices</b> - Auto-creates indices like {@code user-activity-2026-09} (UTC).</li>
  *   <li><b>Timestamp auto-population</b> - Every document includes {@code @timestamp} for sorting and Kibana.</li>
  * </ul>
@@ -47,10 +79,22 @@ import static com.mb.apigateway.constant.GatewayServiceConstants.*;
  *  user-activity:
  *    elasticsearch:
  *      enabled: true
- *      base-url: http://localhost:9200
+ *      base-url: https://<es-host>.<your-domain>:9200   # https + host name from the certificate, not the IP
  *      username: elastic          # optional, basic auth
  *      password: <password>       # optional, basic auth
  *      index-prefix: user-activity
+ *      ssl-certificate-verified: true  # false = trust-all (Logstash-compatible); see docs/ELASTICSEARCH_TLS_FIX.md
+ *      # optional tuning (defaults shown)
+ *      max-connections: 5
+ *      pending-acquire-max-count: 100
+ *      max-idle-time: 20s          # keep below the proxy/LB/ES idle timeout
+ *      max-life-time: 5m
+ *      evict-interval: 30s
+ *      connect-timeout: 2s
+ *      request-timeout: 2s         # per HTTP attempt
+ *      retry-max-attempts: 3       # connection errors and 429/502/503/504 only
+ *      retry-min-backoff: 200ms
+ *      retry-max-backoff: 2s
  * }</pre>
  * <p>
  * <b>Query Examples</b> (add {@code -u <username>:<password>} when security is enabled):
@@ -97,19 +141,30 @@ import static com.mb.apigateway.constant.GatewayServiceConstants.*;
 public class UserActivityPublisherServiceImpl implements UserActivityPublisherService {
 
     private static final DateTimeFormatter INDEX_MONTH_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM").withZone(ZoneOffset.UTC);
-    private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(2);
+    private static final String ES_CA_CERTIFICATES = "elasticsearch/es-ca.crt";
+    private static final Set<Integer> RETRYABLE_STATUSES = Set.of(
+            HttpStatus.TOO_MANY_REQUESTS.value(),
+            HttpStatus.BAD_GATEWAY.value(),
+            HttpStatus.SERVICE_UNAVAILABLE.value(),
+            HttpStatus.GATEWAY_TIMEOUT.value()
+    );
 
     private final boolean enabled;
     private final String indexPrefix;
     private final WebClient webClient;
+    private final Duration requestTimeout;
+    private final Retry retrySpec;
     private final Map<String, Mono<Void>> indexInitializers = new ConcurrentHashMap<>();
 
     public UserActivityPublisherServiceImpl(WebClient.Builder webClientBuilder, UserActivityElasticsearchProperties properties) {
         this.enabled = properties.isEnabled() && StringUtils.hasText(properties.getBaseUrl());
         this.indexPrefix = properties.getIndexPrefix();
+        this.requestTimeout = properties.getRequestTimeout();
+        this.retrySpec = buildRetrySpec(properties);
 
         // Clone so the shared builder is never mutated with ES-specific settings/credentials
         WebClient.Builder builder = webClientBuilder.clone()
+                .clientConnector(new ReactorClientHttpConnector(buildHttpClient(properties)))
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 
         if (StringUtils.hasText(properties.getBaseUrl())) {
@@ -121,6 +176,116 @@ public class UserActivityPublisherServiceImpl implements UserActivityPublisherSe
         }
 
         this.webClient = builder.build();
+    }
+
+    /**
+     * Dedicated pool for Elasticsearch. Idle/lifetime limits plus background eviction keep connections that were
+     * already closed by Elasticsearch or an intermediary from being reused; retries cover the remaining race.
+     * <p>
+     * For an {@code https} base URL, TLS depends on {@link UserActivityElasticsearchProperties#isSslCertificateVerified()}:
+     * <ul>
+     *   <li>{@code true} - JDK CAs plus the bundled intermediates, hostname verification on (see {@link #buildSslContext()})</li>
+     *   <li>{@code false} - trust-all, certificate and hostname checks skipped for this client only</li>
+     * </ul>
+     * An {@code http} base URL is always sent as plain HTTP.
+     */
+    private static HttpClient buildHttpClient(UserActivityElasticsearchProperties properties) {
+        ConnectionProvider provider = ConnectionProvider.builder("user-activity-es")
+                .maxConnections(properties.getMaxConnections())
+                .pendingAcquireMaxCount(properties.getPendingAcquireMaxCount())
+                .pendingAcquireTimeout(properties.getRequestTimeout())
+                .maxIdleTime(properties.getMaxIdleTime())
+                .maxLifeTime(properties.getMaxLifeTime())
+                .evictInBackground(properties.getEvictInterval())
+                .build();
+
+        HttpClient httpClient = HttpClient.create(provider)
+                .option(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) properties.getConnectTimeout().toMillis());
+
+        if (!isHttps(properties.getBaseUrl())) {
+            return httpClient;
+        }
+
+        if (!properties.isSslCertificateVerified()) {
+            try {
+                SslContext sslContext = SslContextBuilder.forClient()
+                        .trustManager(InsecureTrustManagerFactory.INSTANCE)
+                        .build();
+                httpClient = httpClient.secure(spec -> spec
+                        .sslContext(sslContext)
+                        .handlerConfigurator(handler -> {
+                            SSLEngine engine = handler.engine();
+                            SSLParameters params = engine.getSSLParameters();
+                            params.setEndpointIdentificationAlgorithm(null);
+                            engine.setSSLParameters(params);
+                        }));
+            } catch (SSLException e) {
+                throw new IllegalStateException("Failed to configure insecure SSL for user-activity Elasticsearch", e);
+            }
+            return httpClient;
+        }
+
+        return httpClient.secure(spec -> spec.sslContext(buildSslContext()));
+    }
+
+    private static boolean isHttps(String baseUrl) {
+        return StringUtils.hasText(baseUrl) && "https".equalsIgnoreCase(URI.create(baseUrl).getScheme());
+    }
+
+    /**
+     * Trusts the JDK default CAs plus bundled intermediate CAs in {@value #ES_CA_CERTIFICATES}.
+     * Elasticsearch often sends only its own certificate without the intermediate, so the JDK alone cannot build
+     * the chain ({@code PKIX path building failed}). Hostname verification stays enabled.
+     * <p>
+     * Built once at startup; a missing or invalid bundle fails the startup instead of every event.
+     */
+    private static SslContext buildSslContext() {
+        Path generated = ElasticsearchCaBundleGenerator.bundlePath();
+        try (InputStream bundle = Files.isRegularFile(generated) ? Files.newInputStream(generated) : new ClassPathResource(ES_CA_CERTIFICATES).getInputStream()) {
+            List<X509Certificate> trusted = new ArrayList<>(Arrays.asList(defaultTrustManager().getAcceptedIssuers()));
+            CertificateFactory.getInstance("X.509").generateCertificates(bundle)
+                    .forEach(certificate -> trusted.add((X509Certificate) certificate));
+
+            return SslContextBuilder.forClient()
+                    .trustManager(trusted.toArray(X509Certificate[]::new))
+                    .build();
+        } catch (IOException | GeneralSecurityException e) {
+            throw new IllegalStateException("Elasticsearch CA certificates could not be loaded from classpath:" + ES_CA_CERTIFICATES, e);
+        }
+    }
+
+    /**
+     * Returns the JDK default trust manager (cacerts or {@code javax.net.ssl.trustStore} if set).
+     */
+    private static X509TrustManager defaultTrustManager() throws GeneralSecurityException {
+        TrustManagerFactory factory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        factory.init((KeyStore) null);
+        for (TrustManager trustManager : factory.getTrustManagers()) {
+            if (trustManager instanceof X509TrustManager x509TrustManager) {
+                return x509TrustManager;
+            }
+        }
+        throw new IllegalStateException("No default X509TrustManager available");
+    }
+
+    /**
+     * Retries only transient failures: connection-level errors (e.g. a stale pooled connection) and
+     * 429/502/503/504 responses. Timeouts, pool exhaustion and other 4xx/5xx are not retried.
+     */
+    private static Retry buildRetrySpec(UserActivityElasticsearchProperties properties) {
+        return Retry.backoff(properties.getRetryMaxAttempts(), properties.getRetryMinBackoff())
+                .maxBackoff(properties.getRetryMaxBackoff())
+                .filter(UserActivityPublisherServiceImpl::isRetryable)
+                .onRetryExhaustedThrow((_, signal) -> signal.failure());
+    }
+
+    private static boolean isRetryable(Throwable throwable) {
+        if (throwable instanceof WebClientRequestException) {
+            // Pool exhaustion means the pool is saturated: retrying would only add load
+            return !(throwable.getCause() instanceof PoolAcquirePendingLimitException);
+        }
+        return throwable instanceof WebClientResponseException responseException && RETRYABLE_STATUSES.contains(responseException.getStatusCode().value());
     }
 
     /**
@@ -229,7 +394,8 @@ public class UserActivityPublisherServiceImpl implements UserActivityPublisherSe
         return webClient.head()
                 .uri("/{index}", indexName)
                 .exchangeToMono(response -> Mono.just(response.statusCode().value()))
-                .timeout(REQUEST_TIMEOUT)
+                .timeout(requestTimeout)
+                .retryWhen(retrySpec)
                 .flatMap(status -> {
                     if (status == HttpStatus.OK.value()) {
                         return updateMapping(indexName);
@@ -258,7 +424,7 @@ public class UserActivityPublisherServiceImpl implements UserActivityPublisherSe
                     }
                     return response.createException().flatMap(Mono::<Void>error);
                 })
-                .timeout(REQUEST_TIMEOUT)
+                .timeout(requestTimeout)
                 // Mapping update is best-effort and must run only once per process: a rejected mapping
                 // (e.g. incompatible field type change) must not evict the cache and retry on every request.
                 .onErrorResume(throwable -> {
@@ -287,28 +453,42 @@ public class UserActivityPublisherServiceImpl implements UserActivityPublisherSe
                     }
                     return response.createException().flatMap(Mono::<Void>error);
                 })
-                .timeout(REQUEST_TIMEOUT);
+                .timeout(requestTimeout)
+                // Safe to retry: if the first attempt did create the index, the retry gets
+                // resource_already_exists_exception, which is tolerated above.
+                .retryWhen(retrySpec);
     }
 
     /**
      * Indexes a single document, adding {@code @timestamp} if missing.
      * The timestamp is used for sorting and Kibana time filtering.
+     * <p>
+     * When a {@code requestId} exists it is used as the document {@code _id} ({@code PUT /{index}/_doc/{id}}),
+     * so a retried write overwrites the same document and can never create a duplicate. Without a
+     * {@code requestId} the document is posted with a generated id and is not retried.
      */
     private Mono<Void> writeDocument(String indexName, Map<String, Object> payload, Instant timestamp) {
         Map<String, Object> document = new HashMap<>(payload);
         document.putIfAbsent(TIMESTAMP_FIELD, timestamp.toString());
 
-        return webClient.post()
-                .uri("/{index}/_doc", indexName)
+        Object requestId = payload.get(REQUEST_ID);
+        boolean idempotent = requestId != null;
+
+        WebClient.RequestBodySpec request = idempotent
+                ? webClient.put().uri("/{index}/_doc/{id}", indexName, requestId)
+                : webClient.post().uri("/{index}/_doc", indexName);
+
+        Mono<Void> write = request
                 .bodyValue(document)
                 .exchangeToMono(response -> {
                     if (response.statusCode().is2xxSuccessful()) {
                         return Mono.empty();
                     }
-                    return response.createException().flatMap(Mono::error);
+                    return response.createException().flatMap(Mono::<Void>error);
                 })
-                .timeout(REQUEST_TIMEOUT)
-                .then();
+                .timeout(requestTimeout);
+
+        return idempotent ? write.retryWhen(retrySpec) : write;
     }
 
     /**
