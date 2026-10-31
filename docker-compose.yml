@@ -313,7 +313,7 @@ services:
       - mb-network
 
   kafka:
-    image: confluentinc/cp-kafka:8.3.2
+    image: confluentinc/cp-kafka:8.4.0
     hostname: kafka
     container_name: kafka
     ports:
@@ -455,7 +455,7 @@ services:
     restart: on-failure
 
   grafana-lgtm:
-    image: 'grafana/otel-lgtm:0.38.0'
+    image: 'grafana/otel-lgtm:0.39.0'
     ports:
       - "3001:3000"   # Grafana UI
       - "4318:4318"   # OTLP HTTP receiver
@@ -485,7 +485,7 @@ services:
       - mb-network
 
   mailpit:
-    image: axllent/mailpit:v1.32
+    image: axllent/mailpit:v1.33
     container_name: mailpit
     restart: on-failure
     ports:
@@ -727,7 +727,7 @@ services:
       - mb-network
 
   debezium-kafka1:
-    image: confluentinc/cp-kafka:8.3.2
+    image: confluentinc/cp-kafka:8.4.0
     hostname: debezium-kafka1
     container_name: debezium-kafka1
     restart: on-failure
@@ -757,7 +757,7 @@ services:
       - mb-network
 
   debezium-kafka2:
-    image: confluentinc/cp-kafka:8.3.2
+    image: confluentinc/cp-kafka:8.4.0
     hostname: debezium-kafka2
     container_name: debezium-kafka2
     restart: on-failure
@@ -787,7 +787,7 @@ services:
       - mb-network
 
   debezium-kafka3:
-    image: confluentinc/cp-kafka:8.3.2
+    image: confluentinc/cp-kafka:8.4.0
     hostname: debezium-kafka3
     container_name: debezium-kafka3
     restart: on-failure
