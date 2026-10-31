@@ -47,7 +47,7 @@ RUN groupadd --system --gid 1001 app \
     && mkdir /app \
     && chown app:app /app
 
-ENV JAVA_HOME=/home/java/jdk25
+ENV JAVA_HOME=/home/java/jdk26
 ENV PATH=$JAVA_HOME/bin:$PATH
 
 # Set the working directory for the final image

@@ -1,6 +1,6 @@
 @ApplicationModule(
         displayName = "Shared",
-        type = org.springframework.modulith.ApplicationModule.Type.OPEN
+        type = ApplicationModule.Type.OPEN
 )
 package com.mb.modulith.shared;
 
