@@ -29,6 +29,7 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
     private String principleAttribute;
 
     @Override
+    @SuppressWarnings("java:S4449") // Suppress SonarQube warning about using @NonNull on method parameters
     public AbstractAuthenticationToken convert(@NonNull Jwt jwt) {
         Collection<GrantedAuthority> authorities = Stream.of(jwtGrantedAuthoritiesConverter.convert(jwt).stream(), extractRealmRoles(jwt).stream(), extractResourceRoles(jwt).stream())
                 .flatMap(s -> s)

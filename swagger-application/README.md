@@ -16,11 +16,23 @@ via RabbitMQ events.
 - **Micrometer Tracing** — Distributed tracing with trace/span ID propagation
 - **Spring Cloud Eureka Client** — Service discovery registration
 - **`@RefreshScope`** — Config properties auto-refresh without restart
+- **Gitlab API** — Bulk Gitlab operations via OpenFeign (`/gitlab/**`, Postman collections in module root)
+
+## Gitlab integration
+
+| Property                                           | Env var                          | Description             |
+|----------------------------------------------------|----------------------------------|-------------------------|
+| `feign.services.gitlab-client.url`                 | `GITLAB_API_URL`                 | Gitlab API v4 base URL  |
+| `feign.services.gitlab-client.private-token`       | `GITLAB_PRIVATE_TOKEN`           | Private token           |
+| `feign.services.gitlab-client.path-with-namespace` | `GITLAB_URL_PATH_WITH_NAMESPACE` | Optional project filter |
+
+OpenAPI group: `/v3/api-docs/gitlab`. Gateway route: `/gitlab/**` → `swagger-application`.
 
 ## Tech Stack
 
 - Java 26, Spring Boot 4.0
 - Spring Cloud Stream + RabbitMQ + Kafka
+- Spring Cloud OpenFeign (Gitlab client)
 - Spring Cloud Config Client + Bus
 - H2 (in-memory database)
 - SpringDoc OpenAPI

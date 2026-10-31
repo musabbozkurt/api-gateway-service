@@ -101,7 +101,8 @@ class NotificationEventConsumerTest {
         NotificationEventDto eventDto = createEventDto(NotificationChannel.EMAIL);
         Notification entity = new Notification();
 
-        when(transactionManager.getTransaction(any())).thenReturn(mock(TransactionStatus.class));
+        TransactionStatus transactionStatus = mock(TransactionStatus.class);
+        when(transactionManager.getTransaction(any())).thenReturn(transactionStatus);
         when(notificationMapper.convert(eventDto)).thenReturn(entity);
         when(strategyFactory.getStrategy(NotificationChannel.EMAIL)).thenThrow(new RuntimeException("boom"));
 

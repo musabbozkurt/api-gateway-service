@@ -26,10 +26,10 @@ public final class DummySmsUtils {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode node = mapper.convertValue(request, JsonNode.class);
         String hashMac256;
-        String md5Hash;
+        String bodyDigest;
         try {
-            md5Hash = CryptoHelper.toMD5(node.toString());
-            hashMac256 = CryptoHelper.toHashMac256(secretKey, dateSign + url + md5Hash);
+            bodyDigest = CryptoHelper.toSha256Hex(node.toString());
+            hashMac256 = CryptoHelper.toHashMac256(secretKey, dateSign + url + bodyDigest);
         } catch (Exception e) {
             log.error("Exception occurred while creating authorization. Exception: {}", ExceptionUtils.getStackTrace(e));
             throw new BaseException(NotificationErrorCode.ALGORITHM_ERROR);

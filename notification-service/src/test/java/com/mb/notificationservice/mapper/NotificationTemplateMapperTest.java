@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.time.Month;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -141,8 +142,8 @@ class NotificationTemplateMapperTest {
 
     @Test
     void convert_ShouldMapAuditFields_WhenEntityHasAuditData() {
-        LocalDateTime createdDate = LocalDateTime.of(2026, 1, 15, 10, 30);
-        LocalDateTime modifiedDate = LocalDateTime.of(2026, 1, 20, 14, 45);
+        LocalDateTime createdDate = LocalDateTime.of(2026, Month.JANUARY, 15, 10, 30);
+        LocalDateTime modifiedDate = LocalDateTime.of(2026, Month.JANUARY, 20, 14, 45);
 
         NotificationTemplate template = new NotificationTemplate();
         template.setId(1L);

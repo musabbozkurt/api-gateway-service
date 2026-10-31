@@ -1,6 +1,6 @@
 BASE_URL: http://localhost:8080
 BROKERAGE_PROVIDER_BASE_URL: lb://brokerage-provider
-GITLAB_SERVICE_BASE_URL: lb://gitlab-service
+GITLAB_SERVICE_BASE_URL: lb://swagger-application
 INVENTORY_MANAGEMENT_SERVICE_BASE_URL: lb://inventory-management-service
 KAFKA_DEBEZIUM_SERVICE_BASE_URL: lb://kafka-debezium-service
 NOTIFICATION_SERVICE_BASE_URL: lb://notification-service
@@ -9,6 +9,7 @@ PAYMENT_SERVICE_BASE_URL: lb://payment-service
 STOCK_EXCHANGE_SERVICE_BASE_URL: lb://stock-exchange-service
 STUDENT_SERVICE_BASE_URL: lb://student-service
 SWAGGER_APPLICATION_BASE_URL: lb://swagger-application
+MB_MODULITH_BASE_URL: lb://mb-modulith
 
 server:
   port: 8080
@@ -97,6 +98,10 @@ spring:
               predicates:
                 - Path=/swagger/**
               uri: ${SWAGGER_APPLICATION_BASE_URL}
+            - id: mb-modulith
+              predicates:
+                - Path=/modulith/**
+              uri: ${MB_MODULITH_BASE_URL}
             - id: validate
               predicates:
                 - Path=/student/**
@@ -149,15 +154,21 @@ management:
     metrics:
       export:
         url: ${OTEL_EXPORTER_OTLP_METRICS_URL:http://localhost:4318/v1/metrics}
+        connect-timeout: 10s
+        read-timeout: 30s
   opentelemetry:
     tracing:
       export:
         otlp:
           endpoint: ${OTEL_EXPORTER_OTLP_TRACES_URL:http://localhost:4318/v1/traces}
+          connect-timeout: 10s
+          timeout: 30s
     logging:
       export:
         otlp:
           endpoint: ${OTEL_EXPORTER_OTLP_LOGS_URL:http://localhost:4318/v1/logs}
+          connect-timeout: 10s
+          timeout: 30s
 
 springdoc:
   api-docs:
@@ -171,7 +182,7 @@ springdoc:
         name: Brokerage Provider
         uri: ${BROKERAGE_PROVIDER_BASE_URL}
         server-url: ${BASE_URL}/brokerage-provider
-      - url: /gitlab/api-docs
+      - url: /v3/api-docs/gitlab
         name: Gitlab Service
         uri: ${GITLAB_SERVICE_BASE_URL}
         server-url: ${BASE_URL}/gitlab
@@ -217,6 +228,7 @@ logging:
   level:
     com.mb.apigateway.config: INFO
     com.mb.apigateway.filter: INFO
+    io.opentelemetry.exporter.internal.http.HttpExporter: WARN
     org.springframework.cloud.gateway: INFO
     org.springframework.http.server.reactive: INFO
     org.springframework.web.reactive: INFO
@@ -257,7 +269,7 @@ gateway-service:
       - /v3/api-docs
       - /webjars/**
       - /brokerage-provider/api-docs
-      - /gitlab/api-docs
+      - /v3/api-docs/gitlab
       - /inventory/api-docs
       - /inventory/swagger-ui/** # Inventory-management-service Swagger UI
       - /inventory/swagger-ui.html

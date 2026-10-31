@@ -64,8 +64,10 @@ class FirebaseConfigTest {
         firebaseConfig.setApps(apps);
 
         firebaseAppMockedStatic.when(FirebaseApp::getApps).thenReturn(Collections.emptyList());
-        googleCredentialsMockedStatic.when(() -> GoogleCredentials.fromStream(any(InputStream.class))).thenReturn(mock(GoogleCredentials.class));
-        firebaseAppMockedStatic.when(() -> FirebaseApp.initializeApp(any(FirebaseOptions.class), eq(appName))).thenReturn(mock(FirebaseApp.class));
+        GoogleCredentials googleCredentials = mock(GoogleCredentials.class);
+        FirebaseApp firebaseApp = mock(FirebaseApp.class);
+        googleCredentialsMockedStatic.when(() -> GoogleCredentials.fromStream(any(InputStream.class))).thenReturn(googleCredentials);
+        firebaseAppMockedStatic.when(() -> FirebaseApp.initializeApp(any(FirebaseOptions.class), eq(appName))).thenReturn(firebaseApp);
 
         // Act
         assertDoesNotThrow(() -> firebaseConfig.initialize());
@@ -87,8 +89,10 @@ class FirebaseConfigTest {
         firebaseConfig.setApps(apps);
 
         firebaseAppMockedStatic.when(FirebaseApp::getApps).thenReturn(Collections.emptyList());
-        googleCredentialsMockedStatic.when(() -> GoogleCredentials.fromStream(any(InputStream.class))).thenReturn(mock(GoogleCredentials.class));
-        firebaseAppMockedStatic.when(() -> FirebaseApp.initializeApp(any(FirebaseOptions.class), eq(appName))).thenReturn(mock(FirebaseApp.class));
+        GoogleCredentials googleCredentials = mock(GoogleCredentials.class);
+        FirebaseApp firebaseApp = mock(FirebaseApp.class);
+        googleCredentialsMockedStatic.when(() -> GoogleCredentials.fromStream(any(InputStream.class))).thenReturn(googleCredentials);
+        firebaseAppMockedStatic.when(() -> FirebaseApp.initializeApp(any(FirebaseOptions.class), eq(appName))).thenReturn(firebaseApp);
 
         // Act
         assertDoesNotThrow(() -> firebaseConfig.initialize());
@@ -109,8 +113,10 @@ class FirebaseConfigTest {
         firebaseConfig.setApps(apps);
 
         firebaseAppMockedStatic.when(FirebaseApp::getApps).thenReturn(Collections.emptyList());
-        googleCredentialsMockedStatic.when(() -> GoogleCredentials.fromStream(any(InputStream.class))).thenReturn(mock(GoogleCredentials.class));
-        firebaseAppMockedStatic.when(() -> FirebaseApp.initializeApp(any(FirebaseOptions.class), eq(appName))).thenReturn(mock(FirebaseApp.class));
+        GoogleCredentials googleCredentials = mock(GoogleCredentials.class);
+        FirebaseApp firebaseApp = mock(FirebaseApp.class);
+        googleCredentialsMockedStatic.when(() -> GoogleCredentials.fromStream(any(InputStream.class))).thenReturn(googleCredentials);
+        firebaseAppMockedStatic.when(() -> FirebaseApp.initializeApp(any(FirebaseOptions.class), eq(appName))).thenReturn(firebaseApp);
 
         // Act
         assertDoesNotThrow(() -> firebaseConfig.initialize());

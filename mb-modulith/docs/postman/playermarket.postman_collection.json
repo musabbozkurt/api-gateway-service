@@ -1,0 +1,408 @@
+{
+  "info": {
+    "_postman_id": "b23b5543-a334-42e0-bb83-4a8282040450",
+    "name": "Player Market",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "player",
+      "item": [
+        {
+          "name": "Create Player",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var response = JSON.parse(responseBody);",
+                  "postman.setEnvironmentVariable(\"player_id\", response.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "en",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Leo\",\n    \"surname\": \"Messi\",\n    \"position\": \"SS\",\n    \"jerseyNumber\": 10,\n    \"dateOfBirth\": \"12-21-2000\",\n    \"nationality\": \"TR\",\n    \"contractUntil\": \"23-32-2000\",\n    \"marketValue\": 23334.55,\n    \"marketValueCurrency\": \"TRY\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:28090/players",
+              "host": [
+                "localhost"
+              ],
+              "port": "28090",
+              "path": [
+                "players"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Players",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "en",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "localhost:28090/players",
+              "host": [
+                "localhost"
+              ],
+              "port": "28090",
+              "path": [
+                "players"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Player By Id",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "en",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Leo\",\n    \"surname\": \"Messi\",\n    \"position\": \"SS\",\n    \"jerseyNumber\": 5,\n    \"dateOfBirth\": \"12-21-1988\",\n    \"nationality\": \"TR\",\n    \"contractUntil\": \"23-32-2000\",\n    \"marketValue\": 23334.55,\n    \"marketValueCurrency\": \"TRY\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:28090/players/{{player_id}}",
+              "host": [
+                "localhost"
+              ],
+              "port": "28090",
+              "path": [
+                "players",
+                "{{player_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Player By Id",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "en",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "localhost:28090/players/{{player_id}}",
+              "host": [
+                "localhost"
+              ],
+              "port": "28090",
+              "path": [
+                "players",
+                "{{player_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "team",
+      "item": [
+        {
+          "name": "Create Team",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var response = JSON.parse(responseBody);",
+                  "postman.setEnvironmentVariable(\"team_id\", response.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "en",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Manchester City\",\n    \"shortName\": \"Man City\",\n    \"website\": \"https://www.mancity.com/\",\n    \"email\": \"mancity@mancity.com\",\n    \"clubColors\": \"Blue-White\",\n    \"country\": \"TR\",\n    \"currencyCode\":\"TRY\",\n    \"squad\": [\n        {\n            \"name\": \"David\",\n            \"surname\": \"Silva\",\n            \"position\": \"SS\",\n            \"jerseyNumber\": 21,\n            \"dateOfBirth\": \"12-21-1992\",\n            \"nationality\": \"PT\",\n            \"contractUntil\": \"10-05-2025\",\n            \"marketValue\": 23334.55,\n            \"marketValueCurrency\": \"USD\"\n        }\n    ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:28090/teams",
+              "host": [
+                "localhost"
+              ],
+              "port": "28090",
+              "path": [
+                "teams"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Teams",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "en",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "localhost:28090/teams",
+              "host": [
+                "localhost"
+              ],
+              "port": "28090",
+              "path": [
+                "teams"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Team By Id",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "en",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Manchester City\",\n    \"shortName\": \"Man City\",\n    \"website\": \"https://www.mancity.com/\",\n    \"email\": \"mancity@mancity.com\",\n    \"clubColors\": \"Blue-White\",\n    \"country\": \"TR\",\n    \"currencyCode\":\"TRY\",\n    \"squad\": [\n        {\n            \"name\": \"David\",\n            \"surname\": \"Silva\",\n            \"position\": \"SS\",\n            \"jerseyNumber\": 21,\n            \"dateOfBirth\": \"12-21-1992\",\n            \"nationality\": \"PT\",\n            \"contractUntil\": \"10-05-2025\",\n            \"marketValue\": 23334.55,\n            \"marketValueCurrency\": \"USD\"\n        }\n    ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "localhost:28090/teams/{{team_id}}",
+              "host": [
+                "localhost"
+              ],
+              "port": "28090",
+              "path": [
+                "teams",
+                "{{team_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Team By Id",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept-Language",
+                "value": "en",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "localhost:28090/teams/{{team_id}}",
+              "host": [
+                "localhost"
+              ],
+              "port": "28090",
+              "path": [
+                "teams",
+                "{{team_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Add Player To The Team",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept-Language",
+            "value": "en",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "localhost:28090/soccer/{{team_id}}/{{player_id}}",
+          "host": [
+            "localhost"
+          ],
+          "port": "28090",
+          "path": [
+            "soccer",
+            "{{team_id}}",
+            "{{player_id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Team By Player Id",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept-Language",
+            "value": "en",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "localhost:28090/soccer/team-by-player-id/{{player_id}}",
+          "host": [
+            "localhost"
+          ],
+          "port": "28090",
+          "path": [
+            "soccer",
+            "team-by-player-id",
+            "{{player_id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Calculate Fee By Team Id",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept-Language",
+            "value": "en",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "localhost:28090/fee/{{team_id}}?age=20&teamCommission=5.4&monthOfExpirence=2",
+          "host": [
+            "localhost"
+          ],
+          "port": "28090",
+          "path": [
+            "fee",
+            "{{team_id}}"
+          ],
+          "query": [
+            {
+              "key": "age",
+              "value": "20"
+            },
+            {
+              "key": "teamCommission",
+              "value": "5.4"
+            },
+            {
+              "key": "monthOfExpirence",
+              "value": "2"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

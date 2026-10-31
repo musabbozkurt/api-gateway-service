@@ -1,0 +1,288 @@
+{
+  "info": {
+    "_postman_id": "3f7c566b-57bd-47eb-8ca8-3a06dda08b42",
+    "name": "MB Group Spring Of Emails",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Dataset Endpoints",
+      "item": [
+        {
+          "name": "Get Email Resource",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:28081/client/emails/data-set",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "28081",
+              "path": [
+                "client",
+                "emails",
+                "data-set"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Email Resource 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:28081/client/emails/data-set-1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "28081",
+              "path": [
+                "client",
+                "emails",
+                "data-set-1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Email Resource 2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:28081/client/emails/data-set-2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "28081",
+              "path": [
+                "client",
+                "emails",
+                "data-set-2"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Get list of emails",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:28081/api/emails",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "28081",
+          "path": [
+            "api",
+            "emails"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Count Of Given Email Address",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:28081/api/emails/count/{{email_address}}",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "28081",
+          "path": [
+            "api",
+            "emails",
+            "count",
+            "{{email_address}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create New Email",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var response = xml2Json(pm.response.text());",
+              "postman.setGlobalVariable(\"email_id\", response.ApiEmailResponse.id);",
+              "postman.setGlobalVariable(\"email_address\", response.ApiEmailResponse.emailAddress);",
+              "console.log(response.ApiEmailResponse);",
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "<?xml version=\"1.0\"?>\n<emailRequest>\n    <emailAddress>mb@mb.com</emailAddress>\n</emailRequest>",
+          "options": {
+            "raw": {
+              "language": "xml"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:28081/api/emails",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "28081",
+          "path": [
+            "api",
+            "emails"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Run Batch Job With DataSet",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "<?xml version=\"1.0\"?>\n<dataset>\n    <emails>\n        <email>userl@mb. com</email>\n        <email>user2@mb. com</email>\n        <email>user2@mb. com</email>\n        <email>user3@not-so-cool. com</email>\n        <email>user3@not-so-cool. com</email>\n    </emails>\n    <emails>\n        <email>userl@mb. commm</email>\n        <email>user2@mb. com</email>\n        <email>user3@not-so-cool. com</email>\n    </emails>\n    <resources>\n        <url>http://localhost:28081/client/emails/data-set</url>\n        <url>http://localhost:28081/client/emails/data-set-2</url>\n    </resources>\n    <resources>\n        <url>http://localhost:28081/client/emails/data-set-2</url>\n    </resources>\n</dataset>",
+          "options": {
+            "raw": {
+              "language": "xml"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:28081/client/emails/data-set",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "28081",
+          "path": [
+            "client",
+            "emails",
+            "data-set"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Email By Id",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "<?xml version=\"1.0\"?>\n<emailRequest>\n    <emailAddress>mb@gamils.ascom</emailAddress>\n</emailRequest>",
+          "options": {
+            "raw": {
+              "language": "xml"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:28081/api/emails/{{email_id}}",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "28081",
+          "path": [
+            "api",
+            "emails",
+            "{{email_id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Email By Id",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:28081/api/emails/{{email_id}}",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "28081",
+          "path": [
+            "api",
+            "emails",
+            "{{email_id}}"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

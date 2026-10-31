@@ -50,7 +50,7 @@ public final class ExceptionMessageTemplateParser {
 
     private String getMessage(String code, String defaultMessage) {
         try {
-            return this.messageSource.getMessage(String.format("error.%s", code), null, Locale.ENGLISH);
+            return this.messageSource.getMessage("error." + code, null, Locale.ENGLISH);
         } catch (NoSuchMessageException _) {
             return defaultMessage;
         }

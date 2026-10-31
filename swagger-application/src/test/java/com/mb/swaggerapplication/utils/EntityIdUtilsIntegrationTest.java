@@ -6,13 +6,21 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+@SpringBootTest(classes = EntityIdUtils.class)
+@TestPropertySource(properties = "swagger.entity-id.encryption-key=test-encrypt-k16")
 class EntityIdUtilsIntegrationTest {
+
+    @Autowired
+    private EntityIdUtils entityIdUtils;
 
     private static Stream<Arguments> provideValuesForLongDecryption() {
         return Stream.of(
@@ -40,7 +48,7 @@ class EntityIdUtilsIntegrationTest {
         String originalValue = "123";
 
         // Act
-        String encryptedValue = EntityIdUtils.encrypt(originalValue);
+        String encryptedValue = entityIdUtils.encrypt(originalValue);
 
         // Assertions
         assertThat(encryptedValue)
@@ -53,10 +61,10 @@ class EntityIdUtilsIntegrationTest {
     void decrypt_ToLong_ShouldReturnOriginalValue_WhenValidEncryptedDataProvided() {
         // Arrange
         String originalValue = "456";
-        String encryptedValue = EntityIdUtils.encrypt(originalValue);
+        String encryptedValue = entityIdUtils.encrypt(originalValue);
 
         // Act
-        Long decryptedValue = EntityIdUtils.decryptToLong(encryptedValue);
+        Long decryptedValue = entityIdUtils.decryptToLong(encryptedValue);
 
         // Assertions
         assertThat(decryptedValue).isEqualTo(456L);
@@ -68,8 +76,8 @@ class EntityIdUtilsIntegrationTest {
         String originalValue = "789";
 
         // Act
-        String encryptedValue = EntityIdUtils.encrypt(originalValue);
-        Long decryptedValue = EntityIdUtils.decryptToLong(encryptedValue);
+        String encryptedValue = entityIdUtils.encrypt(originalValue);
+        Long decryptedValue = entityIdUtils.decryptToLong(encryptedValue);
 
         // Assertions
         assertThat(decryptedValue).isEqualTo(789L);
@@ -82,7 +90,7 @@ class EntityIdUtilsIntegrationTest {
 
         // Act
         // Assertions
-        assertThatThrownBy(() -> EntityIdUtils.decryptToLong(invalidEncryptedData))
+        assertThatThrownBy(() -> entityIdUtils.decryptToLong(invalidEncryptedData))
                 .isInstanceOf(CustomRuntimeException.class)
                 .hasMessageContaining("Error while");
     }
@@ -93,8 +101,8 @@ class EntityIdUtilsIntegrationTest {
         String originalValue = "100";
 
         // Act
-        String encryptedValue1 = EntityIdUtils.encrypt(originalValue);
-        String encryptedValue2 = EntityIdUtils.encrypt(originalValue);
+        String encryptedValue1 = entityIdUtils.encrypt(originalValue);
+        String encryptedValue2 = entityIdUtils.encrypt(originalValue);
 
         // Assertions
         assertThat(encryptedValue1).isNotNull();
@@ -106,10 +114,10 @@ class EntityIdUtilsIntegrationTest {
     void decrypt_ToString_ShouldReturnOriginalValue_WhenValidEncryptedDataProvided() {
         // Arrange
         String originalValue = "testString";
-        String encryptedValue = EntityIdUtils.encrypt(originalValue);
+        String encryptedValue = entityIdUtils.encrypt(originalValue);
 
         // Act
-        String decryptedValue = EntityIdUtils.decryptToString(encryptedValue);
+        String decryptedValue = entityIdUtils.decryptToString(encryptedValue);
 
         // Assertions
         assertThat(decryptedValue).isEqualTo(originalValue);
@@ -119,10 +127,10 @@ class EntityIdUtilsIntegrationTest {
     void decrypt_ToInteger_ShouldReturnOriginalValue_WhenValidEncryptedDataProvided() {
         // Arrange
         String originalValue = "42";
-        String encryptedValue = EntityIdUtils.encrypt(originalValue);
+        String encryptedValue = entityIdUtils.encrypt(originalValue);
 
         // Act
-        Integer decryptedValue = EntityIdUtils.decrypt(encryptedValue, Integer.class);
+        Integer decryptedValue = entityIdUtils.decrypt(encryptedValue, Integer.class);
 
         // Assertions
         assertThat(decryptedValue).isEqualTo(42);
@@ -132,10 +140,10 @@ class EntityIdUtilsIntegrationTest {
     void decrypt_ToDouble_ShouldReturnOriginalValue_WhenValidEncryptedDataProvided() {
         // Arrange
         String originalValue = "3.14159";
-        String encryptedValue = EntityIdUtils.encrypt(originalValue);
+        String encryptedValue = entityIdUtils.encrypt(originalValue);
 
         // Act
-        Double decryptedValue = EntityIdUtils.decrypt(encryptedValue, Double.class);
+        Double decryptedValue = entityIdUtils.decrypt(encryptedValue, Double.class);
 
         // Assertions
         assertThat(decryptedValue).isEqualTo(3.14159);
@@ -145,10 +153,10 @@ class EntityIdUtilsIntegrationTest {
     @ValueSource(strings = {"true", "false"})
     void decrypt_ToBoolean_ShouldReturnOriginalValue_WhenValidEncryptedDataProvided(String originalValue) {
         // Arrange
-        String encryptedValue = EntityIdUtils.encrypt(originalValue);
+        String encryptedValue = entityIdUtils.encrypt(originalValue);
 
         // Act
-        Boolean decryptedValue = EntityIdUtils.decrypt(encryptedValue, Boolean.class);
+        Boolean decryptedValue = entityIdUtils.decrypt(encryptedValue, Boolean.class);
 
         // Assertions
         assertThat(decryptedValue).isEqualTo(Boolean.valueOf(originalValue));
@@ -158,11 +166,11 @@ class EntityIdUtilsIntegrationTest {
     void decrypt_ShouldThrowCustomRuntimeException_WhenUnsupportedTypeProvided() {
         // Arrange
         String originalValue = "123";
-        String encryptedValue = EntityIdUtils.encrypt(originalValue);
+        String encryptedValue = entityIdUtils.encrypt(originalValue);
 
         // Act
         // Assertions
-        assertThatThrownBy(() -> EntityIdUtils.decrypt(encryptedValue, Float.class))
+        assertThatThrownBy(() -> entityIdUtils.decrypt(encryptedValue, Float.class))
                 .isInstanceOf(CustomRuntimeException.class)
                 .hasMessageContaining("Unsupported target type");
     }
@@ -171,10 +179,10 @@ class EntityIdUtilsIntegrationTest {
     @MethodSource("provideValuesForLongDecryption")
     void decrypt_ToLong_ShouldReturnCorrectValue_WhenVariousLongValuesProvided(String input, Long expected) {
         // Arrange
-        String encryptedValue = EntityIdUtils.encrypt(input);
+        String encryptedValue = entityIdUtils.encrypt(input);
 
         // Act
-        Long decryptedValue = EntityIdUtils.decryptToLong(encryptedValue);
+        Long decryptedValue = entityIdUtils.decryptToLong(encryptedValue);
 
         // Assertions
         assertThat(decryptedValue).isEqualTo(expected);
@@ -184,10 +192,10 @@ class EntityIdUtilsIntegrationTest {
     @MethodSource("provideValuesForStringDecryption")
     void decrypt_ToString_ShouldReturnCorrectValue_WhenVariousStringValuesProvided(String input) {
         // Arrange
-        String encryptedValue = EntityIdUtils.encrypt(input);
+        String encryptedValue = entityIdUtils.encrypt(input);
 
         // Act
-        String decryptedValue = EntityIdUtils.decrypt(encryptedValue, String.class);
+        String decryptedValue = entityIdUtils.decrypt(encryptedValue, String.class);
 
         // Assertions
         assertThat(decryptedValue).isEqualTo(input);
@@ -199,7 +207,7 @@ class EntityIdUtilsIntegrationTest {
         // Arrange
         // Act
         // Assertions
-        assertThatThrownBy(() -> EntityIdUtils.decryptToString(invalidData))
+        assertThatThrownBy(() -> entityIdUtils.decryptToString(invalidData))
                 .isInstanceOf(CustomRuntimeException.class)
                 .hasMessageContaining("Error while");
     }
@@ -208,11 +216,11 @@ class EntityIdUtilsIntegrationTest {
     void decrypt_ToLong_ShouldThrowCustomRuntimeException_WhenNonNumericValueEncrypted() {
         // Arrange
         String nonNumericValue = "notANumber";
-        String encryptedValue = EntityIdUtils.encrypt(nonNumericValue);
+        String encryptedValue = entityIdUtils.encrypt(nonNumericValue);
 
         // Act
         // Assertions
-        assertThatThrownBy(() -> EntityIdUtils.decryptToLong(encryptedValue))
+        assertThatThrownBy(() -> entityIdUtils.decryptToLong(encryptedValue))
                 .isInstanceOf(NumberFormatException.class);
     }
 
@@ -220,11 +228,11 @@ class EntityIdUtilsIntegrationTest {
     void decrypt_ToInteger_ShouldThrowNumberFormatException_WhenValueExceedsIntegerRange() {
         // Arrange
         String largeValue = "9223372036854775807";
-        String encryptedValue = EntityIdUtils.encrypt(largeValue);
+        String encryptedValue = entityIdUtils.encrypt(largeValue);
 
         // Act
         // Assertions
-        assertThatThrownBy(() -> EntityIdUtils.decrypt(encryptedValue, Integer.class))
+        assertThatThrownBy(() -> entityIdUtils.decrypt(encryptedValue, Integer.class))
                 .isInstanceOf(NumberFormatException.class);
     }
 }

@@ -12,9 +12,9 @@ COPY version-rules.xml /app/version-rules.xml
 COPY notification-service/pom.xml /app/notification-service/pom.xml
 RUN --mount=type=cache,target=/root/.m2 mvn -f /app/notification-service/pom.xml dependency:go-offline -B -q || true
 
-# Copy source and build the application
+# Copy source and build the application (tests skipped: Testcontainers/Mailpit need a Docker daemon in the build stage)
 COPY notification-service/. /app/notification-service
-RUN --mount=type=cache,target=/root/.m2 mvn -f /app/notification-service/pom.xml clean package
+RUN --mount=type=cache,target=/root/.m2 mvn -f /app/notification-service/pom.xml clean package -DskipTests
 
 # Create a custom Java runtime - Added java.compiler module to provide javax.lang.model.SourceVersion
 # Added jdk.net and java.net.http because Spring RestClient / Apache HttpClient may require
@@ -44,6 +44,13 @@ COPY --from=build /mbjavaruntime $JAVA_HOME
 
 # Copy the packaged jar file from the build stage
 COPY --from=build /app/notification-service/target/*.jar app.jar
+
+# Run as non-root (Debian default is root); app only needs read/exec on JRE and jar.
+RUN groupadd --system --gid 1001 app \
+    && useradd --system --uid 1001 --gid app --home-dir /app --no-create-home app \
+    && chown -R app:app /app "$JAVA_HOME"
+
+USER app
 
 # Command to run the application
 ENTRYPOINT ["java", "--enable-native-access=ALL-UNNAMED", "-jar", "app.jar"]

@@ -1,0 +1,10 @@
+target/
+.git/
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.DS_Store
+*.md
+docs/

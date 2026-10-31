@@ -1,0 +1,40 @@
+spring:
+  docker:
+    compose:
+      enabled: false
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration
+      - org.springframework.cloud.stream.config.BindingServiceConfiguration
+  datasource:
+    url: jdbc:h2:mem:modulith;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password: sa
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        default_schema: PUBLIC
+  flyway:
+    enabled: false
+  batch:
+    jdbc:
+      initialize-schema: embedded
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+app:
+  flyway:
+    enabled: false
+
+token:
+  store: memory
+
+testing:
+  app:
+    jwt-secret: testingSecretKeytestingSecretKeytestingSecretKey12
+    jwt-expiration-ms: 86400000

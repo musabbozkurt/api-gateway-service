@@ -273,18 +273,17 @@ flowchart TD
 
 ## Routes
 
-| Route                          | Path Prefix              | Target Service                      |
-|--------------------------------|--------------------------|-------------------------------------|
-| `brokerage-provider`           | `/brokerage-provider/**` | `lb://brokerage-provider`           |
-| `gitlab-service`               | `/gitlab/**`             | `lb://gitlab-service`               |
-| `inventory-management-service` | `/inventory/**`          | `lb://inventory-management-service` |
-| `kafka-debezium-service`       | `/kafka-debezium/**`     | `lb://kafka-debezium-service`       |
-| `notification-service`         | `/notification/**`       | `lb://notification-service`         |
-| `openai-service`               | `/openai/**`             | `lb://openai-service`               |
-| `payment-service`              | `/payment/**`            | `lb://payment-service`              |
-| `student-service`              | `/student/**`            | `lb://student-service`              |
-| `stock-exchange-service`       | `/stock-exchange/**`     | `lb://stock-exchange-service`       |
-| `swagger-application`          | `/swagger/**`            | `lb://swagger-application`          |
+| Route                          | Path Prefix                 | Target Service                      |
+|--------------------------------|-----------------------------|-------------------------------------|
+| `brokerage-provider`           | `/brokerage-provider/**`    | `lb://brokerage-provider`           |
+| `inventory-management-service` | `/inventory/**`             | `lb://inventory-management-service` |
+| `kafka-debezium-service`       | `/kafka-debezium/**`        | `lb://kafka-debezium-service`       |
+| `notification-service`         | `/notification/**`          | `lb://notification-service`         |
+| `openai-service`               | `/openai/**`                | `lb://openai-service`               |
+| `payment-service`              | `/payment/**`               | `lb://payment-service`              |
+| `student-service`              | `/student/**`               | `lb://student-service`              |
+| `stock-exchange-service`       | `/stock-exchange/**`        | `lb://stock-exchange-service`       |
+| `swagger-application`          | `/swagger/**`, `/gitlab/**` | `lb://swagger-application`          |
 
 ## Running
 

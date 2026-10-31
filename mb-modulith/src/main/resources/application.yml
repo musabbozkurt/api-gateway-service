@@ -1,0 +1,107 @@
+spring:
+  application:
+    name: mb-modulith
+  docker:
+    compose:
+      enabled: true
+      file: @docker.compose.file@
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mb_modulith
+    username: mb
+    password: mb
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+      # Envers (revinfo, *_aud) lives in the email module schema.
+      org.hibernate.envers.default_schema: email
+  flyway:
+    # Boot's single global Flyway is replaced by one Flyway per module (see ModuleFlywayConfig / app.flyway).
+    enabled: false
+  batch:
+    jdbc:
+      initialize-schema: always
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+app:
+  flyway:
+    enabled: true
+    # Existing module schemas (from the old public flyway_schema_history) get a module history table without re-running DDL.
+    baseline-on-migrate: true
+    # One Flyway per module: own location, own version line and own history table inside the module's schema.
+    modules:
+      - name: school
+        schema: school
+        location: classpath:db/migration/school
+      - name: clinic
+        schema: clinics
+        location: classpath:db/migration/clinic
+      - name: playermarket
+        schema: player_market
+        location: classpath:db/migration/playermarket
+      - name: email
+        schema: email
+        location: classpath:db/migration/email
+      - name: warehouse
+        schema: warehouse
+        location: classpath:db/migration/warehouse
+      - name: commerce
+        schema: commerce
+        location: classpath:db/migration/commerce
+      - name: delivery
+        schema: delivery
+        location: classpath:db/migration/delivery
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    urls-primary-name: school-api
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+
+swagger:
+  documentation:
+    services:
+      - name: school-api
+        display-name: School Registration
+      - name: clinic-api
+        display-name: Clinic
+      - name: playermarket-api
+        display-name: Player Market
+      - name: email-api
+        display-name: Email
+      - name: warehouse-api
+        display-name: Food Warehouse
+      - name: commerce-api
+        display-name: Commerce
+      - name: delivery-api
+        display-name: Delivery logistics
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+token:
+  store: redis
+
+testing:
+  app:
+    jwt-secret: testingSecretKeytestingSecretKeytestingSecretKey12
+    jwt-expiration-ms: 86400000
+
+logging:
+  level:
+    root: INFO
+    com.mb.modulith: INFO

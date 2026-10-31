@@ -45,5 +45,12 @@ COPY --from=build /mbjavaruntime $JAVA_HOME
 # Copy the packaged jar file from the build stage
 COPY --from=build /app/api-gateway/target/*.jar app.jar
 
+# Run as non-root (Debian default is root); app only needs read/exec on JRE and jar.
+RUN groupadd --system --gid 1001 app \
+    && useradd --system --uid 1001 --gid app --home-dir /app --no-create-home app \
+    && chown -R app:app /app "$JAVA_HOME"
+
+USER app
+
 # Command to run the application
 ENTRYPOINT ["java", "--enable-native-access=ALL-UNNAMED", "-jar", "app.jar"]

@@ -1,6 +1,38 @@
 GATEWAY_BASE_URL: ${GATEWAY_BASE_URL_ENV:http://localhost:8080}
 
+swagger:
+  entity-id:
+    encryption-key: test-encrypt-k16
+
+feign:
+  services:
+    gitlab-client:
+      url: https://gitlab.com/api/v4
+      private-token: test-token
+      path-with-namespace: ""
+      max-number-of-project: 100
+
 spring:
   cloud:
     config:
       enabled: false
+      fail-fast: false
+    bus:
+      enabled: false
+    discovery:
+      enabled: false
+    stream:
+      default-binder: rabbit
+      bindings:
+        studentConsumer-in-0:
+          consumer:
+            auto-startup: false
+        swaggerProducer-out-0:
+          producer:
+            auto-startup: false
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+
+eureka:
+  client:
+    enabled: false

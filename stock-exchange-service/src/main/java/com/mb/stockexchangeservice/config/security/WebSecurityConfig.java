@@ -27,11 +27,16 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import javax.sql.DataSource;
 
+/**
+ * Security for stock-exchange-service: stateless JWT ({@link SessionCreationPolicy#STATELESS}) via
+ * {@code Authorization: Bearer} and HTTP Basic—no session cookies—so CSRF protection is not required.
+ */
 @Slf4j
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
+@SuppressWarnings("java:S4502")
 public class WebSecurityConfig {
 
     private static final String[] ALLOWED_ENDPOINT_PATTERNS = {

@@ -65,7 +65,7 @@ public class SpringValidationWebExceptionMessageBuilder {
     }
 
     public String getErrorCode(TypeMismatchException mismatchException) {
-        return String.format("%s.%s", ErrorCode.TYPE_MISMATCH, getPropertyName(mismatchException));
+        return ErrorCode.TYPE_MISMATCH.name() + "." + getPropertyName(mismatchException);
     }
 
     private String getPropertyName(TypeMismatchException mismatchException) {

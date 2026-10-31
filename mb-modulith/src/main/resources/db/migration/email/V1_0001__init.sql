@@ -1,0 +1,3 @@
+CREATE SCHEMA IF NOT EXISTS email;
+
+CREATE SEQUENCE IF NOT EXISTS email.hibernate_sequence START 1;
