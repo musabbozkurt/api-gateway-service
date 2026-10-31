@@ -30,6 +30,43 @@ spring:
     redis:
       host: localhost
       port: 6379
+  autoconfigure:
+    exclude:
+      # Only the OAuth2 client (client_credentials for Feign) is used; the default OAuth2 login security chain would
+      # conflict with the module security chains (WebSecurityConfig, LocalStackSecurityConfig).
+      - org.springframework.boot.security.oauth2.client.autoconfigure.servlet.OAuth2ClientWebSecurityAutoConfiguration
+  security:
+    oauth2:
+      client:
+        provider:
+          m2m-internal:
+            token-uri: token-uri
+        registration:
+          m2m-internal:
+            client-id: client-id
+            client-secret: ${IDENTITY_CLIENT_SECRET:test}
+            authorization-grant-type: client_credentials
+
+amazon:
+  aws:
+    accessKey: ${AMAZON_AWS_ACCESS_KEY:test}
+    secretKey: ${AMAZON_AWS_SECRET_KEY:test}
+    region: eu-west-1
+  dynamodb:
+    endpoint: ${AMAZON_DYNAMODB_ENDPOINT:http://localhost:4566/}
+
+minio:
+  enabled: ${MINIO_STORAGE_ENABLED:true}
+  endpoint: ${MINIO_ENDPOINT:http://127.0.0.1:9000}
+  publicUrl: ${STORAGE_PUBLIC_URL:http://127.0.0.1:9000}
+  accessKey: ${MINIO_ACCESS_KEY:admin}
+  secret: ${MINIO_SECRET:supersecret}
+  bucket: ${MINIO_BUCKET:test-bucket}
+  microservicePrefix: storage_service/files/
+  filePrefix: file-prefix
+
+third-party-client-api:
+  url: base-url
 
 app:
   flyway:
@@ -59,6 +96,7 @@ app:
       - name: delivery
         schema: delivery
         location: classpath:db/migration/delivery
+      # localstack module is DynamoDB/S3 based: no relational schema, no Flyway migrations.
 
 springdoc:
   swagger-ui:
@@ -86,12 +124,20 @@ swagger:
         display-name: Commerce
       - name: delivery-api
         display-name: Delivery logistics
+      - name: localstack-api
+        display-name: Local Stack
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics
+  statsd:
+    metrics:
+      export:
+        # No StatsD agent runs next to the app by default; set STATSD_METRICS_EXPORT_ENABLED=true (and the host) to use one.
+        enabled: ${STATSD_METRICS_EXPORT_ENABLED:false}
+        host: ${STATSD_HOST:localhost}
 
 token:
   store: redis

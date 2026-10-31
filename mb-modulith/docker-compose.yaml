@@ -20,6 +20,38 @@ services:
       - "5672:5672"
       - "15672:15672"
 
+  localstack:
+    image: localstack/localstack:2026.10.4
+    ports:
+      - "127.0.0.1:4566:4566"            # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559"  # external services port range
+    environment:
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      DEBUG: ${DEBUG:-1}
+      DOCKER_HOST: unix:///var/run/docker.sock
+      HOSTNAME: localstack
+      HOSTNAME_EXTERNAL: localstack
+      # Required by current LocalStack images (they exit with code 55 without a valid token).
+      LOCALSTACK_AUTH_TOKEN: ${LOCALSTACK_AUTH_TOKEN:-}
+    volumes:
+      - "${TMPDIR:-/tmp}/localstack:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+  minio:
+    container_name: Minio
+    image: cgr.dev/chainguard/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: supersecret
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    restart: unless-stopped
+
   mb-modulith:
     profiles:
       - app
@@ -32,3 +64,8 @@ services:
       - postgres
       - redis
       - rabbitmq
+      - localstack
+      - minio
+
+volumes:
+  minio-data:

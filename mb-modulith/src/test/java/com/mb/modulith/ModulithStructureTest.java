@@ -19,5 +19,6 @@ class ModulithStructureTest {
         assertDoesNotThrow(() -> Class.forName("com.mb.modulith.warehouse.api.controller.FoodController"));
         assertDoesNotThrow(() -> Class.forName("com.mb.modulith.playermarket.api.controller.TeamController"));
         assertDoesNotThrow(() -> Class.forName("com.mb.modulith.delivery.api.controller.PersonController"));
+        assertDoesNotThrow(() -> Class.forName("com.mb.modulith.localstack.api.controller.TempTableController"));
     }
 }

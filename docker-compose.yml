@@ -641,6 +641,10 @@ services:
         condition: service_started
       service-registry:
         condition: service_started
+      localstack:
+        condition: service_started
+      minio:
+        condition: service_started
     environment:
       <<: *java-opts
       SPRING_PROFILES_ACTIVE: docker
@@ -651,11 +655,55 @@ services:
       POSTGRES_PASSWORD: mb
       REDIS_HOST: redis-service
       RABBITMQ_HOST: rabbitmq
+      AMAZON_DYNAMODB_ENDPOINT: http://localstack:4566/
+      MINIO_ENDPOINT: http://minio:9000
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:
       - mb-network
     restart: on-failure
+
+  # mb-modulith "localstack" module infrastructure (DynamoDB via LocalStack, S3 via MinIO)
+  localstack:
+    image: localstack/localstack:2026.10.4
+    container_name: localstack
+    ports:
+      - "127.0.0.1:4566:4566"            # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559"  # external services port range
+    environment:
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      DEBUG: ${DEBUG:-1}
+      DOCKER_HOST: unix:///var/run/docker.sock
+      HOSTNAME: localstack
+      HOSTNAME_EXTERNAL: localstack
+      # Required by current LocalStack images (they exit with code 55 without a valid token).
+      LOCALSTACK_AUTH_TOKEN: ${LOCALSTACK_AUTH_TOKEN:-}
+    volumes:
+      - "${TMPDIR:-/tmp}/localstack:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    profiles:
+      - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
+
+  minio:
+    image: cgr.dev/chainguard/minio:latest
+    container_name: minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: supersecret
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    profiles:
+      - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
+    restart: unless-stopped
 
   # ========================================================================================
   # kafka-debezium-service (CDC with Debezium, Kafka cluster, PostgreSQL, and Oracle)
@@ -929,6 +977,7 @@ volumes:
   debezium-kafka2-data:
   debezium-kafka3-data:
   elasticsearch_data:
+  minio-data:
 
 networks:
   mb-network:

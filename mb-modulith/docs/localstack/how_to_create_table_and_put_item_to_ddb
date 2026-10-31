@@ -1,0 +1,36 @@
+https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Tools.CLI.html
+https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/getting-started-step-2.html
+https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/getting-started-step-5.html
+
+aws dynamodb create-table \
+    --table-name Music \
+    --attribute-definitions \
+        AttributeName=Artist,AttributeType=S \
+        AttributeName=Title,AttributeType=S \
+    --key-schema \
+        AttributeName=Artist,KeyType=HASH \
+        AttributeName=Title,KeyType=RANGE \
+    --provisioned-throughput \
+        ReadCapacityUnits=5,WriteCapacityUnits=5 \
+    --table-class STANDARD \
+    --endpoint-url http://localhost:4566
+
+aws dynamodb put-item \
+    --table-name Music \
+    --item \
+        '{"Artist": {"S": "No One You Know"}, "Title": {"S": "Call Me Today"}, "AlbumTitle": {"S": "Somewhat Famous"}}' \
+    --return-consumed-capacity TOTAL \
+    --endpoint-url http://localhost:4566
+
+aws dynamodb put-item \
+    --table-name Music \
+    --item '{
+        "Artist": {"S": "Acme Band"},
+        "Title": {"S": "Happy Day"},
+        "AlbumTitle": {"S": "Songs About Life"} }' \
+    --return-consumed-capacity TOTAL \
+    --endpoint-url http://localhost:4566
+
+aws dynamodb list-tables --endpoint-url http://localhost:4566
+
+aws dynamodb put-item --table-name Music --item file://tableName.json
