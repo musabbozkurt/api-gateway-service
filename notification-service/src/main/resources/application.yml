@@ -6,12 +6,16 @@ spring:
       uri: ${CONFIG_SERVER_URI:http://localhost:8888}
       profile: development
       label: main
-      fail-fast: true # true: if config server is down, this service will not start
+      # false: start with local application.yml when config server is down (e.g. local run or compose race).
+      # Set SPRING_CLOUD_CONFIG_FAIL_FAST=true in environments that must not start without config server.
+      fail-fast: ${SPRING_CLOUD_CONFIG_FAIL_FAST:false}
+      request-connect-timeout: 5000
+      request-read-timeout: 10000
     bus:
       destination: springCloudBus # Kafka topic shared with config server for RefreshRemoteApplicationEvents
 
   config:
-    import: "optional:configserver:" # "optional:configserver:${CONFIG_SERVER_URI:http://localhost:8888}"
+    import: "optional:configserver:${CONFIG_SERVER_URI:http://localhost:8888}"
 
   datasource:
     type: com.zaxxer.hikari.HikariDataSource

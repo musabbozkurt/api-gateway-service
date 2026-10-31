@@ -123,8 +123,10 @@ spring:
     import: optional:file:.env[.properties]
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+      # 8MB = Sonar's safe default (S5693). These servlet properties are not used by this reactive gateway
+      # (multipart is proxied, never parsed here); the effective body limit is spring.http.codecs.max-in-memory-size.
+      max-file-size: 8MB
+      max-request-size: 8MB
   http:
     codecs:
       max-in-memory-size: 10MB
@@ -182,7 +184,7 @@ springdoc:
         name: Brokerage Provider
         uri: ${BROKERAGE_PROVIDER_BASE_URL}
         server-url: ${BASE_URL}/brokerage-provider
-      - url: /v3/api-docs/gitlab
+      - url: /swagger/api-docs/gitlab
         name: Gitlab Service
         uri: ${GITLAB_SERVICE_BASE_URL}
         server-url: ${BASE_URL}/gitlab
@@ -246,6 +248,8 @@ logging:
 
 elasticsearch:
   url: ${ELASTICSEARCH_URL:http://localhost:9200}
+  index:
+    url: ${ELASTICSEARCH_INDEX_URL:${ELASTICSEARCH_URL}/logstash-api-gateway-service}
 
 secure-service:
   introspection-uri: ${INTROSPECTION_URI:http://localhost:9090/realms/${KEYCLOAK_REALM:mb-realm}/protocol/openid-connect/token/introspect}
@@ -269,7 +273,7 @@ gateway-service:
       - /v3/api-docs
       - /webjars/**
       - /brokerage-provider/api-docs
-      - /v3/api-docs/gitlab
+      - /swagger/api-docs/gitlab
       - /inventory/api-docs
       - /inventory/swagger-ui/** # Inventory-management-service Swagger UI
       - /inventory/swagger-ui.html

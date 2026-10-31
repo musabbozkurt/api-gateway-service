@@ -1,5 +1,25 @@
 # Use a multi-stage build to optimize the image size
-# Stage 1: Build the application
+# Stage 1: Custom Java runtime (jlink).
+# This stage is IDENTICAL in every service Dockerfile on purpose: BuildKit caches it by content, so
+# all service images built on the same builder share one JRE layer (stored once on disk, not 13x).
+# Do not change it in a single Dockerfile only; keep the module list in sync everywhere.
+# Modules: Spring Boot, JPA/JDBC, Netty/Redis, RabbitMQ/Kafka, Actuator/Micrometer (jdk.jfr, jdk.management),
+# JWT/TLS (jdk.crypto.ec, java.security.*), java.compiler (javax.lang.model.SourceVersion),
+# jdk.net + java.net.http (Spring RestClient / Apache HttpClient inside Docker).
+FROM maven:4.0.0-rc-5-eclipse-temurin-26-noble AS jre
+RUN "$JAVA_HOME"/bin/jlink \
+         --add-modules jdk.unsupported,java.base,java.sql,java.naming,java.desktop,java.management,java.security.jgss,java.instrument,java.compiler,java.net.http,java.xml,java.logging,java.transaction.xa,java.security.sasl,jdk.crypto.ec,jdk.management,jdk.net,jdk.jfr \
+         --strip-java-debug-attributes \
+         --no-man-pages \
+         --no-header-files \
+         --compress=2 \
+         --exclude-files="**/legal/**,**.diz" \
+         --output /mbjavaruntime
+
+# Strip debug symbols from native libraries to reduce size
+RUN find /mbjavaruntime -name '*.so' -exec strip --strip-unneeded {} + 2>/dev/null || true
+
+# Stage 2: Build the application
 FROM maven:4.0.0-rc-5-eclipse-temurin-26-noble AS build
 
 # Set the working directory
@@ -16,25 +36,15 @@ RUN --mount=type=cache,target=/root/.m2 mvn -f /app/spring-config-server/pom.xml
 COPY spring-config-server/. /app/spring-config-server
 RUN --mount=type=cache,target=/root/.m2 mvn -f /app/spring-config-server/pom.xml clean package
 
-# Create a custom Java runtime - Added java.compiler module to provide javax.lang.model.SourceVersion
-# Added jdk.net and java.net.http because Spring RestClient / Apache HttpClient may require
-# jdk.net.Sockets and related networking classes at runtime inside Docker
-RUN "$JAVA_HOME"/bin/jlink \
-         --add-modules jdk.unsupported,jdk.net,java.net.http,java.base,java.sql,java.naming,java.desktop,java.management,java.security.jgss,java.instrument,java.compiler \
-         --strip-java-debug-attributes \
-         --no-man-pages \
-         --no-header-files \
-         --compress=2 \
-         --exclude-files="**/legal/**,**.diz" \
-         --output /mbjavaruntime
-
-# Strip debug symbols from native libraries to reduce size
-RUN find /mbjavaruntime -name '*.so' -exec strip --strip-unneeded {} + 2>/dev/null || true
-
-# Stage 2: Create the final image
+# Stage 3: Create the final image
 FROM debian:bookworm-slim
 
-RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+# Run as non-root (Debian default is root). The user and /app are created BEFORE any file is copied,
+# so no recursive `chown -R` is needed: chown would copy the whole JRE into an extra image layer.
+RUN groupadd --system --gid 1001 app \
+    && useradd --system --uid 1001 --gid app --home-dir /app --no-create-home app \
+    && mkdir /app \
+    && chown app:app /app
 
 ENV JAVA_HOME=/home/java/jdk25
 ENV PATH=$JAVA_HOME/bin:$PATH
@@ -42,15 +52,14 @@ ENV PATH=$JAVA_HOME/bin:$PATH
 # Set the working directory for the final image
 WORKDIR /app
 
-COPY --from=build /mbjavaruntime $JAVA_HOME
+# JRE stays root-owned: `app` only needs read/execute on it.
+COPY --from=jre /mbjavaruntime $JAVA_HOME
 
-# Copy the packaged jar file from the build stage
-COPY --from=build /app/spring-config-server/target/*.jar app.jar
+# curl is required by the docker-compose healthcheck
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 
-# Run as non-root (Debian default is root); app only needs read/exec on JRE and jar.
-RUN groupadd --system --gid 1001 app \
-    && useradd --system --uid 1001 --gid app --home-dir /app --no-create-home app \
-    && chown -R app:app /app "$JAVA_HOME"
+# Copy the packaged jar file from the build stage (owned by `app` directly, no extra layer)
+COPY --from=build --chown=app:app /app/spring-config-server/target/*.jar app.jar
 
 USER app
 

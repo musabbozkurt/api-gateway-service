@@ -26,7 +26,8 @@ via RabbitMQ events.
 | `feign.services.gitlab-client.private-token`       | `GITLAB_PRIVATE_TOKEN`           | Private token           |
 | `feign.services.gitlab-client.path-with-namespace` | `GITLAB_URL_PATH_WITH_NAMESPACE` | Optional project filter |
 
-OpenAPI group: `/v3/api-docs/gitlab`. Gateway route: `/gitlab/**` → `swagger-application`.
+OpenAPI group: `/swagger/api-docs/gitlab` (springdoc `api-docs.path` is `/swagger/api-docs`; the gateway Swagger UI
+lists it as "Gitlab Service"). Gateway route: `/gitlab/**` → `swagger-application`.
 
 ## Tech Stack
 
