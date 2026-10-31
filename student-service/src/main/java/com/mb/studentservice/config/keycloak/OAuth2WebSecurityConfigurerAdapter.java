@@ -10,6 +10,8 @@ import org.springframework.security.web.SecurityFilterChain;
 public class OAuth2WebSecurityConfigurerAdapter {
 
     @Bean
+    // csrf is disabled for because of the stateless nature of the application and the use of JWT tokens for authentication.
+    @SuppressWarnings("java:S4502")
     public SecurityFilterChain filterChain(HttpSecurity http) {
         http.csrf(AbstractHttpConfigurer::disable)
                 .oauth2Client(AbstractHttpConfigurer::disable)

@@ -1,0 +1,26 @@
+# Active with SPRING_PROFILES_ACTIVE=docker (api-gateway-service Compose stack).
+server:
+  port: 8090
+
+spring:
+  docker:
+    compose:
+      enabled: false
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:postgres}:5432/${POSTGRES_DB:mb_modulith}
+    username: ${POSTGRES_USER:mb}
+    password: ${POSTGRES_PASSWORD:mb}
+  data:
+    redis:
+      host: ${REDIS_HOST:redis-service}
+      port: ${REDIS_PORT:6379}
+  rabbitmq:
+    host: ${RABBITMQ_HOST:rabbitmq}
+    port: ${RABBITMQ_PORT:5672}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true

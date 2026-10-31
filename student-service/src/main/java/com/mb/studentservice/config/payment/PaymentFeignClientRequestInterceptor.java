@@ -21,7 +21,7 @@ public class PaymentFeignClientRequestInterceptor implements RequestInterceptor 
     @Override
     public void apply(RequestTemplate template) {
         template.removeHeader(AUTHORIZATION);
-        template.header(AUTHORIZATION, String.format("%s %s", BEARER, getTokenValue()));
+        template.header(AUTHORIZATION, BEARER + " " + getTokenValue());
     }
 
     private String getTokenValue() {

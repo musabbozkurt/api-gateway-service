@@ -1,5 +1,6 @@
 package com.mb.apigateway.aspect;
 
+import com.mb.apigateway.exception.InvalidCaptchaException;
 import com.mb.apigateway.service.CaptchaValidatorService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,7 @@ public class CaptchaAspect {
 
         boolean isValidCaptcha = captchaValidatorService.validateCaptcha(request.getHeader(CAPTCHA_HEADER_NAME));
         if (!isValidCaptcha) {
-            throw new RuntimeException("Invalid captcha");
+            throw new InvalidCaptchaException();
         }
         return joinPoint.proceed();
     }

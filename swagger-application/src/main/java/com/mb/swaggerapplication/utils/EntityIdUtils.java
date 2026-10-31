@@ -1,10 +1,10 @@
 package com.mb.swaggerapplication.utils;
 
 import com.mb.swaggerapplication.exception.CustomRuntimeException;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -12,6 +12,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -20,18 +21,27 @@ import java.security.SecureRandom;
 import java.util.Base64;
 
 @Slf4j
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Component
 public final class EntityIdUtils {
 
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
-    private static final String SECRET_KEY = "YsrBlfW5zR5eaRQT";
     private static final String AES_ALGORITHM = "AES";
     private static final String AES_GCM_NO_PADDING = "AES/GCM/NoPadding";
     private static final int GCM_IV_LENGTH = 16;
     private static final int GCM_TAG_LENGTH = 128;
 
-    public static String encrypt(String data) {
+    private final byte[] secretKeyBytes;
+
+    public EntityIdUtils(@Value("${swagger.entity-id.encryption-key}") String encryptionKey) {
+        byte[] keyBytes = encryptionKey.getBytes(StandardCharsets.UTF_8);
+        if (keyBytes.length != 16) {
+            throw new IllegalStateException("swagger.entity-id.encryption-key must be exactly 16 bytes (AES-128); configure SWAGGER_ENTITY_ID_ENCRYPTION_KEY");
+        }
+        this.secretKeyBytes = keyBytes;
+    }
+
+    public String encrypt(String data) {
         try {
             Key key = generateKey();
             Cipher cipher = Cipher.getInstance(AES_GCM_NO_PADDING);
@@ -39,7 +49,7 @@ public final class EntityIdUtils {
             SECURE_RANDOM.nextBytes(iv);
             GCMParameterSpec parameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
             cipher.init(Cipher.ENCRYPT_MODE, key, parameterSpec);
-            byte[] encryptedValue = cipher.doFinal(data.getBytes());
+            byte[] encryptedValue = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
             byte[] encryptedWithIv = new byte[iv.length + encryptedValue.length];
             System.arraycopy(iv, 0, encryptedWithIv, 0, iv.length);
             System.arraycopy(encryptedValue, 0, encryptedWithIv, iv.length, encryptedValue.length);
@@ -51,12 +61,12 @@ public final class EntityIdUtils {
         }
     }
 
-    public static Long decryptToLong(String encryptedData) {
+    public Long decryptToLong(String encryptedData) {
         return decrypt(encryptedData, Long.class);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T decrypt(String encryptedData, Class<T> targetType) {
+    public <T> T decrypt(String encryptedData, Class<T> targetType) {
         String decryptedString = decryptToString(encryptedData);
 
         if (targetType == String.class) {
@@ -74,7 +84,7 @@ public final class EntityIdUtils {
         }
     }
 
-    public static String decryptToString(String encryptedData) {
+    public String decryptToString(String encryptedData) {
         try {
             Key key = generateKey();
             byte[] encryptedWithIv = Base64.getDecoder().decode(encryptedData);
@@ -89,7 +99,7 @@ public final class EntityIdUtils {
             GCMParameterSpec parameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH, iv);
             cipher.init(Cipher.DECRYPT_MODE, key, parameterSpec);
             byte[] decryptedValue = cipher.doFinal(encrypted);
-            return new String(decryptedValue);
+            return new String(decryptedValue, StandardCharsets.UTF_8);
         } catch (NoSuchAlgorithmException
                  | NoSuchPaddingException
                  | InvalidKeyException
@@ -103,7 +113,7 @@ public final class EntityIdUtils {
         }
     }
 
-    private static Key generateKey() {
-        return new SecretKeySpec(SECRET_KEY.getBytes(), AES_ALGORITHM);
+    private Key generateKey() {
+        return new SecretKeySpec(secretKeyBytes, AES_ALGORITHM);
     }
 }

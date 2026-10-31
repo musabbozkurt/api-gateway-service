@@ -25,12 +25,16 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
  * Both services share the same JWT signing secret, so the {@link AuthTokenFilter}
  * validates stock-exchange-service tokens locally by verifying the signature and
  * extracting the username from the {@code sub} claim — no database call required.
+ * <p>
+ * CSRF is disabled because the API is {@link SessionCreationPolicy#STATELESS} and uses
+ * {@code Authorization: Bearer} JWTs only—no session cookies—so CSRF does not apply.
  */
 @Slf4j
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
+@SuppressWarnings("java:S4502")
 public class WebSecurityConfig {
 
     private static final String[] ALLOWED_ENDPOINT_PATTERNS = {

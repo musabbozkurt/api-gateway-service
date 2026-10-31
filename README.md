@@ -37,9 +37,9 @@ Each module is zipped by the `Package Modules` workflow on every push to `main`
 |------------------------------|------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------|
 | api-gateway                  | [zip](https://github.com/musabbozkurt/api-gateway-service/releases/download/modules-latest/api-gateway.zip)                  | [download](https://download-directory.github.io/?url=https://github.com/musabbozkurt/api-gateway-service/tree/main/api-gateway)                  | [clone](#clone-api-gateway)                  |
 | brokerage-provider           | [zip](https://github.com/musabbozkurt/api-gateway-service/releases/download/modules-latest/brokerage-provider.zip)           | [download](https://download-directory.github.io/?url=https://github.com/musabbozkurt/api-gateway-service/tree/main/brokerage-provider)           | [clone](#clone-brokerage-provider)           |
-| gitlab-service               | [zip](https://github.com/musabbozkurt/api-gateway-service/releases/download/modules-latest/gitlab-service.zip)               | [download](https://download-directory.github.io/?url=https://github.com/musabbozkurt/api-gateway-service/tree/main/gitlab-service)               | [clone](#clone-gitlab-service)               |
 | inventory-management-service | [zip](https://github.com/musabbozkurt/api-gateway-service/releases/download/modules-latest/inventory-management-service.zip) | [download](https://download-directory.github.io/?url=https://github.com/musabbozkurt/api-gateway-service/tree/main/inventory-management-service) | [clone](#clone-inventory-management-service) |
 | kafka-debezium-service       | [zip](https://github.com/musabbozkurt/api-gateway-service/releases/download/modules-latest/kafka-debezium-service.zip)       | [download](https://download-directory.github.io/?url=https://github.com/musabbozkurt/api-gateway-service/tree/main/kafka-debezium-service)       | [clone](#clone-kafka-debezium-service)       |
+| mb-modulith                  | [zip](https://github.com/musabbozkurt/api-gateway-service/releases/download/modules-latest/mb-modulith.zip)                  | [download](https://download-directory.github.io/?url=https://github.com/musabbozkurt/api-gateway-service/tree/main/mb-modulith)                  | [clone](#clone-mb-modulith)                  |
 | notification-service         | [zip](https://github.com/musabbozkurt/api-gateway-service/releases/download/modules-latest/notification-service.zip)         | [download](https://download-directory.github.io/?url=https://github.com/musabbozkurt/api-gateway-service/tree/main/notification-service)         | [clone](#clone-notification-service)         |
 | openai-service               | [zip](https://github.com/musabbozkurt/api-gateway-service/releases/download/modules-latest/openai-service.zip)               | [download](https://download-directory.github.io/?url=https://github.com/musabbozkurt/api-gateway-service/tree/main/openai-service)               | [clone](#clone-openai-service)               |
 | payment-service              | [zip](https://github.com/musabbozkurt/api-gateway-service/releases/download/modules-latest/payment-service.zip)              | [download](https://download-directory.github.io/?url=https://github.com/musabbozkurt/api-gateway-service/tree/main/payment-service)              | [clone](#clone-payment-service)              |
@@ -74,16 +74,6 @@ git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/
 
 </details>
 
-<details><summary>gitlab-service</summary>
-
-#### clone-gitlab-service
-
-```bash
-git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/api-gateway-service.git && cd api-gateway-service && git sparse-checkout set gitlab-service
-```
-
-</details>
-
 <details><summary>inventory-management-service</summary>
 
 #### clone-inventory-management-service
@@ -100,6 +90,16 @@ git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/
 
 ```bash
 git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/api-gateway-service.git && cd api-gateway-service && git sparse-checkout set kafka-debezium-service
+```
+
+</details>
+
+<details><summary>mb-modulith</summary>
+
+#### clone-mb-modulith
+
+```bash
+git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/api-gateway-service.git && cd api-gateway-service && git sparse-checkout set mb-modulith
 ```
 
 </details>
@@ -206,11 +206,12 @@ git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/
     * notification-service with Email, SMS (DummySms), Push (Firebase FCM + SSE) and Kafka-based notification support
     * Configurable security permitted paths via application.yml (gateway-service.security.permitted-paths)
     * Multi-application Firebase push notification support in notification-service
-    * gitlab-service repo migration is completed for bulk Gitlab operations via Feign Client
+    * Gitlab bulk operations (Feign client) live in swagger-application under `/gitlab/**`
     * kafka-debezium-service repo migration is completed for CDC with Debezium, Kafka cluster, PostgreSQL, and Oracle
     * brokerage-provider repo migration is completed
     * stock-exchange-service repo migration is completed
     * inventory-management-service repo migration is completed
+    * mb-modulith — Spring Modulith monolith (multi-domain APIs, per-module Flyway, Eureka client, gateway route `/modulith/**`)
    ```
 
 ---
@@ -228,7 +229,7 @@ git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/
 - Followings should be installed and links for how to install them
   ####
     * Java 26 or higher [How to install Java](https://java.com/en/download/help/download_options.html)
-        * Set `JAVA_HOME` to 25 -> `export JAVA_HOME=$(/usr/libexec/java_home -v 26)`
+        * Set `JAVA_HOME` to 26 -> `export JAVA_HOME=$(/usr/libexec/java_home -v 26)`
     * Maven [How to install Maven](https://maven.apache.org/install.html)
     * Docker [How to install Docker](https://docs.docker.com/get-docker)
     * [Postman](https://www.postman.com/downloads/) can be installed (OPTIONAL),
@@ -262,10 +263,14 @@ git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/
 
 2. Run all services
 
-    - (OPTION 1)
-        - Run `docker-compose --profile start_application up -d --build` command in
-          the [docker-compose.yml](docker-compose.yml) directory
-    - (OPTION 2)
+    - (OPTION 1 — full Compose stack, includes **mb-modulith** on port **8090**)
+        - Run `docker compose --profile start_application up -d --build` in the repo root
+          ([docker-compose.yml](docker-compose.yml))
+        - Shared Postgres
+          runs [mb-modulith/docker/postgres/01-init-mb-modulith.sh](mb-modulith/docker/postgres/01-init-mb-modulith.sh)
+          **once** on a **new** `postgres_data` volume (creates database `mb_modulith` and user `mb`). If the volume
+          already existed, create that database manually or recreate the volume.
+    - (OPTION 2 — IDE / Maven per microservice)
         1. Enable [spring.docker.compose](api-gateway/src/main/resources/application.yml) property and just
            run [ApiGatewayApplication.java](api-gateway/src/main/java/com/mb/apigateway/ApiGatewayApplication.java) to
            install RabbitMQ, PostgreSQL and Keycloak
@@ -274,7 +279,7 @@ git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/
            or [run-all-mvn-in-parallel.sh](docs/scripts/run-all-mvn-in-parallel.sh)
            or [run-all-mvn-in-parallel-with-wait.sh](docs/scripts/run-all-mvn-in-parallel-with-wait.sh) script to build
            all services
-        3. Run `mvn spring-boot:run` command under each service's directory
+        3. Run `mvn spring-boot:run` or `./mvnw spring-boot:run` under each service's directory
 
 ####
 
@@ -304,7 +309,10 @@ git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/
     * Actuator: http://localhost:8080/actuator
     * Eureka: http://localhost:8761/
     * RabbitMQ Management: http://localhost:15673/ with `username`: `guest` and `password`: `guest`
-    * PostgreSQL: `jdbc:postgresql://localhost:5433/postgres` with `username`: `postgres` and `password`: `postgres`
+    * PostgreSQL (shared microservices DB): `jdbc:postgresql://localhost:5433/postgres` with `username`: `postgres` and
+      `password`: `postgres`
+    * PostgreSQL (mb-modulith): `jdbc:postgresql://localhost:5433/mb_modulith` with `username`: `mb` and `password`:
+      `mb` (after init script or manual create)
     * Redis: http://localhost:6379/
     * RedisInsight: http://localhost:5540/
     * Zipkin: http://localhost:9411/

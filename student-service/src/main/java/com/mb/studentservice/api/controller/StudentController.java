@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -49,7 +48,7 @@ public class StudentController {
     public List<Student> getStudentByRole(@PathVariable(value = "role") String role) {
         return students.stream()
                 .filter(x -> x.getRole().equalsIgnoreCase(role))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @GetMapping(value = "/events")

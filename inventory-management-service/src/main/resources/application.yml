@@ -32,6 +32,10 @@ spring:
     baseline-on-migrate: true
     table: schema_version
     validate-on-migrate: false
+    schemas: inventory_management_service
+    create-schemas: true
+    connect-retries: 30
+    connect-retries-interval: 2s
 
   data:
     redis:

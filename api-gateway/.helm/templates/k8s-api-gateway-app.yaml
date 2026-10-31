@@ -12,12 +12,23 @@ spec:
       labels:
         app: api-gateway
     spec:
+      # Gateway does not call the Kubernetes API; disable default SA token mount (Sonar/kubernetes best practice).
+      automountServiceAccountToken: false
       containers:
         - name: api-gateway
-          image: api-gateway:latest # Image that will be used to containers in the cluster
+          # Pin tag to release version (pom.xml); override at deploy time if your registry uses another tag.
+          image: api-gateway:0.0.1-SNAPSHOT
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080 # The port that the container is running on in the cluster
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+              ephemeral-storage: 128Mi
+            limits:
+              memory: 1536Mi
+              ephemeral-storage: 256Mi
 
 ---
 

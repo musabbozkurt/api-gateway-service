@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.common.util.StringUtils;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -28,6 +29,7 @@ public class ElasticsearchHttpAppender extends AppenderBase<ILoggingEvent> {
 
     // Example: http://localhost:9200/logstash-api-gateway-service
     @Setter
+    @Value("${elasticsearch.index.url}")
     private String indexUrl;
 
     @Override

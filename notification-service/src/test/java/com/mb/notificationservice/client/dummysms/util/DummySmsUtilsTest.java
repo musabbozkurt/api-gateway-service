@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,7 +33,7 @@ class DummySmsUtilsTest {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode node = mapper.convertValue(request, JsonNode.class);
 
-        String md5Hash = CryptoHelper.toMD5(node.toString());
+        String md5Hash = CryptoHelper.toSha256Hex(node.toString());
         String hmac = CryptoHelper.toHashMac256(secretKey, dateSign + url + md5Hash);
 
         String authorization = DummySmsUtils.createAuthorization(request, apikey, secretKey, url, dateSign);
@@ -52,7 +53,7 @@ class DummySmsUtilsTest {
 
     @Test
     void getDateAsSignature_ShouldReturnFormattedDate() {
-        LocalDateTime fixedDateTime = LocalDateTime.of(2023, 9, 26, 12, 0, 0);
+        LocalDateTime fixedDateTime = LocalDateTime.of(2023, Month.SEPTEMBER, 26, 12, 0, 0);
         try (MockedStatic<LocalDateTime> mocked = mockStatic(LocalDateTime.class)) {
             mocked.when(LocalDateTime::now).thenReturn(fixedDateTime);
 

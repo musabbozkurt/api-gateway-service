@@ -33,7 +33,6 @@ env:
   SERVICE_DIRS: >-
     api-gateway
     brokerage-provider
-    gitlab-service
     inventory-management-service
     kafka-debezium-service
     notification-service
@@ -44,6 +43,7 @@ env:
     spring-config-server
     student-service
     swagger-application
+    mb-modulith
 
 jobs:
   check-versions:

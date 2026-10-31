@@ -1,3 +1,10 @@
+# JVM memory cap for the Spring services. Without it each JVM may grow towards 25% of the Docker VM RAM
+# (~4 GB heap) and the whole stack (13 JVMs + Grafana, Elasticsearch, Oracle, Kafka x4 ...) exhausts the
+# VM, which got Elasticsearch OOM-killed (exit 137). SerialGC + a heap cap keeps every service at roughly
+# 350-450 MB. Override per run: JAVA_HEAP_MAX=768m docker compose --profile start_application up -d
+x-java-opts: &java-opts
+  JAVA_TOOL_OPTIONS: -XX:+UseSerialGC -Xmx${JAVA_HEAP_MAX:-384m} -Xss512k
+
 services:
 
   api-gateway:
@@ -9,10 +16,8 @@ services:
     ports:
       - "8080:8080" # Map host port 8080 to container port 8080
     depends_on:
-      gitlab-service:
-        condition: service_started
       grafana-lgtm:
-        condition: service_started
+        condition: service_healthy
       inventory-management-service:
         condition: service_started
       kafka-debezium-service:
@@ -39,11 +44,14 @@ services:
         condition: service_started
       swagger-application:
         condition: service_started
+      mb-modulith:
+        condition: service_started
       zipkin:
         condition: service_started
       elasticsearch:
-        condition: service_started
+        condition: service_healthy
     environment:
+      <<: *java-opts
       CLIENT_ID: ${GATEWAY_CLIENT_ID:-api-gateway-client}
       CLIENT_SECRET: ${GATEWAY_CLIENT_SECRET:-m5CxL5t54ACk17mDjp0Zje0jBBRsXJuM}
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
@@ -54,6 +62,7 @@ services:
       REDIS_HOST: redis-service
       ZIPKIN_ENDPOINT: http://zipkin:9411/api/v2/spans
       ELASTICSEARCH_URL: http://elasticsearch:9200
+      USER_ACTIVITY_ES_HTTP_LOG_APPENDER_ENABLED: true
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:
@@ -70,7 +79,7 @@ services:
       - "8081:8081" # Map host port 8081 to container port 8080
     depends_on:
       grafana-lgtm:
-        condition: service_started
+        condition: service_healthy
       keycloak:
         condition: service_started
       postgres:
@@ -82,6 +91,7 @@ services:
       spring-config-server:
         condition: service_healthy
     environment:
+      <<: *java-opts
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
       GATEWAY_BASE_URL_ENV: http://api-gateway:8080
       KEYCLOAK_BASE_URL: http://keycloak:9090
@@ -110,7 +120,7 @@ services:
       - "8082:8082" # Map host port 8082 to container port 8080
     depends_on:
       grafana-lgtm:
-        condition: service_started
+        condition: service_healthy
       kafka: # Bus must be available to receive RefreshRemoteApplicationEvents from the config server
         condition: service_started
       service-registry:
@@ -118,6 +128,7 @@ services:
       spring-config-server:
         condition: service_healthy
     environment:
+      <<: *java-opts
       CONFIG_SERVER_URI: http://spring-config-server:8888
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092 # Internal Docker listener — used by Spring Cloud Bus (Kafka) for receiving refresh events
@@ -126,6 +137,9 @@ services:
       OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
+      GITLAB_API_URL: ${GITLAB_API_URL:-https://gitlab.com/api/v4}
+      GITLAB_PRIVATE_TOKEN: ${GITLAB_PRIVATE_TOKEN:-}
+      GITLAB_URL_PATH_WITH_NAMESPACE: ${GITLAB_URL_PATH_WITH_NAMESPACE:-}
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:
@@ -140,7 +154,7 @@ services:
       - "8083:8083" # Map host port 8083 to container port 8080
     depends_on:
       grafana-lgtm:
-        condition: service_started
+        condition: service_healthy
       keycloak:
         condition: service_started
       postgres:
@@ -152,6 +166,7 @@ services:
       spring-config-server:
         condition: service_healthy
     environment:
+      <<: *java-opts
       DB_HOST: postgres
       DB_PORT: 5432
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
@@ -173,12 +188,13 @@ services:
       - "8084:8084" # Map host port 8084 to container port 8080
     depends_on:
       grafana-lgtm:
-        condition: service_started
+        condition: service_healthy
       service-registry:
         condition: service_started
       spring-config-server:
         condition: service_healthy
     environment:
+      <<: *java-opts
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
       OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
       OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
@@ -197,7 +213,7 @@ services:
       - "8085:8085"
     depends_on:
       grafana-lgtm:
-        condition: service_started
+        condition: service_healthy
       kafka:
         condition: service_started
       keycloak:
@@ -211,6 +227,7 @@ services:
       spring-config-server:
         condition: service_healthy
     environment:
+      <<: *java-opts
       CONFIG_SERVER_URI: http://spring-config-server:8888
       DB_HOST: postgres
       DB_PORT: 5432
@@ -236,8 +253,9 @@ services:
       - "8761:8761" # Map host port 8761 to container port 8761
     depends_on:
       grafana-lgtm:
-        condition: service_started
+        condition: service_healthy
     environment:
+      <<: *java-opts
       OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
       OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
       OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
@@ -256,10 +274,14 @@ services:
     ports:
       - "8888:8888" # Map host port 8888 to container port 8888
     depends_on:
-      - grafana-lgtm
-      - kafka # Bus must be available so ConfigChangeWatcher can publish RefreshRemoteApplicationEvents
-      - service-registry
+      grafana-lgtm:
+        condition: service_healthy
+      kafka: # Bus must be available so ConfigChangeWatcher can publish RefreshRemoteApplicationEvents
+        condition: service_started
+      service-registry:
+        condition: service_started
     environment:
+      <<: *java-opts
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092 # Internal Docker listener — used by Spring Cloud Bus (Kafka) for broadcasting refresh events
       OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
@@ -278,7 +300,7 @@ services:
     restart: on-failure
 
   rabbitmq:
-    image: rabbitmq:4.4.0
+    image: rabbitmq:4.4.0-alpine # alpine variant: ~160 MB smaller, same broker
     restart: on-failure
     container_name: test-rabbitmq
     ports:
@@ -342,10 +364,11 @@ services:
       POSTGRES_USER: ${POSTGRESQL_USER}
       POSTGRES_PASSWORD: ${POSTGRESQL_PASS}
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRESQL_USER} -d ${POSTGRESQL_DB}" ]
+      test: [ "CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\"" ]
       interval: 5s
       timeout: 5s
       retries: 10
+      start_period: 30s
     networks:
       - mb-network
     volumes:
@@ -355,6 +378,7 @@ services:
       # If upgrading from a postgres:16/17 image, remove the old volume first:
       # docker compose down -v && docker volume rm <project>_postgres_data
       - postgres_data:/var/lib/postgresql
+      - ./mb-modulith/docker/postgres:/docker-entrypoint-initdb.d:ro
 
   keycloak:
     container_name: keycloak
@@ -386,7 +410,7 @@ services:
       - mb-network
 
   redis-service:
-    image: redis:8.10.2
+    image: redis:8.10.2-alpine # alpine variant: ~70 MB smaller, same AOF(Append Only File) data format
     container_name: redis-service
     ports:
       - "6379:6379"
@@ -438,6 +462,12 @@ services:
       - "4317:4317"   # OTLP gRPC receiver
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -sf http://localhost:3000/api/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 90s
     networks:
       - mb-network
     restart: on-failure
@@ -472,37 +502,6 @@ services:
       - mb-network
 
   # ========================================================================================
-  # gitlab-service (standalone — Feign Client for bulk Gitlab operations)
-  # ========================================================================================
-
-  gitlab-service:
-    build:
-      context: .
-      dockerfile: gitlab-service/Dockerfile
-    ports:
-      - "8086:8086"
-    environment:
-      EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
-      GITLAB_API_URL: ${GITLAB_API_URL:-https://gitlab.com/api/v4}
-      GITLAB_PRIVATE_TOKEN: ${GITLAB_PRIVATE_TOKEN:-}
-      GITLAB_URL_PATH_WITH_NAMESPACE: ${GITLAB_URL_PATH_WITH_NAMESPACE:-}
-      OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
-      OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
-      OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
-    depends_on:
-      grafana-lgtm:
-        condition: service_started
-      service-registry:
-        condition: service_started
-      spring-config-server:
-        condition: service_healthy
-    profiles:
-      - ${SERVICE_START_PROFILE}
-    networks:
-      - mb-network
-    restart: on-failure
-
-  # ========================================================================================
   # brokerage-provider
   # ========================================================================================
 
@@ -514,7 +513,7 @@ services:
       - "8088:8088"
     depends_on:
       grafana-lgtm:
-        condition: service_started
+        condition: service_healthy
       kafka:
         condition: service_started
       postgres:
@@ -524,6 +523,7 @@ services:
       spring-config-server:
         condition: service_healthy
     environment:
+      <<: *java-opts
       DB_HOST: postgres
       DB_PORT: 5432
       POSTGRES_DB: ${POSTGRESQL_DB}
@@ -553,7 +553,7 @@ services:
       - "8089:8089"
     depends_on:
       grafana-lgtm:
-        condition: service_started
+        condition: service_healthy
       postgres:
         condition: service_healthy
       kafka:
@@ -565,6 +565,7 @@ services:
       spring-config-server:
         condition: service_healthy
     environment:
+      <<: *java-opts
       DB_HOST: postgres
       DB_PORT: 5432
       POSTGRES_DB: ${POSTGRESQL_DB}
@@ -597,7 +598,7 @@ services:
       - "8090:8090"
     depends_on:
       grafana-lgtm:
-        condition: service_started
+        condition: service_healthy
       postgres:
         condition: service_healthy
       redis-service:
@@ -607,6 +608,7 @@ services:
       spring-config-server:
         condition: service_healthy
     environment:
+      <<: *java-opts
       DB_HOST: postgres
       DB_PORT: 5432
       POSTGRES_DB: ${POSTGRESQL_DB}
@@ -618,6 +620,37 @@ services:
       OTEL_EXPORTER_OTLP_LOGS_URL: http://grafana-lgtm:4318/v1/logs
       OTEL_EXPORTER_OTLP_METRICS_URL: http://grafana-lgtm:4318/v1/metrics
       OTEL_EXPORTER_OTLP_TRACES_URL: http://grafana-lgtm:4318/v1/traces
+    profiles:
+      - ${SERVICE_START_PROFILE}
+    networks:
+      - mb-network
+    restart: on-failure
+
+  mb-modulith:
+    build:
+      context: .
+      dockerfile: mb-modulith/Dockerfile
+    ports:
+      - "8091:8091"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+      redis-service:
+        condition: service_started
+      service-registry:
+        condition: service_started
+    environment:
+      <<: *java-opts
+      SPRING_PROFILES_ACTIVE: docker
+      EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: mb_modulith
+      POSTGRES_USER: mb
+      POSTGRES_PASSWORD: mb
+      REDIS_HOST: redis-service
+      RABBITMQ_HOST: rabbitmq
     profiles:
       - ${SERVICE_START_PROFILE}
     networks:
@@ -835,6 +868,7 @@ services:
     ports:
       - "8001:8001"
     environment:
+      <<: *java-opts
       EUREKA_CLIENT_SERVICE_URL: http://service-registry:8761/eureka
       KAFKA_CONSUMER_BOOTSTRAP_SERVERS: debezium-kafka1:29092,debezium-kafka2:29092,debezium-kafka3:29092
       KAFKA_PRODUCER_BOOTSTRAP_SERVERS: debezium-kafka1:29092,debezium-kafka2:29092,debezium-kafka3:29092
@@ -851,7 +885,7 @@ services:
       debezium-kafka3:
         condition: service_started
       grafana-lgtm:
-        condition: service_started
+        condition: service_healthy
       service-registry:
         condition: service_started
       spring-config-server:

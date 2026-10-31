@@ -125,6 +125,19 @@ logging:
 server:
   port: 8082
 
+swagger:
+  entity-id:
+    # AES-128 key (16 UTF-8 bytes). Set SWAGGER_ENTITY_ID_ENCRYPTION_KEY in production; rotate if previously committed.
+    encryption-key: ${SWAGGER_ENTITY_ID_ENCRYPTION_KEY:local-dev-key-16}
+
+feign:
+  services:
+    gitlab-client:
+      url: ${GITLAB_API_URL:https://gitlab.com/api/v4}
+      private-token: ${GITLAB_PRIVATE_TOKEN:gitlab-private-token}
+      path-with-namespace: ${GITLAB_URL_PATH_WITH_NAMESPACE:}
+      max-number-of-project: 100
+
 springdoc:
   api-docs:
     path: /swagger/api-docs

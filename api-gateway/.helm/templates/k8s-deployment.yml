@@ -12,9 +12,18 @@ spec:
       labels:
         app: api-gateway
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: api-gateway
-          image: api-gateway:latest # Image that will be used to containers in the cluster
+          image: api-gateway:0.0.1-SNAPSHOT
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080 # The port that the container is running on in the cluster
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+              ephemeral-storage: 128Mi
+            limits:
+              memory: 1536Mi
+              ephemeral-storage: 256Mi
