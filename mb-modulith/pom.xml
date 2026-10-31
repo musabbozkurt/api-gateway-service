@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.2</version>
+        <version>4.2.0-RC1</version>
         <relativePath/>
     </parent>
     <groupId>com.mb</groupId>
@@ -16,13 +16,13 @@
 
     <properties>
         <java.version>26</java.version>
-        <spring-modulith.version>2.0.0</spring-modulith.version>
-        <spring-cloud.version>2025.1.4</spring-cloud.version>
+        <spring-modulith.version>2.2.0-RC1</spring-modulith.version>
+        <spring-cloud.version>2026.0.0-RC1</spring-cloud.version>
         <springdoc-openapi-starter-webmvc-ui.version>3.2.0</springdoc-openapi-starter-webmvc-ui.version>
-        <org.mapstruct.version>1.6.3</org.mapstruct.version>
+        <org.mapstruct.version>1.7.0.Beta2</org.mapstruct.version>
         <querydsl-apt.version>5.1.0</querydsl-apt.version>
         <testcontainers-bom.version>2.0.5</testcontainers-bom.version>
-        <jjwt.version>0.12.6</jjwt.version>
+        <jjwt.version>0.13.0</jjwt.version>
         <nv-i18n.version>1.29</nv-i18n.version>
         <javamoney-moneta.version>1.4.2</javamoney-moneta.version>
         <jacoco.version>0.8.15</jacoco.version>
@@ -131,7 +131,7 @@
         <dependency>
             <groupId>org.javamoney.moneta</groupId>
             <artifactId>moneta-core</artifactId>
-            <version>1.4.4</version>
+            <version>1.4.5</version>
         </dependency>
         <dependency>
             <groupId>org.zalando</groupId>
@@ -164,7 +164,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>33.4.0-jre</version>
+            <version>33.7.2-jre</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
