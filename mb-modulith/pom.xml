@@ -26,8 +26,8 @@
         <nv-i18n.version>1.29</nv-i18n.version>
         <javamoney-moneta.version>1.4.2</javamoney-moneta.version>
         <jacoco.version>0.8.15</jacoco.version>
-        <software.amazon.awssdk.version>2.23.19</software.amazon.awssdk.version>
-        <aws-java-sdk-dynamodb.version>1.12.653</aws-java-sdk-dynamodb.version>
+        <software.amazon.awssdk.version>2.57.8</software.amazon.awssdk.version>
+        <aws-java-sdk-dynamodb.version>1.12.797</aws-java-sdk-dynamodb.version>
         <docker.compose.file>${project.basedir}/docker-compose.yaml</docker.compose.file>
     </properties>
 
@@ -378,6 +378,45 @@
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
+            </plugin>
+
+            <!-- Maven Versions Plugin: detect & update dependency/plugin/property versions -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>${versions-maven-plugin.version}</version>
+                <configuration>
+                    <!-- Allow milestone, alpha, beta, RC versions by default -->
+                    <allowMajorUpdates>true</allowMajorUpdates>
+                    <allowMinorUpdates>true</allowMinorUpdates>
+                    <generateBackupPoms>false</generateBackupPoms>
+                    <!-- Explicitly process dependencyManagement BOMs (import scope) -->
+                    <processDependencyManagement>true</processDependencyManagement>
+                </configuration>
+                <!-- Apply newest versions to pom.xml during 'mvn clean install' (validate phase) -->
+                <executions>
+                    <execution>
+                        <id>update-parent</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>update-parent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>update-properties</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>update-properties</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>use-latest-releases</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>use-latest-releases</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

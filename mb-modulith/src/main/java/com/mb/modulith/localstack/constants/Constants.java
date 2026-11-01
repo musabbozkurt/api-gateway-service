@@ -1,4 +1,4 @@
-package com.mb.modulith.localstack.contants;
+package com.mb.modulith.localstack.constants;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

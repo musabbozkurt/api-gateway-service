@@ -1,6 +1,6 @@
 package com.mb.modulith.localstack.scheduler;
 
-import com.mb.modulith.localstack.contants.Constants;
+import com.mb.modulith.localstack.constants.Constants;
 import com.mb.modulith.localstack.data.model.TempTable3;
 import com.mb.modulith.localstack.service.TempTableService;
 import com.mb.modulith.localstack.service.impl.MetricService;

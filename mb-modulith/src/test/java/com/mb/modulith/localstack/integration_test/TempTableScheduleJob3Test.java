@@ -1,7 +1,7 @@
 package com.mb.modulith.localstack.integration_test;
 
 import com.mb.modulith.localstack.base.BaseUnitTest;
-import com.mb.modulith.localstack.contants.Constants;
+import com.mb.modulith.localstack.constants.Constants;
 import com.mb.modulith.localstack.data.model.TempTable3;
 import com.mb.modulith.localstack.data.repository.impl.TempTableDynamoDBRepositoryImpl;
 import com.mb.modulith.localstack.data.repository.impl.TempTableDynamoDBRepositoryImpl4;
