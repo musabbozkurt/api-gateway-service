@@ -26,8 +26,8 @@
         <nv-i18n.version>1.29</nv-i18n.version>
         <javamoney-moneta.version>1.4.2</javamoney-moneta.version>
         <jacoco.version>0.8.15</jacoco.version>
-        <software.amazon.awssdk.version>2.23.19</software.amazon.awssdk.version>
-        <aws-java-sdk-dynamodb.version>1.12.653</aws-java-sdk-dynamodb.version>
+        <software.amazon.awssdk.version>2.57.8</software.amazon.awssdk.version>
+        <aws-java-sdk-dynamodb.version>1.12.797</aws-java-sdk-dynamodb.version>
         <docker.compose.file>${project.basedir}/docker-compose.yaml</docker.compose.file>
     </properties>
 
