@@ -13,16 +13,12 @@ import com.mb.modulith.shared.util.EmailUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -34,7 +30,7 @@ public class EmailResourceServiceImpl implements EmailResourceService {
 
     private static final List<String> emailDomains = Arrays.asList("mb.com", "mb.se");
     private final EmailRepository emailRepository;
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
 
     @Override
     public List<Email> checkEmails(DataSetResponseDto dataSetResponseDto) {
@@ -76,16 +72,14 @@ public class EmailResourceServiceImpl implements EmailResourceService {
     // fetch data from external services recursively
     private void retrieveAndPrepareDataSetResponseWithRecursion(List<EmailDto> dataSetResponseDtoEmails, List<ResourceDto> dataSetResponseDtoResources) {
         List<ResourceDto> dataSetResponseDtoResources1 = new ArrayList<>();
-        dataSetResponseDtoResources.forEach(resourceDto -> {
-            resourceDto.getResourceUrls().forEach(url -> {
-                DataSetResponseDto responseDto = getDataSetResponseDto(url);
-                if (!responseDto.getResources().isEmpty()) {
-                    dataSetResponseDtoEmails.addAll(responseDto.getEmails());
-                    dataSetResponseDtoResources1.addAll(responseDto.getResources());
-                    retrieveAndPrepareDataSetResponseWithRecursion(dataSetResponseDtoEmails, dataSetResponseDtoResources1);
-                }
-            });
-        });
+        dataSetResponseDtoResources.forEach(resourceDto -> resourceDto.getResourceUrls().forEach(url -> {
+            DataSetResponseDto responseDto = getDataSetResponseDto(url);
+            if (!responseDto.getResources().isEmpty()) {
+                dataSetResponseDtoEmails.addAll(responseDto.getEmails());
+                dataSetResponseDtoResources1.addAll(responseDto.getResources());
+                retrieveAndPrepareDataSetResponseWithRecursion(dataSetResponseDtoEmails, dataSetResponseDtoResources1);
+            }
+        }));
     }
 
     // map emails with count and add to new list
@@ -99,7 +93,7 @@ public class EmailResourceServiceImpl implements EmailResourceService {
                         if (!emailDomains.contains(EmailUtils.getEmailDomain(emailAddress)) || !EmailUtils.isValid(emailAddress)) {
                             emailList.add(getCheckedEmail(v, emails, emailAddress));
                         }
-                        log.info(emailAddress + " " + v.size());
+                        log.info("{} {}", emailAddress, v.size());
                     });
         }
         return emailList;
@@ -161,12 +155,13 @@ public class EmailResourceServiceImpl implements EmailResourceService {
     // Fetch data from external urls
     private DataSetResponseDto getDataSetResponseDto(String url) {
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_XML));
-            HttpEntity<String> entity = new HttpEntity<>(headers);
-            return restTemplate.exchange(url, HttpMethod.GET, entity, DataSetResponseDto.class).getBody();
+            return restClient.get()
+                    .uri(url)
+                    .accept(MediaType.APPLICATION_XML)
+                    .retrieve()
+                    .body(DataSetResponseDto.class);
         } catch (Exception e) {
-            log.error("Error occured while getting DataSetResponseDto exception : {}", ExceptionUtils.getStackTrace(e));
+            log.error("Error occurred while getting DataSetResponseDto exception : {}", ExceptionUtils.getStackTrace(e));
         }
         return new DataSetResponseDto();
     }

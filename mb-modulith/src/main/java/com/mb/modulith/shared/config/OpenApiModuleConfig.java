@@ -28,7 +28,7 @@ public class OpenApiModuleConfig {
                 .info(new Info()
                         .title("MB Modulith API")
                         .description("""
-                                Unified API for school, clinic, player market, email, warehouse, commerce, and delivery modules.
+                                Unified API for school, clinic, player market, email, warehouse, commerce, delivery, and local stack modules.
                                 Click Authorize and enter a registered username/password (e.g. the seeded demo account
                                 username=MBMUSEMENT) to call secured endpoints directly from Swagger UI.
                                 """)
@@ -103,6 +103,15 @@ public class OpenApiModuleConfig {
                 .group("delivery-api")
                 .displayName("Delivery logistics")
                 .pathsToMatch("/api/person/**", "/api/delivery/**")
+                .build();
+    }
+
+    @Bean
+    GroupedOpenApi localstackApi() {
+        return GroupedOpenApi.builder()
+                .group("localstack-api")
+                .displayName("Local Stack")
+                .pathsToMatch("/temp-tables/**")
                 .build();
     }
 

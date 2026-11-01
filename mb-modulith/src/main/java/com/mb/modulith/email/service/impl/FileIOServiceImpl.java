@@ -13,7 +13,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -23,35 +22,38 @@ public class FileIOServiceImpl implements FileIOService {
     @Override
     public DataSetResponseDto readDataSetResponseDtoFromFile() {
         try {
-            ClassLoader classLoader = getClass().getClassLoader();
-            File file = new File(Objects.requireNonNull(classLoader.getResource(".")).getFile() + "/resource-data.txt");
-            FileInputStream inputStream = new FileInputStream(file);
-            ObjectInputStream objectInput = new ObjectInputStream(inputStream);
-            Gson gson = new Gson();
-            DataSetResponseDto dataSetResponseDto = gson.fromJson(String.valueOf(objectInput.readObject()), DataSetResponseDto.class);
-            objectInput.close();
-            return dataSetResponseDto;
+            File file = dataFile();
+            if (!file.exists()) {
+                log.info("File does not exist yet, nothing to read: {}", file);
+                return null;
+            }
+            try (ObjectInputStream objectInput = new ObjectInputStream(new FileInputStream(file))) {
+                return new Gson().fromJson(String.valueOf(objectInput.readObject()), DataSetResponseDto.class);
+            }
         } catch (Exception ex) {
             log.error("Error occurred while reading from file : {}", ExceptionUtils.getStackTrace(ex));
         }
         return null;
     }
 
+    // The classpath is not a writable directory inside the packaged jar (Docker), so use the temp directory.
+    private File dataFile() {
+        return new File(System.getProperty("java.io.tmpdir"), "resource-data.txt");
+    }
+
     @Override
     public void writeDataSetResponseDtoToFile(String emailRequestJson) {
         try {
-            ClassLoader classLoader = getClass().getClassLoader();
-            File file = new File(Objects.requireNonNull(classLoader.getResource(".")).getFile() + "/resource-data.txt");
+            File file = dataFile();
             if (file.createNewFile()) {
                 log.info("File created: {} ", file.getName());
             } else {
                 log.info("File already exists: {} ", file.getName());
             }
-            FileOutputStream fileOut = new FileOutputStream(file);
-            ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
-            objectOut.writeObject(emailRequestJson);
-            objectOut.close();
-            log.info("The Object was succesfully written to a file");
+            try (ObjectOutputStream objectOut = new ObjectOutputStream(new FileOutputStream(file))) {
+                objectOut.writeObject(emailRequestJson);
+            }
+            log.info("The Object was successfully written to a file");
         } catch (Exception ex) {
             log.error("Error occurred while writing to file : {}", ExceptionUtils.getStackTrace(ex));
         }

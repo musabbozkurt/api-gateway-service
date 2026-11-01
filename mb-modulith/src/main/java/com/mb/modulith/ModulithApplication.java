@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing
 @SpringBootApplication
 @EnableBatchProcessing
-@EnableFeignClients(basePackages = "com.mb.modulith.commerce")
+@EnableFeignClients(basePackages = {"com.mb.modulith.commerce", "com.mb.modulith.localstack"})
 public class ModulithApplication {
 
     static void main(String[] args) {

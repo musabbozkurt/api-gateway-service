@@ -1,4 +1,11 @@
+eureka:
+  client:
+    enabled: false
+
 spring:
+  cloud:
+    discovery:
+      enabled: false
   docker:
     compose:
       enabled: false
@@ -6,6 +13,8 @@ spring:
     exclude:
       - org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration
       - org.springframework.cloud.stream.config.BindingServiceConfiguration
+      - org.springframework.cloud.stream.function.FunctionConfiguration
+      - org.springframework.boot.security.oauth2.client.autoconfigure.servlet.OAuth2ClientWebSecurityAutoConfiguration
   datasource:
     url: jdbc:h2:mem:modulith;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
     username: sa

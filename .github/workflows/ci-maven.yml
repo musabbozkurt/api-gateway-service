@@ -378,6 +378,8 @@ jobs:
           cache: maven
 
       - name: Build mb-modulith with Maven
+        env:
+          LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
         run: mvn -B package --file mb-modulith/pom.xml
 
   success-job:

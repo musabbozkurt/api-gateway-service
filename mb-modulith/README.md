@@ -1,7 +1,8 @@
 # MB Modulith
 
 Single Spring Modulith application merging school registration, clinic, player market, email, food warehouse,
-commerce, and delivery APIs. This module lives under the [`api-gateway-service`](../README.md) monorepo.
+commerce, delivery, and local stack (DynamoDB/S3 samples) APIs. This module lives under
+the [api-gateway-service](../README.md) monorepo.
 
 ## Prerequisites
 
@@ -10,7 +11,7 @@ commerce, and delivery APIs. This module lives under the [`api-gateway-service`]
 
 ## Run locally
 
-Start PostgreSQL, Redis, and RabbitMQ:
+Start PostgreSQL, Redis, RabbitMQ, LocalStack (DynamoDB) and MinIO (S3):
 
 ```bash
 docker compose up -d
@@ -88,6 +89,12 @@ docker run --rm -p 8080:8080 \
 | Warehouse     | `com.mb.modulith.warehouse`    | `/api/foods`                           |
 | Commerce      | `com.mb.modulith.commerce`     | `/api/auth`, `/api/orders`             |
 | Delivery      | `com.mb.modulith.delivery`     | `/api/person`, `/api/delivery`         |
+| Local Stack   | `com.mb.modulith.localstack`   | `/temp-tables/**`                      |
+
+## Local Stack module
+
+DynamoDB (LocalStack) and S3 (MinIO) samples, schedulers and a Feign client. Docs, AWS CLI how-to and the original
+helper scripts are in [`docs/localstack/`](docs/localstack/README.md) and [`scripts/localstack/`](scripts/localstack).
 
 ## Postman
 
