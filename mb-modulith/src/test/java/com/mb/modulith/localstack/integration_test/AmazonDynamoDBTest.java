@@ -10,7 +10,7 @@ import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
 import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
 import com.amazonaws.services.dynamodbv2.util.TableUtils;
 import com.mb.modulith.localstack.base.BaseUnitTest;
-import com.mb.modulith.localstack.contants.Constants;
+import com.mb.modulith.localstack.constants.Constants;
 import com.mb.modulith.localstack.data.model.TempTable;
 import com.mb.modulith.localstack.support.DynamoDbLocalStackContainer;
 import lombok.extern.slf4j.Slf4j;

@@ -4,7 +4,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
-import com.mb.modulith.localstack.contants.Constants;
+import com.mb.modulith.localstack.constants.Constants;
 import com.mb.modulith.localstack.data.model.Car;
 import com.mb.modulith.localstack.data.model.User;
 import jakarta.annotation.PostConstruct;

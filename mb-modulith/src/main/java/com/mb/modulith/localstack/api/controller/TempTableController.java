@@ -2,7 +2,7 @@ package com.mb.modulith.localstack.api.controller;
 
 import com.mb.modulith.localstack.client.third_party_api.ThirdPartyApiClient;
 import com.mb.modulith.localstack.client.third_party_api.response.ThirdPartyApiResponse;
-import com.mb.modulith.localstack.contants.Constants;
+import com.mb.modulith.localstack.constants.Constants;
 import com.mb.modulith.localstack.scheduler.TempTableScheduleJob;
 import com.mb.modulith.localstack.scheduler.TempTableScheduleJob4FluxSinksMany;
 import com.mb.modulith.localstack.service.impl.MetricService;
