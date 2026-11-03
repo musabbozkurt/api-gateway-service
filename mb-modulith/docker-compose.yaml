@@ -38,6 +38,20 @@ services:
       - "${TMPDIR:-/tmp}/localstack:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
 
+  floci: # https://floci.io/floci/getting-started/migrate-from-localstack/
+    image: floci/floci:latest # After — no init scripts, or init scripts that don't call aws / boto3
+    # After — init scripts that use aws CLI or boto3 (AWS CLI + Python 3 + boto3 pre-installed)
+    # image: floci/floci:latest-compat
+    ports:
+      - "4567:4566"
+    environment:
+      # These LocalStack vars are automatically translated — no extra config needed:
+      PERSISTENCE: "1"                      # → FLOCI_STORAGE_MODE=persistent
+      LOCALSTACK_HOST: floci                # → FLOCI_HOSTNAME=floci
+      LAMBDA_DOCKER_NETWORK: mynet          # → FLOCI_SERVICES_LAMBDA_DOCKER_NETWORK=mynet
+      LAMBDA_REMOVE_CONTAINERS: "1"         # → FLOCI_SERVICES_LAMBDA_EPHEMERAL=true
+      DEBUG: "1"                            # → QUARKUS_LOG_LEVEL=DEBUG
+
   minio:
     container_name: Minio
     image: cgr.dev/chainguard/minio:latest
