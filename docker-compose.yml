@@ -382,7 +382,7 @@ services:
 
   keycloak:
     container_name: keycloak
-    image: quay.io/keycloak/keycloak:26.8.1
+    image: quay.io/keycloak/keycloak:26.8.2
     command: start-dev
     environment:
       KC_HOSTNAME: localhost
@@ -455,7 +455,7 @@ services:
     restart: on-failure
 
   grafana-lgtm:
-    image: 'grafana/otel-lgtm:0.39.0'
+    image: 'grafana/otel-lgtm:0.40.0'
     ports:
       - "3001:3000"   # Grafana UI
       - "4318:4318"   # OTLP HTTP receiver
@@ -485,7 +485,7 @@ services:
       - mb-network
 
   mailpit:
-    image: axllent/mailpit:v1.33
+    image: axllent/mailpit:v1.33.1
     container_name: mailpit
     restart: on-failure
     ports:
@@ -665,7 +665,7 @@ services:
 
   # mb-modulith "localstack" module infrastructure (DynamoDB via LocalStack, S3 via MinIO)
   localstack:
-    image: localstack/localstack:2026.10.4
+    image: localstack/localstack:2026.10.6
     container_name: localstack
     ports:
       - "127.0.0.1:4566:4566"            # LocalStack Gateway

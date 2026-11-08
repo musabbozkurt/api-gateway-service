@@ -17,8 +17,8 @@
 
     <properties>
         <java.version>26</java.version>
-        <oauth2-oidc-sdk.version>11.38.2</oauth2-oidc-sdk.version>
-        <aspectjweaver.version>1.9.26</aspectjweaver.version>
+        <oauth2-oidc-sdk.version>11.39</oauth2-oidc-sdk.version>
+        <aspectjweaver.version>1.9.27</aspectjweaver.version>
         <springdoc-openapi-starter-webflux-ui.version>3.2.0</springdoc-openapi-starter-webflux-ui.version>
         <org.projectlombok.version>1.18.48</org.projectlombok.version>
         <mockserver-client-java.version>9.2.0</mockserver-client-java.version>
@@ -30,7 +30,7 @@
         <okio.version>3.18.2</okio.version>
         <spring-cloud.version>2025.1.4</spring-cloud.version>
         <testcontainers-bom.version>2.0.5</testcontainers-bom.version>
-        <versions-maven-plugin.version>2.23.0</versions-maven-plugin.version>
+        <versions-maven-plugin.version>2.24.0</versions-maven-plugin.version>
     </properties>
 
     <dependencies>

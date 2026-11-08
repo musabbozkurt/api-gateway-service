@@ -39,7 +39,7 @@
         <jboss-logging.version>3.6.3.Final</jboss-logging.version>
         <newrelic-java.version>9.5.0</newrelic-java.version>
         <moneta.version>1.4.5</moneta.version>
-        <jackson-datatype-moneta.version>3.2.4</jackson-datatype-moneta.version>
+        <jackson-datatype-moneta.version>3.3.0</jackson-datatype-moneta.version>
         <embedded-redis.version>1.4.4</embedded-redis.version>
         <spring-cloud-dependencies.version>2025.1.4</spring-cloud-dependencies.version>
         <testcontainers-bom.version>2.0.5</testcontainers-bom.version>
@@ -48,7 +48,7 @@
         <dockerfile-maven-plugin.version>1.4.13</dockerfile-maven-plugin.version>
         <!--suppress UnresolvedMavenProperty -->
         <registry>${env.CI_REGISTRY}/${env.CI_REGION}/${project.artifactId}</registry>
-        <versions-maven-plugin.version>2.23.0</versions-maven-plugin.version>
+        <versions-maven-plugin.version>2.24.0</versions-maven-plugin.version>
     </properties>
 
     <dependencies>
