@@ -30,7 +30,7 @@
         <moneta.version>1.4.5</moneta.version>
         <spring-cloud.version>2025.1.4</spring-cloud.version>
         <skipAot>true</skipAot>
-        <versions-maven-plugin.version>2.23.0</versions-maven-plugin.version>
+        <versions-maven-plugin.version>2.24.0</versions-maven-plugin.version>
     </properties>
 
     <dependencies>
