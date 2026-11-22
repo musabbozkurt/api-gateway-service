@@ -1,7 +1,5 @@
 package com.mb.notificationservice.client.dummysms.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mb.notificationservice.client.dummysms.request.DummySmsOtpRequest;
 import com.mb.notificationservice.exception.BaseException;
 import com.mb.notificationservice.exception.NotificationErrorCode;
@@ -10,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

@@ -1,8 +1,5 @@
 package com.mb.notificationservice.mapper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mb.notificationservice.api.context.ContextHolder;
 import com.mb.notificationservice.api.request.NotificationRequest;
 import com.mb.notificationservice.api.response.NotificationDetailResponse;
@@ -13,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.Collections;
 import java.util.Map;
@@ -62,7 +62,7 @@ public class NotificationMapper {
             if (dto.getData() != null && !dto.getData().isEmpty()) {
                 entity.setData(objectMapper.writeValueAsString(dto.getData()));
             }
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             log.error("Error serializing notification data. Exception: {}", ExceptionUtils.getStackTrace(e));
         }
 
@@ -97,7 +97,7 @@ public class NotificationMapper {
                 dataMap = objectMapper.readValue(entity.getData(), new TypeReference<>() {
                 });
             }
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             log.error("Error deserializing notification data. Exception: {}", ExceptionUtils.getStackTrace(e));
         }
 

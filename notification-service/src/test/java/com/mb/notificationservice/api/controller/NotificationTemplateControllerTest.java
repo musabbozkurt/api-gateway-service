@@ -1,6 +1,5 @@
 package com.mb.notificationservice.api.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mb.notificationservice.api.request.NotificationTemplateRequest;
 import com.mb.notificationservice.api.response.NotificationTemplateResponse;
 import com.mb.notificationservice.enums.NotificationChannel;
@@ -19,6 +18,7 @@ import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 

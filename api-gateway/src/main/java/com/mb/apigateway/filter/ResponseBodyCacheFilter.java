@@ -8,7 +8,7 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
-import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.core.io.buffer.DataBuffers;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
@@ -53,7 +53,7 @@ public class ResponseBodyCacheFilter implements GlobalFilter, Ordered {
                                                 DataBuffer joinedBuffer = bufferFactory.join(dataBuffers);
                                                 byte[] content = new byte[joinedBuffer.readableByteCount()];
                                                 joinedBuffer.read(content);
-                                                DataBufferUtils.release(joinedBuffer);
+                                                DataBuffers.release(joinedBuffer);
 
                                                 String responseBody = new String(content, StandardCharsets.UTF_8);
                                                 exchange.getAttributes().put(GatewayServiceConstants.RESPONSE_BODY_CONTAINS_ANY_ERROR, StringUtils.hasText(responseBody) && ERRORS.stream().anyMatch(responseBody::contains));

@@ -16,29 +16,26 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.resttestclient.TestRestTemplate;
-import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.client.EntityExchangeResult;
+import org.springframework.test.web.servlet.client.RestTestClient;
 
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@AutoConfigureTestRestTemplate
+@AutoConfigureRestTestClient
 @ActiveProfiles("test-containers")
 @TestMethodOrder(OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -46,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class CategoryControllerIntegrationTests extends BaseUnitTest {
 
     @Autowired
-    private TestRestTemplate testRestTemplate;
+    private RestTestClient restTestClient;
 
     @Autowired
     private JwtUtils jwtUtils;
@@ -70,166 +67,173 @@ class CategoryControllerIntegrationTests extends BaseUnitTest {
         var authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         String token = jwtUtils.generateJwtToken(authentication);
 
-        // Create RestTemplate with custom header interceptor
-        testRestTemplate.getRestTemplate().setInterceptors(Collections.singletonList((request, body, execution) -> {
-            request.getHeaders().add("Authorization", "Bearer ".concat(token));
-            return execution.execute(request, body);
-        }));
+        restTestClient = restTestClient.mutate().defaultHeader("Authorization", "Bearer " + token).build();
+    }
+
+    private <T> EntityExchangeResult<T> exchange(HttpMethod method, String uri, Object body, Class<T> type) {
+        return request(method, uri, body).exchange().returnResult(type);
+    }
+
+    private <T> EntityExchangeResult<T> exchange(HttpMethod method, String uri, Object body, ParameterizedTypeReference<T> type) {
+        return request(method, uri, body).exchange().returnResult(type);
+    }
+
+    private RestTestClient.RequestBodySpec request(HttpMethod method, String uri, Object body) {
+        RestTestClient.RequestBodySpec spec = restTestClient.method(method).uri(uri).accept(MediaType.APPLICATION_JSON);
+        if (body != null) {
+            spec = spec.contentType(MediaType.APPLICATION_JSON);
+            spec.body(body);
+        }
+        return spec;
     }
 
     @Test
     @Order(value = 1)
     void testCreateCategory() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
         ApiCategoryRequest request = new ApiCategoryRequest();
         request.setName("Book Category");
         request.setDescription("Book Category Description");
 
-        ResponseEntity<ApiCategoryResponse> response = testRestTemplate.exchange("/categories/", HttpMethod.POST, new HttpEntity<>(request, headers), ApiCategoryResponse.class);
+        EntityExchangeResult<ApiCategoryResponse> response = exchange(HttpMethod.POST, "/categories/", request, ApiCategoryResponse.class);
 
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertNotNull(response.getBody().getId());
-        assertEquals(request.getName(), response.getBody().getName());
-        assertEquals(request.getDescription(), response.getBody().getDescription());
+        assertEquals(HttpStatus.CREATED, response.getStatus());
+        assertNotNull(response.getResponseBody());
+        assertNotNull(response.getResponseBody().getId());
+        assertEquals(request.getName(), response.getResponseBody().getName());
+        assertEquals(request.getDescription(), response.getResponseBody().getDescription());
     }
 
     @Test
     @Order(value = 2)
     void testGetAllCategories() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
-        ResponseEntity<String> response = testRestTemplate.exchange("/categories/", HttpMethod.GET, new HttpEntity<>(headers), String.class);
+        EntityExchangeResult<String> response = exchange(HttpMethod.GET, "/categories/", null, String.class);
 
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatus());
     }
 
     @Test
     @Order(value = 3)
     void testGetCategoryByName() {
-        ResponseEntity<ApiCategoryResponse> response = testRestTemplate.getForEntity("/categories/Electronics Category", ApiCategoryResponse.class);
+        EntityExchangeResult<ApiCategoryResponse> response = exchange(HttpMethod.GET, "/categories/Electronics Category", null, ApiCategoryResponse.class);
 
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        Assertions.assertEquals("Electronics Category", response.getBody().getName());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatus());
+        assertNotNull(response.getResponseBody());
+        Assertions.assertEquals("Electronics Category", response.getResponseBody().getName());
     }
 
     @Test
     @Order(value = 4)
     void testGetCategoryByName_ShouldFail_WhenCategoryIsNotFound() {
-        ResponseEntity<ErrorResponse> response = testRestTemplate.getForEntity("/categories/Book Categoryy", ErrorResponse.class);
+        EntityExchangeResult<ErrorResponse> response = exchange(HttpMethod.GET, "/categories/Book Categoryy", null, ErrorResponse.class);
 
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        Assertions.assertEquals(InventoryManagementServiceErrorCode.CATEGORY_NOT_FOUND.getCode(), response.getBody().getErrorCode());
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
+        assertNotNull(response.getResponseBody());
+        Assertions.assertEquals(InventoryManagementServiceErrorCode.CATEGORY_NOT_FOUND.getCode(), response.getResponseBody().getErrorCode());
     }
 
     @Test
     @Order(value = 6)
     void testCreateCategory_ShouldFail_WhenCategoryCodeIsAlreadyExists() {
         ApiCategoryRequest apiCategoryRequest = getApiCategoryRequest();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
 
-        ResponseEntity<ErrorResponse> response = testRestTemplate.exchange("/categories/", HttpMethod.POST, new HttpEntity<>(apiCategoryRequest, headers), ErrorResponse.class);
+        EntityExchangeResult<ErrorResponse> response = exchange(HttpMethod.POST, "/categories/", apiCategoryRequest, ErrorResponse.class);
 
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNotNull(response.getBody());
-        Assertions.assertEquals(InventoryManagementServiceErrorCode.ALREADY_EXISTS.getCode(), response.getBody().getErrorCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatus());
+        assertNotNull(response.getResponseBody());
+        Assertions.assertEquals(InventoryManagementServiceErrorCode.ALREADY_EXISTS.getCode(), response.getResponseBody().getErrorCode());
     }
 
     @Test
     @Order(value = 7)
     void testDeleteCategory() {
-        ResponseEntity<String> response = testRestTemplate.exchange("/categories/2", HttpMethod.DELETE, null, String.class);
+        EntityExchangeResult<String> response = exchange(HttpMethod.DELETE, "/categories/2", null, String.class);
 
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals("Category deleted successfully.", response.getBody());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatus());
+        Assertions.assertEquals("Category deleted successfully.", response.getResponseBody());
     }
 
     @Test
     @Order(value = 8)
     void testDeleteCategory_ShouldFail_WhenCategoryIsNotFound() {
-        ResponseEntity<ErrorResponse> response = testRestTemplate.exchange("/categories/15", HttpMethod.DELETE, null, ErrorResponse.class);
+        EntityExchangeResult<ErrorResponse> response = exchange(HttpMethod.DELETE, "/categories/15", null, ErrorResponse.class);
 
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        Assertions.assertEquals(InventoryManagementServiceErrorCode.CATEGORY_NOT_FOUND.getCode(), response.getBody().getErrorCode());
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
+        assertNotNull(response.getResponseBody());
+        Assertions.assertEquals(InventoryManagementServiceErrorCode.CATEGORY_NOT_FOUND.getCode(), response.getResponseBody().getErrorCode());
     }
 
     @Test
     @Order(value = 9)
     void testAddProductToCategory() {
         // Use "Novel" instead of "Art" because "Art" (id=6) may be soft-deleted by ProductControllerIntegrationTests
-        ResponseEntity<ApiCategoryResponse> response = testRestTemplate.exchange("/categories/Book Category/Novel", HttpMethod.PUT, null, ApiCategoryResponse.class);
+        EntityExchangeResult<ApiCategoryResponse> response = exchange(HttpMethod.PUT, "/categories/Book Category/Novel", null, ApiCategoryResponse.class);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatus());
+        assertNotNull(response.getResponseBody());
     }
 
     @Test
     @Order(value = 10)
     void testAddProductToCategory_ShouldFail_WhenProductIsNotFound() {
         // Use "Electronics Category" instead of "Beauty Category" because "Beauty Category" is deleted in Order 7
-        ResponseEntity<ErrorResponse> response = testRestTemplate.exchange("/categories/Electronics Category/Perfumes", HttpMethod.PUT, null, ErrorResponse.class);
+        EntityExchangeResult<ErrorResponse> response = exchange(HttpMethod.PUT, "/categories/Electronics Category/Perfumes", null, ErrorResponse.class);
 
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        Assertions.assertEquals(InventoryManagementServiceErrorCode.PRODUCT_NOT_FOUND.getCode(), response.getBody().getErrorCode());
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
+        assertNotNull(response.getResponseBody());
+        Assertions.assertEquals(InventoryManagementServiceErrorCode.PRODUCT_NOT_FOUND.getCode(), response.getResponseBody().getErrorCode());
     }
 
     @Test
     @Order(value = 11)
     void testGetProductsByCategory() {
         // Use "Electronics Category" instead of "Beauty Category" because "Beauty Category" is deleted in Order 7
-        ResponseEntity<List<ApiProductResponse>> response = testRestTemplate.exchange("/categories/Electronics Category/products", HttpMethod.GET, null, new ParameterizedTypeReference<>() {
+        EntityExchangeResult<List<ApiProductResponse>> response = exchange(HttpMethod.GET, "/categories/Electronics Category/products", null, new ParameterizedTypeReference<>() {
         });
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatus());
+        assertNotNull(response.getResponseBody());
     }
 
     @Test
     @Order(value = 12)
     void testGetProductsByCategoryName_ShouldFail_WhenCategoryIsNotFound() {
-        ResponseEntity<ErrorResponse> response = testRestTemplate.getForEntity("/categories/Automotive Category/products", ErrorResponse.class);
+        EntityExchangeResult<ErrorResponse> response = exchange(HttpMethod.GET, "/categories/Automotive Category/products", null, ErrorResponse.class);
 
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        Assertions.assertEquals(InventoryManagementServiceErrorCode.CATEGORY_NOT_FOUND.getCode(), response.getBody().getErrorCode());
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
+        assertNotNull(response.getResponseBody());
+        Assertions.assertEquals(InventoryManagementServiceErrorCode.CATEGORY_NOT_FOUND.getCode(), response.getResponseBody().getErrorCode());
     }
 
     @Test
     @Order(value = 13)
     void testDeleteProductFromCategory() {
         // Use "Novel" to match what was added in Order 9
-        ResponseEntity<ApiCategoryResponse> response = testRestTemplate.exchange("/categories/Book Category/Novel", HttpMethod.DELETE, null, ApiCategoryResponse.class);
+        EntityExchangeResult<ApiCategoryResponse> response = exchange(HttpMethod.DELETE, "/categories/Book Category/Novel", null, ApiCategoryResponse.class);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatus());
+        assertNotNull(response.getResponseBody());
     }
 
     @Test
     @Order(value = 14)
     void testDeleteProductFromCategory_ShouldFail_WhenCategoryIsNotFound() {
-        ResponseEntity<ErrorResponse> response = testRestTemplate.exchange("/categories/Automotive Category/BMW", HttpMethod.DELETE, null, ErrorResponse.class);
+        EntityExchangeResult<ErrorResponse> response = exchange(HttpMethod.DELETE, "/categories/Automotive Category/BMW", null, ErrorResponse.class);
 
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        Assertions.assertEquals(InventoryManagementServiceErrorCode.CATEGORY_NOT_FOUND.getCode(), response.getBody().getErrorCode());
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
+        assertNotNull(response.getResponseBody());
+        Assertions.assertEquals(InventoryManagementServiceErrorCode.CATEGORY_NOT_FOUND.getCode(), response.getResponseBody().getErrorCode());
     }
 
     @Test
     @Order(value = 15)
     void testDeleteProductFromCategory_ShouldFail_WhenProductIsNotFound() {
         // Use "Electronics Category" instead of "Beauty Category" because "Beauty Category" is deleted in Order 7
-        ResponseEntity<ErrorResponse> response = testRestTemplate.exchange("/categories/Electronics Category/Perfumes", HttpMethod.DELETE, null, ErrorResponse.class);
+        EntityExchangeResult<ErrorResponse> response = exchange(HttpMethod.DELETE, "/categories/Electronics Category/Perfumes", null, ErrorResponse.class);
 
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        Assertions.assertEquals(InventoryManagementServiceErrorCode.PRODUCT_NOT_FOUND.getCode(), response.getBody().getErrorCode());
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
+        assertNotNull(response.getResponseBody());
+        Assertions.assertEquals(InventoryManagementServiceErrorCode.PRODUCT_NOT_FOUND.getCode(), response.getResponseBody().getErrorCode());
     }
 }

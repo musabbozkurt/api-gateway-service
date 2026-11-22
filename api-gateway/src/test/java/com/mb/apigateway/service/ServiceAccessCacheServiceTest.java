@@ -1,6 +1,5 @@
 package com.mb.apigateway.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mb.apigateway.constant.GatewayServiceConstants;
 import com.mb.apigateway.service.impl.ServiceAccessCacheServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +14,7 @@ import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.data.redis.core.ReactiveValueOperations;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.stream.Stream;
 

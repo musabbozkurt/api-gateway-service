@@ -1,7 +1,7 @@
 package com.mb.brokerageprovider.exception;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.springframework.http.HttpStatus;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(as = BrokerageProviderErrorCode.class)
 public interface ErrorCode {

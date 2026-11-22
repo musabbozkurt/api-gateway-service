@@ -1,7 +1,5 @@
 package com.mb.notificationservice.mapper;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mb.notificationservice.api.context.ContextHolder;
 import com.mb.notificationservice.api.request.NotificationRequest;
 import com.mb.notificationservice.api.response.NotificationDetailResponse;
@@ -19,6 +17,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -159,11 +159,11 @@ class NotificationMapperTest {
     }
 
     @Test
-    void convertDto_ShouldHandleGracefully_WhenJsonProcessingFails() throws JsonProcessingException {
+    void convertDto_ShouldHandleGracefully_WhenJsonProcessingFails() {
         ObjectMapper brokenMapper = mock(ObjectMapper.class);
         NotificationMapper converterWithBrokenMapper = new NotificationMapper(brokenMapper);
 
-        when(brokenMapper.writeValueAsString(Map.of("k", "v"))).thenThrow(new JsonProcessingException("fail") {
+        when(brokenMapper.writeValueAsString(Map.of("k", "v"))).thenThrow(new JacksonException("fail") {
         });
 
         NotificationEventDto dto = new NotificationEventDto();

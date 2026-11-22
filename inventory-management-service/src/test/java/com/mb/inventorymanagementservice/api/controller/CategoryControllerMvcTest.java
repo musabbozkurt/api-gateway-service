@@ -1,6 +1,5 @@
 package com.mb.inventorymanagementservice.api.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mb.inventorymanagementservice.api.request.ApiCategoryRequest;
 import com.mb.inventorymanagementservice.api.response.ApiCategoryResponse;
 import com.mb.inventorymanagementservice.api.response.ApiProductResponse;
@@ -25,6 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 

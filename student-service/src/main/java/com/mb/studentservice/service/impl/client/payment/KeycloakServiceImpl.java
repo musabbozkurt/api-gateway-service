@@ -1,19 +1,19 @@
 package com.mb.studentservice.service.impl.client.payment;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mb.studentservice.client.payment.response.KeycloakAccessTokenResponse;
 import com.mb.studentservice.config.KeycloakProperties;
 import com.mb.studentservice.service.client.payment.KeycloakService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class KeycloakServiceImpl implements KeycloakService {
 
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
     private final KeycloakProperties properties;
 
     public String getAccessToken(String username, String password) {
@@ -35,8 +35,12 @@ public class KeycloakServiceImpl implements KeycloakService {
         map.add("client_secret", properties.getClientSecret());
         map.add("scope", properties.getScope());
 
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, new HttpHeaders());
-        KeycloakAccessTokenResponse keycloakAccessTokenResponse = restTemplate.postForObject(properties.getTokenUri(), request, KeycloakAccessTokenResponse.class);
+        KeycloakAccessTokenResponse keycloakAccessTokenResponse = restClient.post()
+                .uri(properties.getTokenUri())
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(map)
+                .retrieve()
+                .body(KeycloakAccessTokenResponse.class);
         if (keycloakAccessTokenResponse != null) {
             return keycloakAccessTokenResponse.getAccessToken();
         }
@@ -53,8 +57,11 @@ public class KeycloakServiceImpl implements KeycloakService {
         httpHeaders.add("client_secret", properties.getClientSecret());
         httpHeaders.add("refresh_token", refreshToken);
 
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(null, httpHeaders);
-        restTemplate.postForObject(properties.getLogoutUri(), request, String.class);
+        restClient.post()
+                .uri(properties.getLogoutUri())
+                .headers(headers -> headers.putAll(httpHeaders))
+                .retrieve()
+                .body(String.class);
     }
 
     public List<String> getRoles(String token) {
@@ -62,7 +69,7 @@ public class KeycloakServiceImpl implements KeycloakService {
         HashMap<String, List<String>> map = new HashMap<>();
         try {
             map = new ObjectMapper().readValue(response, HashMap.class);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             log.error(ExceptionUtils.getStackTrace(e));
         }
         return map.get("roles");
@@ -72,7 +79,10 @@ public class KeycloakServiceImpl implements KeycloakService {
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Authorization", token);
 
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(null, httpHeaders);
-        return restTemplate.postForObject(properties.getUserInfoUri(), request, String.class);
+        return restClient.post()
+                .uri(properties.getUserInfoUri())
+                .headers(headers -> headers.putAll(httpHeaders))
+                .retrieve()
+                .body(String.class);
     }
 }

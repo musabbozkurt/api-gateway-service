@@ -9,17 +9,13 @@ import com.mb.stockexchangeservice.exception.StockExchangeServiceErrorCode;
 import com.mb.stockexchangeservice.utils.JwtUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
-import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.client.EntityExchangeResult;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,13 +24,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @AutoConfigureRestTestClient
-@AutoConfigureTestRestTemplate
 @ActiveProfiles("test-containers")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TestRedisConfiguration.class)
 class AuthControllerIntegrationTests extends BaseUnitTest {
-
-    @Autowired
-    private TestRestTemplate testRestTemplate;
 
     @Autowired
     private RestTestClient restTestClient;
@@ -51,16 +43,14 @@ class AuthControllerIntegrationTests extends BaseUnitTest {
         request.setUsername("admin_user");
         request.setPassword("test1234");
 
-        HttpEntity<ApiUserAuthRequest> entity = createHttpEntity(request);
-
         // Act
-        ResponseEntity<JwtResponse> response = testRestTemplate.exchange("/api/v1/auth/signin", HttpMethod.POST, entity, JwtResponse.class);
+        EntityExchangeResult<JwtResponse> response = exchange(HttpMethod.POST, "/api/v1/auth/signin", request, JwtResponse.class);
 
         // Assertions
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
+        assertEquals(HttpStatus.OK, response.getStatus());
+        assertNotNull(response.getResponseBody());
 
-        JwtResponse jwtResponse = response.getBody();
+        JwtResponse jwtResponse = response.getResponseBody();
         assertNotNull(jwtResponse.getToken());
         assertEquals("Bearer", jwtResponse.getType());
         assertEquals(request.getUsername(), jwtResponse.getUsername());
@@ -75,15 +65,13 @@ class AuthControllerIntegrationTests extends BaseUnitTest {
         request.setUsername("example_username");
         request.setPassword("example_password");
 
-        HttpEntity<ApiUserAuthRequest> entity = createHttpEntity(request);
-
         // Act
-        ResponseEntity<ErrorResponse> response = testRestTemplate.exchange("/api/v1/auth/signin", HttpMethod.POST, entity, ErrorResponse.class);
+        EntityExchangeResult<ErrorResponse> response = exchange(HttpMethod.POST, "/api/v1/auth/signin", request, ErrorResponse.class);
 
         // Assertions
-        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertEquals(StockExchangeServiceErrorCode.BAD_CREDENTIALS.getCode(), response.getBody().getErrorCode());
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatus());
+        assertNotNull(response.getResponseBody());
+        assertEquals(StockExchangeServiceErrorCode.BAD_CREDENTIALS.getCode(), response.getResponseBody().getErrorCode());
     }
 
     @Test
@@ -93,16 +81,14 @@ class AuthControllerIntegrationTests extends BaseUnitTest {
         request.setUsername("admin_user");
         request.setPassword("test1234");
 
-        HttpEntity<ApiUserAuthRequest> entity = createHttpEntity(request);
-
         // Act
-        ResponseEntity<JwtResponse> response = testRestTemplate.exchange("/api/v1/auth/signin", HttpMethod.POST, entity, JwtResponse.class);
+        EntityExchangeResult<JwtResponse> response = exchange(HttpMethod.POST, "/api/v1/auth/signin", request, JwtResponse.class);
 
         // Assertions
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        assertNotNull(response.getBody().getRoles());
-        assertFalse(response.getBody().getRoles().isEmpty());
+        assertEquals(HttpStatus.OK, response.getStatus());
+        assertNotNull(response.getResponseBody());
+        assertNotNull(response.getResponseBody().getRoles());
+        assertFalse(response.getResponseBody().getRoles().isEmpty());
     }
 
     // ==================== RestTestClient Tests ====================
@@ -225,9 +211,12 @@ class AuthControllerIntegrationTests extends BaseUnitTest {
                 .expectStatus().isBadRequest();
     }
 
-    private HttpEntity<ApiUserAuthRequest> createHttpEntity(ApiUserAuthRequest request) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        return new HttpEntity<>(request, headers);
+    private <T> EntityExchangeResult<T> exchange(HttpMethod method, String uri, Object body, Class<T> type) {
+        RestTestClient.RequestBodySpec spec = restTestClient.method(method).uri(uri).accept(MediaType.APPLICATION_JSON);
+        RestTestClient.RequestHeadersSpec<?> headersSpec = spec;
+        if (body != null) {
+            headersSpec = spec.contentType(MediaType.APPLICATION_JSON).body(body);
+        }
+        return headersSpec.exchange().returnResult(type);
     }
 }

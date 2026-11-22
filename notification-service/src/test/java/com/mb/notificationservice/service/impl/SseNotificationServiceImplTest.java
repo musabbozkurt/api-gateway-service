@@ -1,6 +1,5 @@
 package com.mb.notificationservice.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mb.notificationservice.enums.NotificationChannel;
 import com.mb.notificationservice.queue.dto.NotificationEventDto;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.util.List;

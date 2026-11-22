@@ -15,27 +15,24 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.resttestclient.TestRestTemplate;
-import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.stream.binder.test.EnableTestBinder;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-
-import java.util.Collections;
+import org.springframework.test.web.servlet.client.EntityExchangeResult;
+import org.springframework.test.web.servlet.client.RestTestClient;
 
 @EnableTestBinder
-@AutoConfigureTestRestTemplate
+@AutoConfigureRestTestClient
 @ActiveProfiles("test-containers")
 @TestMethodOrder(OrderAnnotation.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = TestSecurityConfig.class)
 class UserControllerIntegrationTests extends BaseUnitTest {
 
     @Autowired
-    private TestRestTemplate testRestTemplate;
+    private RestTestClient restTestClient;
 
     @Autowired
     private UserService userService;
@@ -53,10 +50,7 @@ class UserControllerIntegrationTests extends BaseUnitTest {
     @Test
     @Order(value = 2)
     void testGetUsers() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-
-        String response = testRestTemplate.exchange("/api/v1/users/", HttpMethod.GET, new HttpEntity<>(headers), String.class).getBody();
+        String response = exchange(HttpMethod.GET, "/api/v1/users/", null, String.class).getResponseBody();
 
         Assertions.assertNotNull(response);
     }
@@ -65,10 +59,7 @@ class UserControllerIntegrationTests extends BaseUnitTest {
     @Order(value = 3)
     void testCreateUser() {
         ApiUserRequest apiUserRequest = getApiUserRequest();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        ApiUserResponse response = testRestTemplate.postForObject("/api/v1/users/", new HttpEntity<>(apiUserRequest, headers), ApiUserResponse.class);
+        ApiUserResponse response = exchange(HttpMethod.POST, "/api/v1/users/", apiUserRequest, ApiUserResponse.class).getResponseBody();
 
         Assertions.assertNotNull(response);
         Assertions.assertEquals(apiUserRequest.getFirstName(), response.getFirstName());
@@ -80,10 +71,7 @@ class UserControllerIntegrationTests extends BaseUnitTest {
     @Order(value = 4)
     void testCreateUser_ShouldFail_WhenPhoneNumberOrEmailIsAlreadyExists() {
         ApiUserRequest apiUserRequest = getApiUserRequest2();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        ErrorResponse exception = testRestTemplate.postForObject("/api/v1/users/", new HttpEntity<>(apiUserRequest, headers), ErrorResponse.class);
+        ErrorResponse exception = exchange(HttpMethod.POST, "/api/v1/users/", apiUserRequest, ErrorResponse.class).getResponseBody();
 
         Assertions.assertNotNull(exception);
         Assertions.assertEquals(StockExchangeServiceErrorCode.UNEXPECTED_ERROR.getCode(), exception.getErrorCode());
@@ -92,7 +80,7 @@ class UserControllerIntegrationTests extends BaseUnitTest {
     @Test
     @Order(value = 5)
     void testGetUserById() {
-        ApiUserResponse response = testRestTemplate.getForObject("/api/v1/users/1", ApiUserResponse.class);
+        ApiUserResponse response = exchange(HttpMethod.GET, "/api/v1/users/1", null, ApiUserResponse.class).getResponseBody();
 
         Assertions.assertNotNull(response);
         Assertions.assertNotNull(response.getId());
@@ -103,7 +91,7 @@ class UserControllerIntegrationTests extends BaseUnitTest {
     @Test
     @Order(value = 6)
     void testGetUserById_ShouldFail_WhenUserIsNotFound() {
-        ErrorResponse exception = testRestTemplate.getForObject("/api/v1/users/0", ErrorResponse.class);
+        ErrorResponse exception = exchange(HttpMethod.GET, "/api/v1/users/0", null, ErrorResponse.class).getResponseBody();
 
         Assertions.assertNotNull(exception);
         Assertions.assertEquals(StockExchangeServiceErrorCode.USER_NOT_FOUND.getCode(), exception.getErrorCode());
@@ -113,10 +101,7 @@ class UserControllerIntegrationTests extends BaseUnitTest {
     @Order(value = 7)
     void testUpdateUserById() {
         ApiUserRequest apiUserRequest = getApiUserRequest3();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        ApiUserResponse response = testRestTemplate.exchange("/api/v1/users/1", HttpMethod.PUT, new HttpEntity<>(apiUserRequest, headers), ApiUserResponse.class).getBody();
+        ApiUserResponse response = exchange(HttpMethod.PUT, "/api/v1/users/1", apiUserRequest, ApiUserResponse.class).getResponseBody();
 
         Assertions.assertNotNull(response);
         Assertions.assertEquals(apiUserRequest.getEmail(), response.getEmail());
@@ -126,10 +111,7 @@ class UserControllerIntegrationTests extends BaseUnitTest {
     @Order(value = 8)
     void testUpdateUserById_ShouldFail_WhenUserIsNotFound() {
         ApiUserRequest apiUserRequest = getApiUserRequest();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        ErrorResponse exception = testRestTemplate.exchange("/api/v1/users/0", HttpMethod.PUT, new HttpEntity<>(apiUserRequest, headers), ErrorResponse.class).getBody();
+        ErrorResponse exception = exchange(HttpMethod.PUT, "/api/v1/users/0", apiUserRequest, ErrorResponse.class).getResponseBody();
 
         Assertions.assertNotNull(exception);
         Assertions.assertEquals(StockExchangeServiceErrorCode.USER_NOT_FOUND.getCode(), exception.getErrorCode());
@@ -139,7 +121,7 @@ class UserControllerIntegrationTests extends BaseUnitTest {
     @Order(value = 9)
     @Disabled("Disabled to preserve test data integrity.")
     void testDeleteUserById() {
-        String response = testRestTemplate.exchange("/api/v1/users/13", HttpMethod.DELETE, null, String.class).getBody();
+        String response = exchange(HttpMethod.DELETE, "/api/v1/users/13", null, String.class).getResponseBody();
 
         Assertions.assertEquals("User deleted successfully.", response);
     }
@@ -147,9 +129,18 @@ class UserControllerIntegrationTests extends BaseUnitTest {
     @Test
     @Order(value = 10)
     void testDeleteUserById_ShouldFail_WhenUserIsNotFound() {
-        ErrorResponse exception = testRestTemplate.exchange("/api/v1/users/0", HttpMethod.DELETE, null, ErrorResponse.class).getBody();
+        ErrorResponse exception = exchange(HttpMethod.DELETE, "/api/v1/users/0", null, ErrorResponse.class).getResponseBody();
 
         Assertions.assertNotNull(exception);
         Assertions.assertEquals(StockExchangeServiceErrorCode.USER_NOT_FOUND.getCode(), exception.getErrorCode());
+    }
+
+    private <T> EntityExchangeResult<T> exchange(HttpMethod method, String uri, Object body, Class<T> type) {
+        RestTestClient.RequestBodySpec spec = restTestClient.method(method).uri(uri).accept(MediaType.APPLICATION_JSON);
+        RestTestClient.RequestHeadersSpec<?> headersSpec = spec;
+        if (body != null) {
+            headersSpec = spec.contentType(MediaType.APPLICATION_JSON).body(body);
+        }
+        return headersSpec.exchange().returnResult(type);
     }
 }
