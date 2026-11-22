@@ -49,7 +49,7 @@ public class FirebaseConfig implements ResourceLoaderAware {
      * firebase.apps.second-app-application={"type":"service_account","project_id":"...","private_key":"..."}
      * firebase.apps.another-application=/etc/config/another-service-account.json
      * </pre>
-     */
+    */
     private Map<String, String> apps = new HashMap<>();
 
     private ResourceLoader resourceLoader;

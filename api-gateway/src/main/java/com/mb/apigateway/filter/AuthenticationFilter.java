@@ -1,7 +1,5 @@
 package com.mb.apigateway.filter;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mb.apigateway.enums.AccessType;
 import com.mb.apigateway.enums.ActivityStatus;
 import com.mb.apigateway.logging.UserActivityEvent;
@@ -29,6 +27,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.SignalType;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
 import java.time.Instant;

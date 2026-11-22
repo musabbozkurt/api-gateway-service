@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.2</version>
+        <version>4.2.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -33,15 +33,15 @@
         <hypersistence-utils-hibernate.version>3.16.0</hypersistence-utils-hibernate.version>
         <jjwt.version>0.13.0</jjwt.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
-        <springdoc-openapi-starter-webmvc-ui.version>3.2.0</springdoc-openapi-starter-webmvc-ui.version>
-        <opentelemetry-logback-appender-1.0.version>2.33.1-alpha</opentelemetry-logback-appender-1.0.version>
+        <springdoc-openapi-starter-webmvc-ui.version>3.2.1</springdoc-openapi-starter-webmvc-ui.version>
+        <opentelemetry-logback-appender-1.0.version>2.34.0-alpha</opentelemetry-logback-appender-1.0.version>
         <protobuf.version>4.36.2</protobuf.version>
         <jboss-logging.version>3.6.3.Final</jboss-logging.version>
         <newrelic-java.version>9.5.0</newrelic-java.version>
         <moneta.version>1.4.5</moneta.version>
         <jackson-datatype-moneta.version>3.3.0</jackson-datatype-moneta.version>
         <embedded-redis.version>1.4.4</embedded-redis.version>
-        <spring-cloud-dependencies.version>2025.1.4</spring-cloud-dependencies.version>
+        <spring-cloud-dependencies.version>2026.0.0</spring-cloud-dependencies.version>
         <testcontainers-bom.version>2.0.5</testcontainers-bom.version>
         <jacoco-maven-plugin.version>0.8.16</jacoco-maven-plugin.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
@@ -445,6 +445,8 @@
                 <configuration>
                     <!-- Ignore milestone, alpha, beta, RC versions by default -->
                     <rulesUri>file://${project.basedir}/../version-rules.xml</rulesUri>
+                    <!-- versions-maven-plugin 2.25+ skips pre-releases by default; version-rules.xml still blocks beta/rc/etc. -->
+                    <allowPreReleases>true</allowPreReleases>
                     <allowMajorUpdates>true</allowMajorUpdates>
                     <allowMinorUpdates>true</allowMinorUpdates>
                     <generateBackupPoms>false</generateBackupPoms>

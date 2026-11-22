@@ -1,6 +1,5 @@
 package com.mb.notificationservice.api.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mb.notificationservice.api.request.NotificationFilterRequest;
 import com.mb.notificationservice.api.request.NotificationRequest;
 import com.mb.notificationservice.api.response.NotificationDetailResponse;
@@ -28,6 +27,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
 import java.util.List;

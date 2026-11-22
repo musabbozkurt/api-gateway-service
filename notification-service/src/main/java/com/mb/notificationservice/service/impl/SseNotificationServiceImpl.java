@@ -1,8 +1,5 @@
 package com.mb.notificationservice.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.mb.notificationservice.queue.dto.NotificationEventDto;
 import com.mb.notificationservice.service.SseNotificationService;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +7,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.SerializationFeature;
 
 import java.io.IOException;
 import java.util.List;

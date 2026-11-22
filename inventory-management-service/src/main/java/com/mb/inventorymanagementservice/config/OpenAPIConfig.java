@@ -1,6 +1,5 @@
 package com.mb.inventorymanagementservice.config;
 
-import com.fasterxml.jackson.databind.JavaType;
 import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverter;
 import io.swagger.v3.core.converter.ModelConverterContext;
@@ -20,6 +19,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import tools.jackson.databind.JavaType;
 
 import javax.money.MonetaryAmount;
 import java.util.Arrays;

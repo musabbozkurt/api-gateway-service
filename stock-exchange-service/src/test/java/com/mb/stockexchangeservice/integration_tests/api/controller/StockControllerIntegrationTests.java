@@ -18,23 +18,19 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.resttestclient.TestRestTemplate;
-import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
-
-import java.util.Collections;
+import org.springframework.test.web.servlet.client.EntityExchangeResult;
+import org.springframework.test.web.servlet.client.RestTestClient;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@AutoConfigureTestRestTemplate
+@AutoConfigureRestTestClient
 @ActiveProfiles("test-containers")
 @TestMethodOrder(OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -42,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class StockControllerIntegrationTests extends BaseUnitTest {
 
     @Autowired
-    private TestRestTemplate testRestTemplate;
+    private RestTestClient restTestClient;
 
     @Autowired
     private StockService stockService;
@@ -57,27 +53,18 @@ class StockControllerIntegrationTests extends BaseUnitTest {
         apiUserAuthRequest.setUsername("admin_user");
         apiUserAuthRequest.setPassword("test1234");
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<ApiUserAuthRequest> entity = new HttpEntity<>(apiUserAuthRequest, headers);
-
         // Act
-        ResponseEntity<JwtResponse> response = testRestTemplate.exchange("/api/v1/auth/signin", HttpMethod.POST, entity, JwtResponse.class);
+        EntityExchangeResult<JwtResponse> response = exchange(HttpMethod.POST, "/api/v1/auth/signin", apiUserAuthRequest, JwtResponse.class);
 
-        JwtResponse jwtResponse = response.getBody();
+        JwtResponse jwtResponse = response.getResponseBody();
 
         // Assertions
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatus());
         assertNotNull(jwtResponse);
         String token = jwtResponse.getToken();
         assertNotNull(token);
 
-        // Create RestTemplate with custom header interceptor
-        testRestTemplate.getRestTemplate().setInterceptors(Collections.singletonList((request, body, execution) -> {
-            request.getHeaders().add("Authorization", "Bearer ".concat(token));
-            return execution.execute(request, body);
-        }));
+        restTestClient = restTestClient.mutate().defaultHeader("Authorization", "Bearer ".concat(token)).build();
     }
 
     @Test
@@ -90,80 +77,82 @@ class StockControllerIntegrationTests extends BaseUnitTest {
     @Test
     @Order(value = 2)
     void testGetAllStocks() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        EntityExchangeResult<String> response = exchange(HttpMethod.GET, "/api/v1/stock/", null, String.class);
 
-        ResponseEntity<String> response = testRestTemplate.exchange("/api/v1/stock/", HttpMethod.GET, new HttpEntity<>(headers), String.class);
-
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatus());
     }
 
     @Test
     @Order(value = 3)
     void testGetStockById() {
-        ResponseEntity<ApiStockResponse> response = testRestTemplate.getForEntity("/api/v1/stock/AAPL", ApiStockResponse.class);
+        EntityExchangeResult<ApiStockResponse> response = exchange(HttpMethod.GET, "/api/v1/stock/AAPL", null, ApiStockResponse.class);
 
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-        Assertions.assertEquals("AAPL", response.getBody().getName());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatus());
+        assertNotNull(response.getResponseBody());
+        Assertions.assertEquals("AAPL", response.getResponseBody().getName());
     }
 
     @Test
     @Order(value = 4)
     void testGetStockById_ShouldFail_WhenStockIsNotFound() {
-        ResponseEntity<ErrorResponse> response = testRestTemplate.getForEntity("/api/v1/stock/AAPLL", ErrorResponse.class);
+        EntityExchangeResult<ErrorResponse> response = exchange(HttpMethod.GET, "/api/v1/stock/AAPLL", null, ErrorResponse.class);
 
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        Assertions.assertEquals(StockExchangeServiceErrorCode.STOCK_NOT_FOUND.getCode(), response.getBody().getErrorCode());
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
+        assertNotNull(response.getResponseBody());
+        Assertions.assertEquals(StockExchangeServiceErrorCode.STOCK_NOT_FOUND.getCode(), response.getResponseBody().getErrorCode());
     }
 
     @Test
     @Order(value = 5)
     void testCreateStock() {
         ApiStockRequest apiStockRequest = getApiStockRequest();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
 
-        ResponseEntity<ApiStockResponse> response = testRestTemplate.exchange("/api/v1/stock/", HttpMethod.POST, new HttpEntity<>(apiStockRequest, headers), ApiStockResponse.class);
+        EntityExchangeResult<ApiStockResponse> response = exchange(HttpMethod.POST, "/api/v1/stock/", apiStockRequest, ApiStockResponse.class);
 
-        Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(apiStockRequest.getName(), response.getBody().getName());
-        Assertions.assertEquals(apiStockRequest.getDescription(), response.getBody().getDescription());
-        Assertions.assertEquals(apiStockRequest.getCurrentPrice(), response.getBody().getCurrentPrice());
+        Assertions.assertEquals(HttpStatus.CREATED, response.getStatus());
+        Assertions.assertNotNull(response.getResponseBody());
+        Assertions.assertEquals(apiStockRequest.getName(), response.getResponseBody().getName());
+        Assertions.assertEquals(apiStockRequest.getDescription(), response.getResponseBody().getDescription());
+        Assertions.assertEquals(apiStockRequest.getCurrentPrice(), response.getResponseBody().getCurrentPrice());
     }
 
     @Test
     @Order(value = 6)
     void testCreateStock_ShouldFail_WhenProductCodeIsAlreadyExists() {
         ApiStockRequest apiStockRequest = getApiStockRequest2();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
 
-        ResponseEntity<ErrorResponse> response = testRestTemplate.exchange("/api/v1/stock/", HttpMethod.POST, new HttpEntity<>(apiStockRequest, headers), ErrorResponse.class);
+        EntityExchangeResult<ErrorResponse> response = exchange(HttpMethod.POST, "/api/v1/stock/", apiStockRequest, ErrorResponse.class);
 
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNotNull(response.getBody());
-        Assertions.assertEquals(StockExchangeServiceErrorCode.ALREADY_EXISTS.getCode(), response.getBody().getErrorCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatus());
+        assertNotNull(response.getResponseBody());
+        Assertions.assertEquals(StockExchangeServiceErrorCode.ALREADY_EXISTS.getCode(), response.getResponseBody().getErrorCode());
     }
 
     @Test
     @Order(value = 7)
     void testDeleteStock() {
-        ResponseEntity<String> response = testRestTemplate.exchange("/api/v1/stock/3", HttpMethod.DELETE, null, String.class);
+        EntityExchangeResult<String> response = exchange(HttpMethod.DELETE, "/api/v1/stock/3", null, String.class);
 
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals("Stock deleted successfully.", response.getBody());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatus());
+        Assertions.assertEquals("Stock deleted successfully.", response.getResponseBody());
     }
 
     @Test
     @Order(value = 8)
     void testDeleteStock_ShouldFail_WhenStockIsNotFound() {
-        ResponseEntity<ErrorResponse> response = testRestTemplate.exchange("/api/v1/stock/1", HttpMethod.DELETE, null, ErrorResponse.class);
+        EntityExchangeResult<ErrorResponse> response = exchange(HttpMethod.DELETE, "/api/v1/stock/1", null, ErrorResponse.class);
 
-        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertNotNull(response.getBody());
-        Assertions.assertEquals(StockExchangeServiceErrorCode.STOCK_NOT_FOUND.getCode(), response.getBody().getErrorCode());
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatus());
+        assertNotNull(response.getResponseBody());
+        Assertions.assertEquals(StockExchangeServiceErrorCode.STOCK_NOT_FOUND.getCode(), response.getResponseBody().getErrorCode());
+    }
+
+    private <T> EntityExchangeResult<T> exchange(HttpMethod method, String uri, Object body, Class<T> type) {
+        RestTestClient.RequestBodySpec spec = restTestClient.method(method).uri(uri).accept(MediaType.APPLICATION_JSON);
+        RestTestClient.RequestHeadersSpec<?> headersSpec = spec;
+        if (body != null) {
+            headersSpec = spec.contentType(MediaType.APPLICATION_JSON).body(body);
+        }
+        return headersSpec.exchange().returnResult(type);
     }
 }

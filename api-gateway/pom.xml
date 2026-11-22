@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.2</version>
+        <version>4.2.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -19,16 +19,16 @@
         <java.version>26</java.version>
         <oauth2-oidc-sdk.version>11.39</oauth2-oidc-sdk.version>
         <aspectjweaver.version>1.9.27</aspectjweaver.version>
-        <springdoc-openapi-starter-webflux-ui.version>3.2.0</springdoc-openapi-starter-webflux-ui.version>
+        <springdoc-openapi-starter-webflux-ui.version>3.2.1</springdoc-openapi-starter-webflux-ui.version>
         <org.projectlombok.version>1.18.48</org.projectlombok.version>
-        <mockserver-client-java.version>9.2.0</mockserver-client-java.version>
-        <opentelemetry-logback-appender-1.0.version>2.33.1-alpha</opentelemetry-logback-appender-1.0.version>
+        <mockserver-client-java.version>9.4.0</mockserver-client-java.version>
+        <opentelemetry-logback-appender-1.0.version>2.34.0-alpha</opentelemetry-logback-appender-1.0.version>
         <protobuf.version>4.36.2</protobuf.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
         <!-- Aligns okio version across okhttp 4.x (from mockwebserver) and okhttp 5.x (from opentelemetry-exporter-sender-okhttp).
         Without this, okhttp 5.2.1 fails at runtime with NoSuchMethodError on Okio.socket() because the older okio 3.6.0 (from mockwebserver → okhttp 4.12.0) lacks that method. -->
         <okio.version>3.18.2</okio.version>
-        <spring-cloud.version>2025.1.4</spring-cloud.version>
+        <spring-cloud.version>2026.0.0</spring-cloud.version>
         <testcontainers-bom.version>2.0.5</testcontainers-bom.version>
         <versions-maven-plugin.version>2.25.2</versions-maven-plugin.version>
     </properties>
@@ -258,6 +258,8 @@
                 <configuration>
                     <!-- Ignore milestone, alpha, beta, RC versions by default -->
                     <rulesUri>file://${project.basedir}/../version-rules.xml</rulesUri>
+                    <!-- versions-maven-plugin 2.25+ skips pre-releases by default; version-rules.xml still blocks beta/rc/etc. -->
+                    <allowPreReleases>true</allowPreReleases>
                     <allowMajorUpdates>true</allowMajorUpdates>
                     <allowMinorUpdates>true</allowMinorUpdates>
                     <generateBackupPoms>false</generateBackupPoms>

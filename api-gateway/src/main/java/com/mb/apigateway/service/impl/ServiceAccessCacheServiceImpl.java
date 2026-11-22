@@ -1,9 +1,6 @@
 package com.mb.apigateway.service.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mb.apigateway.constant.GatewayServiceConstants;
 import com.mb.apigateway.service.ServiceAccessCacheService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +10,9 @@ import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
@@ -41,7 +41,7 @@ public class ServiceAccessCacheServiceImpl implements ServiceAccessCacheService 
                             return false;
                         }
                         return isAccessPermitted(serviceAccessEntries, serviceName, api, method, accessType);
-                    } catch (JsonProcessingException e) {
+                    } catch (JacksonException e) {
                         log.error("Failed to parse service access cache for clientId: {} Exception: {}", clientId, ExceptionUtils.getStackTrace(e));
                         return true;
                     }

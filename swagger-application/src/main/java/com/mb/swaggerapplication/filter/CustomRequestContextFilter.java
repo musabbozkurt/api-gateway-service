@@ -1,6 +1,5 @@
 package com.mb.swaggerapplication.filter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mb.swaggerapplication.context.ContextHolder;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -14,6 +13,7 @@ import org.slf4j.MDC;
 import org.springframework.core.Ordered;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 

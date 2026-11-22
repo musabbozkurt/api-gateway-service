@@ -299,10 +299,10 @@ git clone --depth 1 --filter=blob:none --sparse https://github.com/musabbozkurt/
     * Swagger: http://localhost:8080/swagger-ui.html
         * Open `Swagger` --> select `Payment Service` definition --> Click `Authorize`
             1. Enter the following credentials into the pop-up window
-                1. `username`: `developer`
-                2. `password`: `test`
-                3. `client_id`: `api-gateway-client`
-                4. `client_secret`: `PAYMENT_CLIENT_SECRET_ENV` value in the [.env](.env)
+                 1. `username`: `developer`
+                 2. `password`: `test`
+                 3. `client_id`: `api-gateway-client`
+                 4. `client_secret`: `PAYMENT_CLIENT_SECRET_ENV` value in the [.env](.env)
             2. ![img.png](img.png)
             3. Click `Authorize` to get token
             4. Click `Close` and test the services

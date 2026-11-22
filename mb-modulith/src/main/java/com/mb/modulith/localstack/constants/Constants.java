@@ -17,5 +17,5 @@ public final class Constants {
     public static final String EXCEPTION_TAG = "exception";
     public static final String SIZE_TAG = "size";
 
-    public static final String LOCALSTACK_DOCKER_IMAGE = "localstack/localstack:2026.10.4";
+    public static final String LOCALSTACK_DOCKER_IMAGE = "localstack/localstack:2026.10.8";
 }

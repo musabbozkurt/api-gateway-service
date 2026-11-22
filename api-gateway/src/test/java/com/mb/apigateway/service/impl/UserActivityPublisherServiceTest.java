@@ -1,7 +1,5 @@
 package com.mb.apigateway.service.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mb.apigateway.config.UserActivityElasticsearchProperties;
 import com.mb.apigateway.enums.ActivityStatus;
 import com.mb.apigateway.logging.UserActivityEvent;
@@ -23,6 +21,8 @@ import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -119,21 +119,21 @@ class UserActivityPublisherServiceTest {
 
         RecordedRequest put = takeRequest(HttpMethod.PUT);
         JsonNode mappings = readBody(put).path("mappings").path("properties");
-        assertThat(mappings.path(TIMESTAMP_FIELD).path("type").asText()).isEqualTo("date");
-        assertThat(mappings.path(DURATION_MS).path("type").asText()).isEqualTo("long");
+        assertThat(mappings.path(TIMESTAMP_FIELD).path("type").asString()).isEqualTo("date");
+        assertThat(mappings.path(DURATION_MS).path("type").asString()).isEqualTo("long");
 
         RecordedRequest write = takeRequest(HttpMethod.PUT);
         assertThat(write.getPath()).isEqualTo(currentIndexPath + "/_doc/req-1");
 
         JsonNode document = readBody(write);
-        assertThat(document.path(CLIENT_ID).asText()).isEqualTo("client-1");
-        assertThat(document.path(USER_ID).asText()).isEqualTo("user-1");
-        assertThat(document.path(USERNAME).asText()).isEqualTo("tester");
-        assertThat(document.path(STATUS).asText()).isEqualTo(ActivityStatus.COMPLETED.name());
-        assertThat(document.path(EVENT_TYPE).asText()).isEqualTo(USER_ACTIVITY_EVENT_TYPE);
-        assertThat(document.path(IP_ADDRESS).asText()).isEqualTo("1.1.1.1");
-        assertThat(document.path(DEVICE_INFO_HEADER).asText()).isEqualTo("JUnit-Agent");
-        assertThat(document.path(PAGE_URL_HEADER).asText()).isEqualTo("/home");
+        assertThat(document.path(CLIENT_ID).asString()).isEqualTo("client-1");
+        assertThat(document.path(USER_ID).asString()).isEqualTo("user-1");
+        assertThat(document.path(USERNAME).asString()).isEqualTo("tester");
+        assertThat(document.path(STATUS).asString()).isEqualTo(ActivityStatus.COMPLETED.name());
+        assertThat(document.path(EVENT_TYPE).asString()).isEqualTo(USER_ACTIVITY_EVENT_TYPE);
+        assertThat(document.path(IP_ADDRESS).asString()).isEqualTo("1.1.1.1");
+        assertThat(document.path(DEVICE_INFO_HEADER).asString()).isEqualTo("JUnit-Agent");
+        assertThat(document.path(PAGE_URL_HEADER).asString()).isEqualTo("/home");
         assertThat(document.path(DURATION_MS).asLong()).isEqualTo(1000L);
         assertThat(document.path(HTTP_STATUS).asInt()).isEqualTo(HttpStatus.OK.value());
         assertThat(document.hasNonNull(TIMESTAMP_FIELD)).isTrue();
@@ -159,7 +159,7 @@ class UserActivityPublisherServiceTest {
         RecordedRequest second = takeRequest(HttpMethod.PUT);
 
         // Assertions
-        assertThat(readBody(first).path(IP_ADDRESS).asText()).isEqualTo("10.0.0.7");
+        assertThat(readBody(first).path(IP_ADDRESS).asString()).isEqualTo("10.0.0.7");
         assertThat(second.getHeader(HttpHeaders.AUTHORIZATION)).isNull();
         assertThat(server.getRequestCount()).isEqualTo(4);
     }
@@ -505,7 +505,7 @@ class UserActivityPublisherServiceTest {
         assertThat(server.takeRequest(NO_REQUEST_WAIT_MILLIS, TimeUnit.MILLISECONDS)).isNull();
     }
 
-    private JsonNode readBody(RecordedRequest request) throws IOException {
+    private JsonNode readBody(RecordedRequest request) {
         return OBJECT_MAPPER.readTree(request.getBody().readUtf8());
     }
 

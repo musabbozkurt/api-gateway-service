@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.2</version>
+        <version>4.2.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -22,13 +22,13 @@
         <java.version>26</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <springdoc-openapi-starter-webmvc-ui.version>3.2.0</springdoc-openapi-starter-webmvc-ui.version>
+        <springdoc-openapi-starter-webmvc-ui.version>3.2.1</springdoc-openapi-starter-webmvc-ui.version>
         <org.projectlombok.version>1.18.48</org.projectlombok.version>
-        <opentelemetry-logback-appender-1.0.version>2.33.1-alpha</opentelemetry-logback-appender-1.0.version>
+        <opentelemetry-logback-appender-1.0.version>2.34.0-alpha</opentelemetry-logback-appender-1.0.version>
         <protobuf.version>4.36.2</protobuf.version>
         <logstash-logback-encoder.version>9.0</logstash-logback-encoder.version>
         <moneta.version>1.4.5</moneta.version>
-        <spring-cloud.version>2025.1.4</spring-cloud.version>
+        <spring-cloud.version>2026.0.0</spring-cloud.version>
         <skipAot>true</skipAot>
         <versions-maven-plugin.version>2.25.2</versions-maven-plugin.version>
     </properties>
@@ -201,6 +201,8 @@
                 <configuration>
                     <!-- Ignore milestone, alpha, beta, RC versions by default -->
                     <rulesUri>file://${project.basedir}/../version-rules.xml</rulesUri>
+                    <!-- versions-maven-plugin 2.25+ skips pre-releases by default; version-rules.xml still blocks beta/rc/etc. -->
+                    <allowPreReleases>true</allowPreReleases>
                     <allowMajorUpdates>true</allowMajorUpdates>
                     <allowMinorUpdates>true</allowMinorUpdates>
                     <generateBackupPoms>false</generateBackupPoms>
